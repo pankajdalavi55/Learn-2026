@@ -26,34 +26,34 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                         JUnit 5 Architecture                                     │
-│                                                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────────┐   │
-│  │                         JUnit Platform                                   │   │
-│  │  • Foundation for launching testing frameworks                          │   │
-│  │  • TestEngine API for building test frameworks                          │   │
-│  │  • Console Launcher, IDE & build tool support                           │   │
-│  └─────────────────────────────────────────────────────────────────────────┘   │
-│                                    │                                             │
+│                         JUnit 5 Architecture                                    │
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                         JUnit Platform                                  │    │
+│  │  • Foundation for launching testing frameworks                          │    │
+│  │  • TestEngine API for building test frameworks                          │    │
+│  │  • Console Launcher, IDE & build tool support                           │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                            │
 │              ┌─────────────────────┼─────────────────────┐                      │
 │              │                     │                     │                      │
 │              ▼                     ▼                     ▼                      │
-│  ┌─────────────────────┐  ┌─────────────────┐  ┌─────────────────────┐         │
-│  │   JUnit Jupiter     │  │  JUnit Vintage  │  │  Third-party        │         │
-│  │  (JUnit 5 tests)    │  │ (JUnit 3/4)     │  │  (Spock, etc.)      │         │
-│  │                     │  │                 │  │                     │         │
-│  │  • New programming  │  │  • Backward     │  │  • Custom engines   │         │
-│  │    model            │  │    compatibility│  │                     │         │
-│  │  • Extension model  │  │                 │  │                     │         │
-│  └─────────────────────┘  └─────────────────┘  └─────────────────────┘         │
-│                                                                                  │
-│  DEPENDENCY:                                                                     │
-│  <dependency>                                                                    │
+│  ┌─────────────────────┐  ┌─────────────────┐  ┌─────────────────────┐          │
+│  │   JUnit Jupiter     │  │  JUnit Vintage  │  │  Third-party        │          │
+│  │  (JUnit 5 tests)    │  │ (JUnit 3/4)     │  │  (Spock, etc.)      │          │
+│  │                     │  │                 │  │                     │          │
+│  │  • New programming  │  │  • Backward     │  │  • Custom engines   │          │
+│  │    model            │  │    compatibility│  │                     │          │
+│  │  • Extension model  │  │                 │  │                     │          │
+│  └─────────────────────┘  └─────────────────┘  └─────────────────────┘          │
+│                                                                                 │
+│  DEPENDENCY:                                                                    │
+│  <dependency>                                                                   │
 │      <groupId>org.junit.jupiter</groupId>                                       │
 │      <artifactId>junit-jupiter</artifactId>                                     │
 │      <scope>test</scope>                                                        │
-│  </dependency>                                                                   │
-│                                                                                  │
+│  </dependency>                                                                  │
+│                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -572,28 +572,28 @@ class RepeatedTestsDemo {
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           Why We Need Mocking                                    │
-│                                                                                  │
+│                           Why We Need Mocking                                   │
+│                                                                                 │
 │  PROBLEM: Unit testing a class with dependencies                                │
-│                                                                                  │
+│                                                                                 │
 │  ┌─────────────────┐                                                            │
 │  │  OrderService   │                                                            │
 │  │                 │                                                            │
-│  │  createOrder()  │──depends on──▶ ┌──────────────┐                           │
-│  │                 │                 │ UserClient   │──▶ External API           │
+│  │  createOrder()  │──depends on──▶ ┌──────────────┐                            │
+│  │                 │                │ UserClient   │──▶ External API            │
 │  │                 │──depends on──▶ │ PaymentGateway──▶ Payment Provider        │
-│  │                 │──depends on──▶ │ EmailService │──▶ SMTP Server            │
-│  │                 │──depends on──▶ │ Database     │──▶ PostgreSQL             │
-│  └─────────────────┘                 └──────────────┘                           │
-│                                                                                  │
+│  │                 │──depends on──▶ │ EmailService │──▶ SMTP Server             │
+│  │                 │──depends on──▶ │ Database     │──▶ PostgreSQL              │
+│  └─────────────────┘                └──────────────┘                            │
+│                                                                                 │
 │  Issues with real dependencies:                                                 │
 │  • Slow (network calls, DB queries)                                             │
 │  • Unreliable (external services might be down)                                 │
 │  • Hard to simulate errors                                                      │
 │  • Side effects (sends real emails, charges cards)                              │
-│                                                                                  │
+│                                                                                 │
 │  SOLUTION: Mock the dependencies                                                │
-│                                                                                  │
+│                                                                                 │
 │  ┌─────────────────┐                                                            │
 │  │  OrderService   │                                                            │
 │  │                 │──uses──▶ ┌──────────────────┐                              │
@@ -604,7 +604,7 @@ class RepeatedTestsDemo {
 │  │                 │          │  • Predictable   │                              │
 │  └─────────────────┘          │  • No side effects                              │
 │                               └──────────────────┘                              │
-│                                                                                  │
+│                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1037,32 +1037,32 @@ class BDDStyleDemo {
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                    Spring Boot Test Annotations                                  │
-│                                                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────────┐   │
-│  │                     @SpringBootTest                                      │   │
-│  │  • Loads full application context                                       │   │
-│  │  • Slowest but most comprehensive                                       │   │
-│  │  • Use for integration tests                                            │   │
-│  └─────────────────────────────────────────────────────────────────────────┘   │
-│                                    │                                             │
+│                    Spring Boot Test Annotations                                 │
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                     @SpringBootTest                                     │    │
+│  │  • Loads full application context                                       │    │
+│  │  • Slowest but most comprehensive                                       │    │
+│  │  • Use for integration tests                                            │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                            │
 │  ┌──────────────────┬──────────────┴──────────────┬──────────────────┐          │
 │  │                  │                             │                  │          │
 │  ▼                  ▼                             ▼                  ▼          │
-│  ┌────────────┐  ┌────────────┐  ┌────────────────┐  ┌────────────────┐        │
-│  │@WebMvcTest │  │@DataJpaTest│  │@WebFluxTest    │  │@JsonTest       │        │
-│  │            │  │            │  │                │  │                │        │
-│  │ Controllers│  │ Repository │  │ Reactive       │  │ JSON           │        │
-│  │ only       │  │ only       │  │ Controllers    │  │ serialization  │        │
-│  │ MockMvc    │  │ Embedded DB│  │ WebTestClient  │  │                │        │
-│  └────────────┘  └────────────┘  └────────────────┘  └────────────────┘        │
-│                                                                                  │
+│  ┌────────────┐  ┌────────────┐  ┌────────────────┐  ┌────────────────┐         │
+│  │@WebMvcTest │  │@DataJpaTest│  │@WebFluxTest    │  │@JsonTest       │         │
+│  │            │  │            │  │                │  │                │         │
+│  │ Controllers│  │ Repository │  │ Reactive       │  │ JSON           │         │
+│  │ only       │  │ only       │  │ Controllers    │  │ serialization  │         │
+│  │ MockMvc    │  │ Embedded DB│  │ WebTestClient  │  │                │         │
+│  └────────────┘  └────────────┘  └────────────────┘  └────────────────┘         │
+│                                                                                 │
 │  OTHER SLICE TESTS:                                                             │
 │  @RestClientTest    - REST client testing                                       │
 │  @JdbcTest          - JDBC without full JPA                                     │
 │  @DataMongoTest     - MongoDB repository testing                                │
 │  @DataRedisTest     - Redis testing                                             │
-│                                                                                  │
+│                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -2292,31 +2292,31 @@ class AsyncTestingDemo {
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                      Test Coverage Guidelines                                    │
-│                                                                                  │
-│  WHAT TO TEST:                                                                   │
+│                      Test Coverage Guidelines                                   │
+│                                                                                 │
+│  WHAT TO TEST:                                                                  │
 │  ✓ Business logic and calculations                                              │
 │  ✓ Edge cases and boundary conditions                                           │
 │  ✓ Error handling and exceptions                                                │
 │  ✓ Integration points (APIs, databases)                                         │
 │  ✓ Security-sensitive code                                                      │
-│                                                                                  │
-│  WHAT NOT TO TEST:                                                               │
+│                                                                                 │
+│  WHAT NOT TO TEST:                                                              │
 │  ✗ Simple getters/setters                                                       │
 │  ✗ Configuration classes                                                        │
 │  ✗ Third-party library code                                                     │
 │  ✗ Generated code                                                               │
-│                                                                                  │
-│  COVERAGE TARGETS:                                                               │
+│                                                                                 │
+│  COVERAGE TARGETS:                                                              │
 │  • Unit Tests: 80%+ line coverage for business logic                            │
 │  • Integration Tests: Critical paths and workflows                              │
 │  • End-to-End: Happy path + main failure scenarios                              │
-│                                                                                  │
-│  FOCUS ON:                                                                       │
+│                                                                                 │
+│  FOCUS ON:                                                                      │
 │  • Branch coverage over line coverage                                           │
 │  • Testing behavior, not implementation                                         │
 │  • Meaningful assertions over coverage percentage                               │
-│                                                                                  │
+│                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -4720,61 +4720,61 @@ void shouldCreateProduct() {
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                        CRUD Testing Layers Summary                               │
+│                        CRUD Testing Layers Summary                              │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│  LAYER           ANNOTATION          WHAT'S TESTED           DEPENDENCIES        │
+│                                                                                 │
+│  LAYER           ANNOTATION          WHAT'S TESTED           DEPENDENCIES       │
 │  ─────────────────────────────────────────────────────────────────────────────  │
 │  Repository      @DataJpaTest        JPA queries, CRUD       H2/Testcontainers  │
 │                                      Entity mappings         Auto-rollback      │
-│                                                                                  │
+│                                                                                 │
 │  Service         @ExtendWith         Business logic          @Mock Repository   │
 │                  (MockitoExtension)  Validation rules        @InjectMocks       │
-│                                      Exception handling                          │
-│                                                                                  │
+│                                      Exception handling                         │
+│                                                                                 │
 │  Controller      @WebMvcTest         HTTP status codes       @MockBean Service  │
 │                                      Request validation      MockMvc            │
-│                                      JSON serialization                          │
-│                                                                                  │
+│                                      JSON serialization                         │
+│                                                                                 │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│  TEST STRUCTURE (AAA Pattern):                                                   │
-│  ┌──────────────────────────────────────────────────────────────────────────┐  │
-│  │  @Test                                                                    │  │
-│  │  void shouldDoSomething() {                                              │  │
-│  │      // Given (Arrange) - Set up test data & mocks                       │  │
-│  │      given(repository.findById(1L)).willReturn(Optional.of(entity));    │  │
-│  │                                                                          │  │
-│  │      // When (Act) - Execute the method under test                       │  │
-│  │      Result result = service.doSomething(1L);                           │  │
-│  │                                                                          │  │
-│  │      // Then (Assert) - Verify results & interactions                    │  │
-│  │      assertThat(result).isNotNull();                                    │  │
-│  │      then(repository).should().findById(1L);                            │  │
-│  │  }                                                                       │  │
-│  └──────────────────────────────────────────────────────────────────────────┘  │
-│                                                                                  │
+│                                                                                 │
+│  TEST STRUCTURE (AAA Pattern):                                                  │
+│  ┌──────────────────────────────────────────────────────────────────────────┐   │
+│  │  @Test                                                                   │   │
+│  │  void shouldDoSomething() {                                              │   │
+│  │      // Given (Arrange) - Set up test data & mocks                       │   │
+│  │      given(repository.findById(1L)).willReturn(Optional.of(entity));     │   │
+│  │                                                                          │   │
+│  │      // When (Act) - Execute the method under test                       │   │
+│  │      Result result = service.doSomething(1L);                            │   │
+│  │                                                                          │   │
+│  │      // Then (Assert) - Verify results & interactions                    │   │
+│  │      assertThat(result).isNotNull();                                     │   │
+│  │      then(repository).should().findById(1L);                             │   │
+│  │  }                                                                       │   │
+│  └──────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                 │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│  KEY ASSERTIONS:                                                                 │
+│                                                                                 │
+│  KEY ASSERTIONS:                                                                │
 │  ─────────────────────────────────────────────────────────────────────────────  │
 │  assertThat(result).isNotNull();                                                │
-│  assertThat(result.getName()).isEqualTo("expected");                           │
+│  assertThat(result.getName()).isEqualTo("expected");                            │
 │  assertThat(list).hasSize(3);                                                   │
-│  assertThatThrownBy(() -> service.method()).isInstanceOf(Exception.class);     │
-│                                                                                  │
-│  MOCK SETUP:                                                                     │
+│  assertThatThrownBy(() -> service.method()).isInstanceOf(Exception.class);      │
+│                                                                                 │
+│  MOCK SETUP:                                                                    │
 │  ─────────────────────────────────────────────────────────────────────────────  │
 │  given(mock.method()).willReturn(value);      // Return value                   │
 │  given(mock.method()).willThrow(exception);   // Throw exception                │
 │  willDoNothing().given(mock).voidMethod();    // Void methods                   │
-│                                                                                  │
-│  MOCK VERIFICATION:                                                              │
+│                                                                                 │
+│  MOCK VERIFICATION:                                                             │
 │  ─────────────────────────────────────────────────────────────────────────────  │
 │  then(mock).should().method();                // Called once                    │
 │  then(mock).should(times(2)).method();        // Called twice                   │
 │  then(mock).should(never()).method();         // Never called                   │
-│                                                                                  │
+│                                                                                 │
 │  HTTP STATUS CODES (Controller Tests):                                          │
 │  ─────────────────────────────────────────────────────────────────────────────  │
 │  200 OK          - GET successful                                               │
@@ -4783,7 +4783,7 @@ void shouldCreateProduct() {
 │  400 BAD REQUEST - Validation failed                                            │
 │  404 NOT FOUND   - Resource not found                                           │
 │  415 UNSUPPORTED - Wrong Content-Type                                           │
-│                                                                                  │
+│                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -4835,3 +4835,4 @@ atLeastOnce()   // At least once
 *This completes the JUnit 5 & Mockito Testing Guide.*
 
 *Last Updated: February 2026*
+
