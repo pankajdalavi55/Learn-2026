@@ -1098,36 +1098,36 @@ Every HTTP request in a Spring Boot web application follows a precise path throu
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                   HTTP REQUEST LIFECYCLE                               │
+│                   HTTP REQUEST LIFECYCLE                                │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  Client                    Server                                       │
 │    │                                                                    │
-│    │  GET /api/users/123                                               │
-│    ├──────────────────────────────────────────────────────────▶│                    │
-│    │                         │  1. Servlet Container (Tomcat)          │
+│    │  GET /api/users/123                                                │
+│    ├──────────────────────────────────────────────────────────▶│        │
+│    │                         │  1. Servlet Container (Tomcat)           │
 │    │                         ▼  2. Filter Chain                         │
-│    │                    ┌─────┴─────┐                                    │
-│    │                    │  Filters  │ Auth, CORS, Logging              │
-│    │                    └─────┬─────┘                                    │
-│    │                          ▼  3. DispatcherServlet                    │
-│    │                    ┌─────┴─────┐                                    │
-│    │                    │ Dispatch │ HandlerMapping lookup             │
-│    │                    └─────┬─────┘                                    │
-│    │                          ▼  4. HandlerInterceptors                  │
-│    │                    ┌─────┴─────┐                                    │
-│    │                    │Intercept│ preHandle, postHandle             │
-│    │                    └─────┬─────┘                                    │
-│    │                          ▼  5. Controller Method                    │
-│    │                    ┌─────┴─────┐                                    │
-│    │                    │@GetMap │ Your business logic               │
-│    │                    └─────┬─────┘                                    │
-│    │                          ▼  6. Response Processing                  │
-│    │                    ┌─────┴─────┐                                    │
-│    │                    │HttpMsg │ Object → JSON (Jackson)           │
-│    │                    └─────┬─────┘                                    │
-│    │  200 OK {"id":123}       │                                        │
-│    ◀─────────────────────────────────┴──────────────────────────┘                    │
+│    │                    ┌─────┴─────┐                                   │
+│    │                    │  Filters  │ Auth, CORS, Logging               │
+│    │                    └─────┬─────┘                                   │
+│    │                          ▼  3. DispatcherServlet                   │
+│    │                    ┌─────┴─────┐                                   │
+│    │                    │ Dispatch  │ HandlerMapping lookup             │
+│    │                    └─────┬─────┘                                   │
+│    │                          ▼  4. HandlerInterceptors                 │
+│    │                    ┌─────┴─────┐                                   │
+│    │                    │Intercept. │ preHandle, postHandle             │
+│    │                    └─────┬─────┘                                   │
+│    │                          ▼  5. Controller Method                   │
+│    │                    ┌─────┴─────┐                                   │
+│    │                    │@GetMap    │ Your business logic               │
+│    │                    └─────┬─────┘                                   │
+│    │                          ▼  6. Response Processing                 │
+│    │                    ┌─────┴─────┐                                   │
+│    │                    │HttpMsg    │ Object → JSON (Jackson)           │
+│    │                    └─────┬─────┘                                   │
+│    │  200 OK {"id":123}       │                                         │
+│    ◀─────────────────────────────────┴──────────────────────────┘       │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1136,8 +1136,8 @@ Every HTTP request in a Spring Boot web application follows a precise path throu
 **Traditional Deployment Model (Pre-Spring Boot):**
 ```
 ┌─────────────────┐        ┌─────────────────┐        ┌─────────────────┐
-│   Build WAR    │ deploy │ Install & Config │ deploy │    Production   │
-│    artifact    │───────▶│  Tomcat/JBoss    │───────▶│     Server      │
+│   Build WAR     │ deploy │ Install & Config│ deploy │    Production   │
+│    artifact     │───────▶│  Tomcat/JBoss   │───────▶│     Server      │
 └─────────────────┘        └─────────────────┘        └─────────────────┘
                          Separate install          Version conflicts
                          Admin required            Complex upgrades
@@ -1146,8 +1146,8 @@ Every HTTP request in a Spring Boot web application follows a precise path throu
 **Spring Boot Embedded Model:**
 ```
 ┌─────────────────┐        ┌─────────────────┐
-│  Build FAT JAR │        │    Production   │
-│  (Server +App) │───────▶│     Server      │
+│  Build FAT JAR  │        │    Production   │
+│  (Server +App)  │───────▶│     Server      │
 └─────────────────┘        └─────────────────┘
   java -jar app.jar       No separate install
   Single artifact         Same everywhere
