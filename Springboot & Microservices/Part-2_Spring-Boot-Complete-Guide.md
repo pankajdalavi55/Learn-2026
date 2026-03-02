@@ -210,13 +210,13 @@ Spring Boot naturally aligns with [12-Factor App](https://12factor.net) methodol
 │              Factor III: Config — Store Config in Environment           │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  ❌ WRONG: Hardcoded values                                            │
-│  String dbUrl = "jdbc:postgresql://localhost:5432/mydb";               │
+│  ❌ WRONG: Hardcoded values                                             │
+│  String dbUrl = "jdbc:postgresql://localhost:5432/mydb";                │
 │                                                                         │
-│  ❌ WRONG: Config in code (even in constants)                          │
-│  public static final String DB_URL = "...";                            │
+│  ❌ WRONG: Config in code (even in constants)                           │
+│  public static final String DB_URL = "...";                             │
 │                                                                         │
-│  ✅ RIGHT: Externalized, environment-specific                          │
+│  ✅ RIGHT: Externalized, environment-specific                           │
 │  spring.datasource.url=${DATABASE_URL}                                  │
 │                                                                         │
 │  Benefits:                                                              │
@@ -229,11 +229,11 @@ Spring Boot naturally aligns with [12-Factor App](https://12factor.net) methodol
 │              Factor VI: Processes — Execute App as Stateless            │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  ❌ WRONG: Storing state in memory                                     │
+│  ❌ WRONG: Storing state in memory                                      │
 │  private Map<String, ShoppingCart> carts = new HashMap<>();             │
 │  → Lost on restart, not shared across instances                         │
 │                                                                         │
-│  ✅ RIGHT: External state stores                                       │
+│  ✅ RIGHT: External state stores                                        │
 │  @Autowired RedisTemplate<String, ShoppingCart> cartStore;              │
 │  → Survives restarts, shared across instances                           │
 │                                                                         │
@@ -401,19 +401,19 @@ Spring Boot detects:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    AUTO-CONFIGURATION MENTAL MODEL                       │
+│                    AUTO-CONFIGURATION MENTAL MODEL                      │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│    Auto-Config = Pattern Matching + Conditional Creation                 │
-│                                                                          │
+│                                                                         │
+│    Auto-Config = Pattern Matching + Conditional Creation                │
+│                                                                         │
 │    IF (HikariCP.class is on classpath)                                  │
 │       AND (no DataSource bean exists)                                   │
 │       AND (datasource.url property is set)                              │
 │    THEN                                                                 │
 │       → Create HikariDataSource bean with properties                    │
-│                                                                          │
-│    The "magic" is just well-organized IF-THEN rules!                   │
-│                                                                          │
+│                                                                         │
+│    The "magic" is just well-organized IF-THEN rules!                    │
+│                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -432,8 +432,8 @@ Spring Boot detects:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                        APPLICATION STARTUP                               │
-│                              │                                           │
+│                        APPLICATION STARTUP                              │
+│                              │                                          │
 │        ┌─────────────────────┴─────────────────────┐                    │
 │        │                                           │                    │
 │        ▼                                           ▼                    │
@@ -445,10 +445,10 @@ Spring Boot detects:
 │   @Controller, @Component                  classes from JARs            │
 │        │                                           │                    │
 │        └─────────────────────┬─────────────────────┘                    │
-│                              │                                           │
-│                              ▼                                           │
-│                    ApplicationContext                                    │
-│                    (All beans merged)                                    │
+│                              │                                          │
+│                              ▼                                          │
+│                    ApplicationContext                                   │
+│                    (All beans merged)                                   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1969,27 +1969,27 @@ Observability is the ability to understand the internal state of a system by exa
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    THREE PILLARS OF OBSERVABILITY                        │
+│                    THREE PILLARS OF OBSERVABILITY                       │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐   │
-│  │      LOGS         │  │     METRICS      │  │     TRACES       │   │
-│  ├───────────────────┤  ├───────────────────┤  ├───────────────────┤   │
-│  │ Discrete events   │  │ Numeric time-    │  │ Request flow     │   │
-│  │ with context      │  │ series data      │  │ across services  │   │
-│  │                   │  │                   │  │                   │   │
-│  │ "Order 123        │  │ request_count=N  │  │ A→B→C→D          │   │
-│  │  created for      │  │ latency_p99=50ms │  │ with timing      │   │
-│  │  user 456"        │  │ error_rate=0.1%  │  │ at each hop      │   │
-│  ├───────────────────┤  ├───────────────────┤  ├───────────────────┤   │
-│  │ Tool: ELK,Loki    │  │ Tool: Prometheus │  │ Tool: Jaeger,    │   │
-│  │                   │  │       + Grafana  │  │       Zipkin     │   │
-│  └───────────────────┘  └───────────────────┘  └───────────────────┘   │
+│  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐    │
+│  │      LOGS         │  │     METRICS       │  │     TRACES        │    │
+│  ├───────────────────┤  ├───────────────────┤  ├───────────────────┤    │
+│  │ Discrete events   │  │ Numeric time-     │  │ Request flow      │    │
+│  │ with context      │  │ series data       │  │ across services   │    │
+│  │                   │  │                   │  │                   │    │
+│  │ "Order 123        │  │ request_count=N   │  │ A→B→C→D           │    │
+│  │  created for      │  │ latency_p99=50ms  │  │ with timing       │    │
+│  │  user 456"        │  │ error_rate=0.1%   │  │ at each hop       │    │
+│  ├───────────────────┤  ├───────────────────┤  ├───────────────────┤    │
+│  │ Tool: ELK,Loki    │  │ Tool: Prometheus  │  │ Tool: Jaeger,     │    │
+│  │                   │  │       + Grafana   │  │       Zipkin      │    │
+│  └───────────────────┘  └───────────────────┘  └───────────────────┘    │
 │                                                                         │
 │  Use Cases:                                                             │
-│  LOGS    → Debug specific errors, audit trails                         │
-│  METRICS → Dashboards, alerting, capacity planning                     │
-│  TRACES  → Find bottlenecks, understand request flow                   │
+│  LOGS    → Debug specific errors, audit trails                          │
+│  METRICS → Dashboards, alerting, capacity planning                      │
+│  TRACES  → Find bottlenecks, understand request flow                    │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -2011,12 +2011,12 @@ Observability is the ability to understand the internal state of a system by exa
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  RED Method (Services)          USE Method (Resources)                  │
-│  ──────────────────────          ──────────────────────                  │
-│  • API endpoints                 • CPU, Memory                            │
-│  • Microservices                 • Disk I/O                               │
-│  • Web applications              • Network bandwidth                      │
-│  • User-facing systems           • Connection pools                       │
-│                                  • Thread pools                           │
+│  ──────────────────────          ──────────────────────                 │
+│  • API endpoints                 • CPU, Memory                          │
+│  • Microservices                 • Disk I/O                             │
+│  • Web applications              • Network bandwidth                    │
+│  • User-facing systems           • Connection pools                     │
+│                                  • Thread pools                         │
 │                                                                         │
 │  Spring Boot Actuator provides metrics for BOTH methods!                │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -2037,21 +2037,21 @@ Observability is the ability to understand the internal state of a system by exa
 │              PROBE DECISION GUIDE                                       │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  LIVENESS: Include ONLY internal app health                            │
+│  LIVENESS: Include ONLY internal app health                             │
 │  • JVM running?                                                         │
 │  • App not deadlocked?                                                  │
 │  • Critical threads alive?                                              │
 │                                                                         │
 │  DO NOT include external dependencies!                                  │
-│  ❌ Database down → liveness fails → app restarts → still down        │
+│  ❌ Database down → liveness fails → app restarts → still down          │
 │     = Restart loop!                                                     │
 │                                                                         │
-│  READINESS: Include dependencies needed to serve traffic               │
+│  READINESS: Include dependencies needed to serve traffic                │
 │  • Database reachable?                                                  │
 │  • Cache warmed up?                                                     │
 │  • Initial data loaded?                                                 │
 │                                                                         │
-│  ✅ Database down → readiness fails → no traffic → wait for recovery   │
+│  ✅ Database down → readiness fails → no traffic → wait for recovery    │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -2344,28 +2344,28 @@ Tests are an investment with compounding returns:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                      TEST DOUBLES EXPLAINED                              │
+│                      TEST DOUBLES EXPLAINED                             │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  DUMMY: Passed but never used                                          │
-│  ─────                                                                   │
+│  DUMMY: Passed but never used                                           │
+│  ─────                                                                  │
 │  new Service(dummyLogger)  // Logger required but not tested            │
 │                                                                         │
-│  STUB: Returns predefined values                                       │
-│  ────                                                                    │
-│  when(userRepo.findById(1L)).thenReturn(Optional.of(testUser));        │
+│  STUB: Returns predefined values                                        │
+│  ────                                                                   │
+│  when(userRepo.findById(1L)).thenReturn(Optional.of(testUser));         │
 │                                                                         │
-│  MOCK: Verifies interactions                                           │
-│  ────                                                                    │
-│  verify(emailService, times(1)).sendWelcomeEmail(user);                │
+│  MOCK: Verifies interactions                                            │
+│  ────                                                                   │
+│  verify(emailService, times(1)).sendWelcomeEmail(user);                 │
 │                                                                         │
-│  SPY: Real object with selective overrides                             │
-│  ───                                                                     │
+│  SPY: Real object with selective overrides                              │
+│  ───                                                                    │
 │  UserService spy = spy(realService);                                    │
-│  doReturn(cachedUser).when(spy).expensiveOperation();                  │
+│  doReturn(cachedUser).when(spy).expensiveOperation();                   │
 │                                                                         │
-│  FAKE: Working implementation (simplified)                             │
-│  ────                                                                    │
+│  FAKE: Working implementation (simplified)                              │
+│  ────                                                                   │
 │  class FakeUserRepository implements UserRepository {                   │
 │      private Map<Long, User> db = new HashMap<>();                      │
 │  }                                                                      │
@@ -2415,11 +2415,11 @@ void shouldCreateUserWhenValidRequest() {
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  @SpringBootTest                    @WebMvcTest                         │
-│  ────────────────                    ────────────                         │
+│  ────────────────                    ────────────                       │
 │  Loads EVERYTHING:                  Loads ONLY web layer:               │
-│  • All @Controller                  • @Controller under test             │
-│  • All @Service                     • MockMvc                            │
-│  • All @Repository                  • Web-specific beans                 │
+│  • All @Controller                  • @Controller under test            │
+│  • All @Service                     • MockMvc                           │
+│  • All @Repository                  • Web-specific beans                │
 │  • Database connection                                                  │
 │  • Message queues                   Services → @MockBean                │
 │  • External services                                                    │
@@ -3074,17 +3074,17 @@ Peter Deutsch identified 8 fallacies that developers often believe about network
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│          THE 8 FALLACIES OF DISTRIBUTED COMPUTING                      │
+│          THE 8 FALLACIES OF DISTRIBUTED COMPUTING                       │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  1. The network is reliable        → Use retries, circuit breakers     │
-│  2. Latency is zero                → Set timeouts, async operations    │
-│  3. Bandwidth is infinite          → Paginate, compress, cache         │
-│  4. The network is secure          → TLS everywhere, zero trust        │
-│  5. Topology doesn't change        → Service discovery, DNS            │
-│  6. There is one administrator     → Automation, GitOps                │
-│  7. Transport cost is zero         → Minimize serialization            │
-│  8. The network is homogeneous     → Standard protocols (HTTP, gRPC)   │
+│  1. The network is reliable        → Use retries, circuit breakers      │
+│  2. Latency is zero                → Set timeouts, async operations     │
+│  3. Bandwidth is infinite          → Paginate, compress, cache          │
+│  4. The network is secure          → TLS everywhere, zero trust         │
+│  5. Topology doesn't change        → Service discovery, DNS             │
+│  6. There is one administrator     → Automation, GitOps                 │
+│  7. Transport cost is zero         → Minimize serialization             │
+│  8. The network is homogeneous     → Standard protocols (HTTP, gRPC)    │
 │                                                                         │
 │  Spring Boot helps address these via:                                   │
 │  • Resilience4j (circuit breakers, retries)                             │
@@ -3147,24 +3147,24 @@ CA: Not possible in distributed systems (partitions WILL happen)
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │         ┌────────────┐                                                  │
-│         │   CLOSED   │ ◀── Normal operation                            │
-│         │ (Healthy)  │     Requests pass through                       │
+│         │   CLOSED   │ ◀── Normal operation                             │
+│         │ (Healthy)  │     Requests pass through                        │
 │         └─────┬──────┘                                                  │
-│               │ Failures exceed threshold                              │
+│               │ Failures exceed threshold                               │
 │               ▼                                                         │
 │         ┌────────────┐                                                  │
 │         │    OPEN    │ ◀── Circuit tripped                              │
-│         │  (Failing) │     Requests fail fast                          │
-│         └─────┬──────┘     (no calls to failing service)               │
-│               │ Wait timeout                                           │
+│         │  (Failing) │     Requests fail fast                           │
+│         └─────┬──────┘     (no calls to failing service)                │
+│               │ Wait timeout                                            │
 │               ▼                                                         │
 │         ┌────────────┐                                                  │
-│         │ HALF-OPEN  │ ◀── Testing recovery                            │
-│         │ (Testing)  │     Allow limited requests                      │
+│         │ HALF-OPEN  │ ◀── Testing recovery                             │
+│         │ (Testing)  │     Allow limited requests                       │
 │         └─────┬──────┘                                                  │
-│               │                                                        │
-│               ├─── Success → Back to CLOSED                            │
-│               └─── Failure → Back to OPEN                              │
+│               │                                                         │
+│               ├─── Success → Back to CLOSED                             │
+│               └─── Failure → Back to OPEN                               │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -3321,14 +3321,14 @@ logging:
 │             THE DEPLOYMENT PROBLEM (Before Containers)                  │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  Developer Laptop        Staging Server        Production              │
-│  ────────────────        ──────────────        ──────────              │
+│  Developer Laptop        Staging Server        Production               │
+│  ────────────────        ──────────────        ──────────               │
 │  Java 21                 Java 17               Java 11                  │
 │  macOS                   Ubuntu 22             RHEL 8                   │
 │  OpenSSL 3.0             OpenSSL 1.1           OpenSSL 1.0              │
 │  glibc 2.35              glibc 2.31            glibc 2.28               │
 │                                                                         │
-│  App works ✅             Subtle bugs ⚠         Crash! ❌                 │
+│  App works ✅             Subtle bugs ⚠         Crash! ❌                │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -3339,22 +3339,22 @@ logging:
 │                     CONTAINER = PORTABLE UNIT                           │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  Container Image = App + Runtime + Dependencies + Config               │
+│  Container Image = App + Runtime + Dependencies + Config                │
 │                                                                         │
-│  ┌───────────────────────────────────────────────────────────────┐   │
-│  │  Docker Image: myapp:1.0.0                                       │   │
-│  │  ┌─────────────────────────────────────────────────────────┐    │   │
-│  │  │  Your Application (app.jar)                                │    │   │
-│  │  ├─────────────────────────────────────────────────────────┤    │   │
-│  │  │  JDK 21 (exact version)                                    │    │   │
-│  │  ├─────────────────────────────────────────────────────────┤    │   │
-│  │  │  Linux Libraries (glibc, OpenSSL, etc.)                    │    │   │
-│  │  ├─────────────────────────────────────────────────────────┤    │   │
-│  │  │  Base OS (Debian Slim, Alpine)                             │    │   │
-│  │  └─────────────────────────────────────────────────────────┘    │   │
-│  └───────────────────────────────────────────────────────────────┘   │
+│  ┌───────────────────────────────────────────────────────────────┐      │
+│  │  Docker Image: myapp:1.0.0                                    │      │
+│  │  ┌─────────────────────────────────────────────────────────┐  │      │  
+│  │  │  Your Application (app.jar)                             │  │      │
+│  │  ├─────────────────────────────────────────────────────────┤  │      │
+│  │  │  JDK 21 (exact version)                                 │  │      │
+│  │  ├─────────────────────────────────────────────────────────┤  │      │
+│  │  │  Linux Libraries (glibc, OpenSSL, etc.)                 │  │      │
+│  │  ├─────────────────────────────────────────────────────────┤  │      │
+│  │  │  Base OS (Debian Slim, Alpine)                          │  │      │
+│  │  └─────────────────────────────────────────────────────────┘  │      │
+│  └───────────────────────────────────────────────────────────────┘      │
 │                                                                         │
-│  RUNS IDENTICALLY ON: Dev laptop, CI server, Staging, Production       │
+│  RUNS IDENTICALLY ON: Dev laptop, CI server, Staging, Production        │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -3362,22 +3362,22 @@ logging:
 
 ```
 ┌─────────────────────────────────┐   ┌───────────────────────────────────┐
-│     Virtual Machines             │   │        Containers                 │
+│     Virtual Machines            │   │        Containers                 │
 ├─────────────────────────────────┤   ├───────────────────────────────────┤
-│  ┌─────┐ ┌─────┐ ┌─────┐        │   │  ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐  │
-│  │ App │ │ App │ │ App │        │   │  │App│ │App│ │App│ │App│ │App│  │
-│  ├─────┤ ├─────┤ ├─────┤        │   │  └───┘ └───┘ └───┘ └───┘ └───┘  │
-│  │Bins │ │Bins │ │Bins │        │   │  ─────────────────────────────  │
+│  ┌─────┐ ┌─────┐ ┌─────┐        │   │  ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐    │
+│  │ App │ │ App │ │ App │        │   │  │App│ │App│ │App│ │App│ │App│    │
+│  ├─────┤ ├─────┤ ├─────┤        │   │  └───┘ └───┘ └───┘ └───┘ └───┘    │
+│  │Bins │ │Bins │ │Bins │        │   │  ─────────────────────────────    │
 │  ├─────┤ ├─────┤ ├─────┤        │   │       Container Runtime (Docker)  │
-│  │Guest│ │Guest│ │Guest│        │   │  ─────────────────────────────  │
-│  │ OS  │ │ OS  │ │ OS  │        │   │         Host Operating System    │
-│  └─────┘ └─────┘ └─────┘        │   │  ─────────────────────────────  │
-│  ────────────────────────────   │   │             Hardware             │
-│         Hypervisor (VMware, etc)  │   └───────────────────────────────────┘
+│  │Guest│ │Guest│ │Guest│        │   │  ─────────────────────────────    │
+│  │ OS  │ │ OS  │ │ OS  │        │   │         Host Operating System     │
+│  └─────┘ └─────┘ └─────┘        │   │  ─────────────────────────────    │
+│  ────────────────────────────   │   │             Hardware              │
+│    Hypervisor (VMware, etc)     │   └───────────────────────────────────┘
 │  ────────────────────────────   │
-│       Host Operating System        │   Size:    ~MBs
+│    Host Operating System        │   Size:    ~MBs
 │  ────────────────────────────   │   Startup: ~seconds
-│           Hardware                 │   Density: Dozens per host
+│    Hardware                     │   Density: Dozens per host
 └─────────────────────────────────┘
 
  Size: ~GBs
@@ -3401,26 +3401,26 @@ logging:
 │               KUBERNETES KEY CONCEPTS                                   │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  POD: Smallest deployable unit                                         │
-│       One or more containers with shared network/storage               │
-│       Usually 1 container per pod for microservices                    │
+│  POD: Smallest deployable unit                                          │
+│       One or more containers with shared network/storage                │
+│       Usually 1 container per pod for microservices                     │
 │                                                                         │
-│  DEPLOYMENT: Manages ReplicaSets of Pods                               │
-│              Handles rollouts, scaling, rollbacks                      │
-│              "I want 3 replicas of my-app:v2"                          │
+│  DEPLOYMENT: Manages ReplicaSets of Pods                                │
+│              Handles rollouts, scaling, rollbacks                       │
+│              "I want 3 replicas of my-app:v2"                           │
 │                                                                         │
-│  SERVICE: Stable network endpoint for Pods                             │
-│           Pods are ephemeral; Services provide DNS name                │
-│           Load balances across pod replicas                            │
+│  SERVICE: Stable network endpoint for Pods                              │
+│           Pods are ephemeral; Services provide DNS name                 │
+│           Load balances across pod replicas                             │
 │                                                                         │
-│  CONFIGMAP: Non-sensitive configuration data                           │
-│             Injected as environment variables or files                 │
+│  CONFIGMAP: Non-sensitive configuration data                            │
+│             Injected as environment variables or files                  │
 │                                                                         │
-│  SECRET: Sensitive data (passwords, tokens)                            │
-│          Base64 encoded, can be encrypted at rest                      │
+│  SECRET: Sensitive data (passwords, tokens)                             │
+│          Base64 encoded, can be encrypted at rest                       │
 │                                                                         │
-│  INGRESS: HTTP routing rules to Services                               │
-│           SSL termination, path-based routing                          │
+│  INGRESS: HTTP routing rules to Services                                │
+│           SSL termination, path-based routing                           │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -3596,7 +3596,7 @@ Where:
   N = Number of processors
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     AMDAHL'S LAW IN PRACTICE                             │
+│                     AMDAHL'S LAW IN PRACTICE                            │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  If 95% of your code is parallelizable (P=0.95):                        │
@@ -3607,7 +3607,7 @@ Where:
 │    N=16 CPU:   Speedup = 1 / (0.05 + 0.059) = 9.14x                     │
 │    N=∞  CPU:   Speedup = 1 / 0.05 = 20x (MAX)                           │
 │                                                                         │
-│  Takeaway: The serial portion is the bottleneck!                       │
+│  Takeaway: The serial portion is the bottleneck!                        │
 │  Adding more threads won't help if code isn't parallel.                 │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -3626,7 +3626,7 @@ Rearranged for throughput:
   λ = L / W
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     LITTLE'S LAW EXAMPLE                                 │
+│                     LITTLE'S LAW EXAMPLE                                │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  If you have:                                                           │
@@ -3649,27 +3649,27 @@ Rearranged for throughput:
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  PLATFORM THREADS (Traditional)                                         │
-│  ─────────────────────────────                                         │
+│  ─────────────────────────────                                          │
 │  • 1 platform thread = 1 OS thread                                      │
 │  • Stack size: ~1MB each                                                │
 │  • Max practical: ~200-500 per JVM                                      │
 │  • Blocking I/O blocks the entire thread                                │
 │                                                                         │
-│  Problem: 10,000 concurrent connections = 10GB RAM just for stacks!    │
+│  Problem: 10,000 concurrent connections = 10GB RAM just for stacks!     │
 │                                                                         │
 │  VIRTUAL THREADS (Java 21+)                                             │
-│  ───────────────────────                                                 │
+│  ───────────────────────                                                │
 │  • Millions of virtual threads per JVM                                  │
 │  • Stack: ~KBs, grows as needed                                         │
 │  • Scheduled on carrier threads (platform threads)                      │
 │  • Blocking I/O releases carrier thread                                 │
 │                                                                         │
-│  Benefit: Write blocking code, get async performance!                  │
+│  Benefit: Write blocking code, get async performance!                   │
 │                                                                         │
-│  Platform Thread:    [Thread A: request handling.........]             │
+│  Platform Thread:    [Thread A: request handling.........]              │
 │                                     ^ waiting for DB                    │
 │                                                                         │
-│  Virtual Thread:     [VT: start]--[park]--[continue]                   │
+│  Virtual Thread:     [VT: start]--[park]--[continue]                    │
 │  Carrier Thread:     [VT1][VT2][VT1][VT3][VT1]   (multiplexed)          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -4038,3 +4038,4 @@ spring.flyway.locations=classpath:db/migration
 > **Related Guides:**  
 > - [Spring Framework Complete Guide](./Spring-Framework-Complete-Guide.md)  
 > - Microservices with Spring Cloud (coming soon)
+
