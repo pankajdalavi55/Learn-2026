@@ -8,6 +8,7 @@
 
 ## Table of Contents
 
+0. [Testing Fundamentals & Theory](#0-testing-fundamentals--theory)
 1. [JUnit 5 Fundamentals](#1-junit-5-fundamentals)
 2. [Mockito Core Concepts](#2-mockito-core-concepts)
 3. [Spring Boot Test Integration](#3-spring-boot-test-integration)
@@ -17,6 +18,295 @@
 7. [Testing Best Practices & Patterns](#7-testing-best-practices--patterns)
 8. [Interview Questions](#8-interview-questions)
 9. [Complete CRUD Testing Example](#9-complete-crud-testing-example)
+
+---
+
+## 0. Testing Fundamentals & Theory
+
+### 0.1 What is Automated Testing?
+
+Automated testing is the practice of writing code that validates other code works correctly. Instead of manually clicking buttons and verifying results, we use test code to programmatically verify behavior.
+
+```
+Why Automated Testing Matters:
+
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                           The Testing Continuum                                │
+│                                                                                │
+│  Manual Testing ─────────────────────► Automated Testing                       │
+│                                                                                │
+│  Manual Testing Problems:                                                      │
+│  ❌ Error-prone (human mistakes)                                               │
+│  ❌ Time-consuming (days per release)                                          │
+│  ❌ Not repeatable (different results)                                         │
+│  ❌ Creates bottlenecks (test team limitation)                                 │
+│  ❌ Not scalable (exponential complexity)                                      │
+│                                                                                │
+│  Automated Testing Benefits:                                                   │
+│  ✅ Consistent (same result every run)                                         │
+│  ✅ Fast (milliseconds, not hours)                                             │
+│  ✅ Repeatable (CI/CD integration)                                             │
+│  ✅ Scalable (thousands of tests)                                              │
+│  ✅ Documentation (shows expected behavior)                                    │
+│  ✅ Regression detection (catch breaking changes)                              │
+│  ✅ Confidence (safe refactoring)                                              │
+│                                                                                │
+└────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 0.2 Three Fundamental Testing Questions
+
+Every test should answer these three questions:
+
+```
+1. SETUP (What conditions exist before the test?)
+   └─► What data?
+   └─► What state?
+   └─► What dependencies?
+
+2. ACTION (What happens during the test?)
+   └─► Which method is called?
+   └─► With what parameters?
+   └─► How is it invoked?
+
+3. VERIFICATION (What should be true after the test?)
+   └─► What is the expected result?
+   └─► Was a method called?
+   └─► Did behavior change?
+```
+
+Example:
+```java
+@Test
+void transferMoney_Success() {
+    // SETUP: Create two accounts with balances
+    Account from = new Account("ACC001", 1000);
+    Account to = new Account("ACC002", 500);
+    
+    // ACTION: Transfer money from one to another
+    from.transfer(to, 200);
+    
+    // VERIFICATION: Check balances changed
+    assertEquals(800, from.getBalance());    // 1000 - 200
+    assertEquals(700, to.getBalance());      // 500 + 200
+}
+```
+
+### 0.3 Test Classification: Unit, Integration, and E2E
+
+Tests are classified by scope and isolation level:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                         Test Classification Pyramid                            │
+│                                                                                │
+│                                 /\                                            │
+│                                /  \                                           │
+│                               /    \ E2E Tests                                │
+│                              /      \ • Real browser/app                       │
+│                             /        \ • Full system                           │
+│                            /          \ • Slowest [~5 mins each]               │
+│                           /            \                                       │
+│                          /──────────────\                                      │
+│                         /                \                                     │
+│                        / Integration      \                                    │
+│                       / Tests              \                                   │
+│                      /  • Multiple units    \                                  │
+│                     /  • Real dependencies   \                                 │
+│                    /  • Medium speed [~100ms] \                                │
+│                   /──────────────────────────  \                               │
+│                  /                              \                              │
+│                 /   Unit Tests                  \                              │
+│                /   • Single class/method        \                              │
+│                / • Mocked dependencies           \                             │
+│               / • Fastest [~1ms per test]        \                             │
+│              /__________________________________ \                            │
+│                                                                                │
+│  PYRAMID PRINCIPLE:                                                            │
+│  • Unit tests: 70% (many, fast, cheap)                                        │
+│  • Integration: 20% (fewer, slower, moderate cost)                            │
+│  • E2E: 10% (few, slowest, expensive)                                         │
+│                                                                                │
+│  WHY? More units = more edge cases caught + faster feedback                    │
+│       Fewer E2E = less maintenance + faster CI/CD                             │
+│                                                                                │
+└────────────────────────────────────────────────────────────────────────────────┘
+
+Unit Test (Isolated)        Integration Test           E2E Test (Full System)
+─────────────────────────────────────────────────────────────────────────────
+@Test with:                 @Test with:                Browser/App with:
+• @Mock dependencies        • Real Spring context      • Deployed app
+• Single class              • Real database            • Real external APIs
+• Fast (~1ms)               • Slower (~100ms)          • Slow (~5+ seconds)
+
+findUser(userId)            userService.create()       User signs up → verifies email
+   │                           │                           │
+   ├─ getFromDb() MOCKED        ├─ Repository (REAL)        ├─ Browser (REAL)
+   ├─ validate() MOCKED         ├─ Database (REAL)          ├─ API (REAL)
+   └─ format() MOCKED           ├─ Cache (REAL)             ├─ Email (REAL)
+                                └─ Security (REAL)          └─ Payment (REAL)
+```
+
+### 0.4 Core Testing Principles
+
+#### 1. **FIRST Principle**
+
+```
+F - Fast
+    • Tests should run quickly
+    • Milliseconds, not seconds
+    • Enables frequent execution
+    WHY: Developers run tests before committing
+         Slow tests are skipped, defeating the purpose
+
+I - Independent
+    • Tests don't depend on other tests
+    • Can run in any order
+    • Can run in parallel
+    WHY: One failing test shouldn't break others
+         Easier to diagnose failures
+
+S - Self-Explanatory
+    • Test name describes what's being tested
+    • Assertions are clear
+    • No cryptic logic
+    WHY: Future maintainers understand intent
+         Easier to debug failures
+
+T - Thorough
+    • Test happy paths and edge cases
+    • Test error conditions
+    • Test boundary values
+    WHY: Catch bugs before production
+
+S - Isolated
+    • Tests should be contained
+    • No shared state between tests
+    • Clean setup/teardown
+    WHY: Test failure reason is obvious
+         Easy to run individual tests
+```
+
+#### 2. **DRY vs. DAMP in Tests**
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                    DRY (Don't Repeat Yourself) Goes TOO FAR                      │
+│                                                                                 │
+│  DON'T DO THIS:                                                                 │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  private User createTestUser() { ... }    // Used in 50 tests                  │
+│  private void setupDatabase() { ... }     // Complex logic hard to find          │
+│                                                                                 │
+│  @Test                                                                          │
+│  void test1() {                                                                 │
+│      User user = createTestUser();  // What properties does it have?            │
+│      // Not clear what's being tested vs. setup boilerplate                     │
+│  }                                                                              │
+│                                                                                 │
+│  Problem: Too much abstraction hides the test intent                            │
+│                                                                                 │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                    DAMP (Descriptive And Meaningful Phrases)                     │
+│                                                                                 │
+│  DO THIS INSTEAD:                                                               │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  @Test                                                                          │
+│  void processPayment_whenAmountIsZero_thenThrowsException() {                   │
+│      // Given - Clear setup visible in test                                    │
+│      Payment payment = new Payment()                                            │
+│          .withAmount(new BigDecimal("0"))                                       │
+│          .withCurrency("USD");                                                  │
+│                                                                                 │
+│      // When                                                                   │
+│      // Then                                                                   │
+│      assertThrows(IllegalArgumentException.class,                              │
+│          () -> paymentService.process(payment));                                │
+│  }                                                                              │
+│                                                                                 │
+│  Benefit: Intent is immediately clear                                           │
+│           Each test is self-contained and readable                              │
+│           Easy to understand what's being tested                                │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 0.5 Test Doubles: Mocks, Stubs, Spies, and Fakes
+
+Understanding different test doubles is crucial:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           Types of Test Doubles                                 │
+│                                                                                 │
+│  Real Object                                                                    │
+│  ───────────────────────────────────────────────                                │
+│  UserRepository repo = new UserRepository(dataSource);                          │
+│  • Actual implementation                                                        │
+│  • Slow (database calls)                                                        │
+│  • Unpredictable (external state)                                               │
+│                                                                                 │
+│                       ▼                                                         │
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │                           TEST DOUBLE                                   │   │
+│  │                   (Types by use case)                                   │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│              │                    │                    │                        │
+│              ▼                    ▼                    ▼                        │
+│         ┌──────────┐         ┌──────────┐        ┌─────────┐                   │
+│         │  STUB    │         │  MOCK    │        │  SPY    │                   │
+│         └──────────┘         └──────────┘        └─────────┘                   │
+│              │                    │                    │                        │
+│         Simplest                Medium              Complex                     │
+│                                                                                 │
+│  ──────────────────────────────────────────────────────────────────────────    │
+│                                                                                 │
+│  STUB: Returns canned responses                                                 │
+│  ────────────────────────────────                                               │
+│  when(userRepo.findById(1L))                                                    │
+│      .thenReturn(new User(1L, "John"));                                         │
+│                                                                                 │
+│  Use when: You only care about return value                                     │
+│  Example: Repository returning test data                                        │
+│                                                                                 │
+│  ──────────────────────────────────────────────────────────────────────────    │
+│                                                                                 │
+│  MOCK: Stub + verification of calls                                             │
+│  ──────────────────────────────────────                                         │
+│  when(emailService.send(any())).thenReturn(true);                               │
+│  // ... execute code ...                                                        │
+│  verify(emailService).send("user@example.com");                                 │
+│                                                                                 │
+│  Use when: You care about calls AND return values                               │
+│  Example: Verification that email was sent                                      │
+│                                                                                 │
+│  ──────────────────────────────────────────────────────────────────────────    │
+│                                                                                 │
+│  SPY: Real object + selective stubbing + verification                           │
+│  ───────────────────────────────────────────────────────                        │
+│  ArrayList<String> list = spy(new ArrayList<>());                               │
+│  when(list.size()).thenReturn(100);  // Stub specific method                    │
+│  list.add("item");                   // Real method called                      │
+│  verify(list).add("item");           // Verify call                             │
+│                                                                                 │
+│  Use when: Need mostly real behavior + override some methods                    │
+│  Example: Testing a service with some mocked dependencies                       │
+│                                                                                 │
+│  ──────────────────────────────────────────────────────────────────────────    │
+│                                                                                 │
+│  FAKE: Real working implementation                                              │
+│  ────────────────────────────────────                                           │
+│  // InMemoryUserRepository extends UserRepository                               │
+│  UserRepository fakeRepo = new InMemoryUserRepository();                        │
+│                                                                                 │
+│  Use when: Need working implementation but not the real one                     │
+│  Example: In-memory database for tests                                          │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -114,6 +404,233 @@ class CalculatorTest {
         System.out.println("Test suite completed.");
     }
 }
+```
+
+### 1.2.1 Understanding Test Lifecycle Deeply
+
+To write effective tests, you must understand WHEN each lifecycle method runs:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                      JUnit 5 Test Lifecycle (Detailed)                          │
+│                                                                                 │
+│  DEFAULT EXECUTION MODEL: Lifecycle.PER_METHOD (each test gets fresh instance) │
+│                                                                                 │
+│  EXECUTION FLOW:                                                                │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │ CLASS LOADING (happens once per test class)                            │   │
+│  │ • Class bytecode loaded into memory                                    │   │
+│  │ • Static fields initialized                                            │   │
+│  │ • Static blocks executed                                               │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                          │                                                     │
+│                          ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │ @BeforeAll (ONCE, runs once per class) ◄─ STATIC METHOD REQUIRED       │   │
+│  │ • Class-level setup                                                    │   │
+│  │ • Database connection pool creation                                    │   │
+│  │ • Expensive operations (TestContainers startup)                        │   │
+│  │ • Class state shared across all tests                                  │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                          │                                                     │
+│        ┌─────────────────┼─────────────────┬──────────────────┐                │
+│        │                 │                 │                  │                │
+│        ▼                 ▼                 ▼                  ▼                │
+│   ┌─────────┐       ┌─────────┐       ┌─────────┐       ┌─────────┐           │
+│   │ Test 1  │       │ Test 2  │       │ Test 3  │       │ Test N  │           │
+│   │         │       │         │       │         │       │         │           │
+│   │ FOR EACH TEST:  │ FOR EACH TEST:  │ FOR EACH TEST:  │         │           │
+│   │ ───────────────────────────────────────────────────  │         │           │
+│   │                 │                 │                  │         │           │
+│   │ Instance creation (new CalculatorTest())             │         │           │
+│   │              │                     │                  │         │           │
+│   │              ▼                     ▼                  │         │           │
+│   │         ┌──────────────┐    ┌──────────────┐         │         │           │
+│   │         │ @BeforeEach  │    │ @BeforeEach  │         │         │           │
+│   │         │ calculator=  │    │ calculator=  │         │         │           │
+│   │         │ new Calc()   │    │ new Calc()   │ ◄─ FRESH INSTANCE  │         │
+│   │         └──────────────┘    └──────────────┘         │         │           │
+│   │              │                     │                  │         │           │
+│   │              ▼                     ▼                  │         │           │
+│   │         ┌──────────────┐    ┌──────────────┐         │         │           │
+│   │         │ @Test method │    │ @Test method │         │         │           │
+│   │         │ add() == 5   │    │ divide() ✓   │         │         │           │
+│   │         └──────────────┘    └──────────────┘         │         │           │
+│   │              │                     │                  │         │           │
+│   │              ▼                     ▼                  │         │           │
+│   │         ┌──────────────┐    ┌──────────────┐         │         │           │
+│   │         │ @AfterEach   │    │ @AfterEach   │         │         │           │
+│   │         │ calculator   │    │ calculator   │         │         │           │
+│   │         │ = null       │    │ = null       │ ◄─ RESET FOR NEXT TEST       │
+│   │         └──────────────┘    └──────────────┘         │         │           │
+│   │              │                     │                  │         │           │
+│   └──────────────┼─────────────────────┼──────────────────┘         │           │
+│                  │                     │                            │           │
+│                  └─────────────────────┴────────────────────────────┘           │
+│                                                                                 │
+│                          ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │ @AfterAll (ONCE, runs once per class)                                 │   │
+│  │ • Class-level teardown                                                 │   │
+│  │ • Close connections, release resources                                 │   │
+│  │ • TestContainers shutdown                                              │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                          │                                                     │
+│                          ▼                                                     │
+│  CLASS UNLOADING (garbage collected, memory freed)                             │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1.2.2 @BeforeAll vs @BeforeEach - Critical Difference
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                  WRONG UNDERSTANDING = BUGS IN YOUR TESTS                       │
+│                                                                                 │
+│  SCENARIO: You write this code                                                 │
+│  ──────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  class UserServiceTest {                                                        │
+│      static User sharedUser;  // ← DANGER: Shared across tests!                 │
+│                                                                                 │
+│      @BeforeAll                                                                 │
+│      static void setupOnce() {                                                  │
+│          sharedUser = new User("John", "john@example.com");                     │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      void test1_ModifiesUser() {                                                │
+│          sharedUser.setEmail("newemail@example.com");  // MODIFIES SHARED STATE │
+│          assertEquals("newemail@example.com", sharedUser.getEmail());       │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      void test2_ChecksOriginalEmail() {                                         │
+│          assertEquals("john@example.com", sharedUser.getEmail());               │
+│          // FAILS! test1 already changed it to newemail@example.com             │
+│      }                                                                          │
+│  }                                                                              │
+│                                                                                 │
+│  Tests can run in any order: If test2 runs first, it passes; after test1, FAIL │
+│                                                                                 │
+│  ──────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  CORRECT APPROACH:                                                              │
+│  ──────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  class UserServiceTest {                                                        │
+│      private User user;  // ← INSTANCE variable (not static)                    │
+│                                                                                 │
+│      @BeforeEach  // ← Runs per test, not per class                             │
+│      void setup() {                                                             │
+│          user = new User("John", "john@example.com");  // FRESH each time       │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      void test1_ModifiesUser() {                                                │
+│          user.setEmail("newemail@example.com");                                 │
+│          assertEquals("newemail@example.com", user.getEmail());                 │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      void test2_ChecksOriginalEmail() {                                         │
+│          assertEquals("john@example.com", user.getEmail());  // PASSES!         │
+│          // Gets fresh user from @BeforeEach                                    │
+│      }                                                                          │
+│  }                                                                              │
+│                                                                                 │
+│  ──────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  WHEN TO USE @BeforeAll:                                                       │
+│  • Initialize EXPENSIVE resources (TestContainers, API mocks)                   │
+│  • Set up SHARED, READ-ONLY data                                                │
+│  • Must be STATIC method                                                        │
+│  • Example: Database schema creation (once, not per test)                       │
+│                                                                                 │
+│  WHEN TO USE @BeforeEach:                                                      │
+│  • Reset instance state before each test                                        │
+│  • Create FRESH test data                                                       │
+│  • Regular (non-static) method                                                  │
+│  • Example: Clear user from database, reset mocks                               │
+│                                                                                 │
+│  RULE OF THUMB:                                                                │
+│  "If tests might modify it, use @BeforeEach"                                    │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1.2.3 Test Instance Lifecycle
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          @TestInstance Modes Explained                          │
+│                                                                                 │
+│  DEFAULT: @TestInstance(Lifecycle.PER_METHOD)                                   │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│  • New instance created for EACH test method                                    │
+│  • @BeforeAll/@AfterAll must be STATIC                                          │
+│  • Instance fields are NOT shared                                               │
+│  • Better test isolation, prevents accidental sharing                           │
+│                                                                                 │
+│  class Test {                                                                   │
+│      private int counter = 0;                                                   │
+│                                                                                 │
+│      @BeforeEach void beforeEach() { counter = 0; }                             │
+│      @Test void test1() { counter++; assertEquals(1, counter); }                │
+│      @Test void test2() { counter++; assertEquals(1, counter); }                │
+│                                                                                 │
+│      // counter resets between tests because new instance created               │
+│  }                                                                              │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ALTERNATIVE: @TestInstance(Lifecycle.PER_CLASS)                                │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│  • Same instance reused for ALL test methods                                    │
+│  • @BeforeAll/@AfterAll CAN be non-static                                       │
+│  • Instance fields ARE shared                                                   │
+│  • Allows test ordering and state sharing                                       │
+│  • Use when you need full control                                               │
+│                                                                                 │
+│  @TestInstance(Lifecycle.PER_CLASS)                                             │
+│  class OrderFlowTest {                                                          │
+│      private long orderId;  // Shared across all tests                           │
+│                                                                                 │
+│      @BeforeAll  // Not static! Can access instance variables                   │
+│      void setUp() {                                                             │
+│          orderId = 0;                                                           │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      @Order(1)  // Must run first                                               │
+│      void step1_CreateOrder() {                                                 │
+│          orderId = service.create(new Order()).getId();                         │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      @Order(2)  // Depends on orderId from previous test                        │
+│      void step2_ProcessOrder() {                                                │
+│          service.process(orderId);  // Uses orderId set in step1                │
+│      }                                                                          │
+│  }                                                                              │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  WARNING: @TestInstance(PER_CLASS) is risky!                                    │
+│  ✗ Tests must be independent (they're NOT anymore)                              │
+│  ✗ Tests depend on execution order                                              │
+│  ✗ Hard to run single test                                                      │
+│  ✗ Parallelization might break things                                           │
+│                                                                                 │
+│  Only use PER_CLASS when:                                                       │
+│  ✓ Testing sequential workflows (order creation → payment → delivery)           │
+│  ✓ Sharing expensive resources (@BeforeAll non-static init)                     │
+│  ✓ You fully understand the implications                                        │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 1.3 Assertions
@@ -606,6 +1123,144 @@ class RepeatedTestsDemo {
 │                               └──────────────────┘                              │
 │                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 2.1.1 When to Mock - Decision Tree
+
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                    Should You Mock This Dependency?                            │
+│                                                                                │
+│  START: Testing method that depends on something external?                    │
+│         │                                                                     │
+│         ├─ Is it a SIMPLE DATA HOLDER (POJO, Entity)? ──────┐                 │
+│         │                                                    │                 │
+│         │  NO: Is it EXPENSIVE? (DB, API, file I/O) ───┐    │ YES: Use real! │
+│         │  │                                           │    │                 │
+│         │  │  YES: Is it CRITICAL to behavior? ───┐   │    │ Can easily      │
+│         │  │  │                                    │   │    │ create in       │
+│         │  │  │ YES: Hard to test with real? ─┐   │   │    │ memory.         │
+│         │  │  │ │                              │   │   │    │                 │
+│         │  │  │ │ YES: MOCK IT ◄──────────────┘   │   │    │                 │
+│         │  │  │ │                                  │   │    │                 │
+│         │  │  │ NO: Use real if possible ◄──────┘   │   │    │                 │
+│         │  │  │                                      │   │    │                 │
+│         │  │ NO: Use real (lightweight) ◄───────────┘   │    │                 │
+│         │  │                                            │    │                 │
+│         │ NO: Is it RANDOM/UNPREDICTABLE?  ──────────┘    │                 │
+│         │     (current time, random numbers, etc)        │                 │
+│         │     YES: MOCK IT!                               │                 │
+│         │     NO: Can use real                            │                 │
+│         │                                                 │                 │
+│         └─────────────────────────────────────────────────┘                 │
+│                                                                            │
+│  EXAMPLES:                                                                 │
+│  ┌──────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                      │ │
+│  │  ALWAYS MOCK:                                                       │ │
+│  │  • PaymentGateway (charges real money)                              │ │
+│  │  • EmailService (sends real emails)                                 │ │
+│  │  • ExternalAPI (might be down)                                      │ │
+│  │  • Clock (current time is non-deterministic)                        │ │
+│  │  • FileSystem (slow, might not exist)                               │ │
+│  │                                                                      │ │
+│  │  USE REAL:                                                          │ │
+│  │  • Entities/DTOs (just data holders)                                │ │
+│  │  • Collections (ArrayList, HashMap, etc)                            │ │
+│  │  • Simple utilities (String functions)                              │ │
+│  │  • Business logic classes (the code under test!)                    │ │
+│  │  • Repositories (if using Testcontainers)                           │ │
+│  │                                                                      │ │
+│  │  CAN GO EITHER WAY (consider cost/benefit):                         │ │
+│  │  • Database (mock = unit test, real = integration test)             │ │
+│  │  • Cache (mock for unit, real for integration)                      │ │
+│  │  • Configuration (usually mock)                                     │ │
+│  │                                                                      │ │
+│  └──────────────────────────────────────────────────────────────────────┘ │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 2.1.2 The Cost of Over-Mocking
+
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                    The Over-Mocking Trap (Bad Practice)                       │
+│                                                                                │
+│  CODE:                                                                         │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                │
+│  @Test                                                                         │
+│  void processPayment_Success() {                                               │
+│      // SO MANY MOCKS!                                                         │
+│      PaymentGateway gateway = mock(PaymentGateway.class);                      │
+│      UserRepository userRepo = mock(UserRepository.class);                     │
+│      EmailService emailService = mock(EmailService.class);                     │
+│      Logger logger = mock(Logger.class);                                       │
+│      Config config = mock(Config.class);                                       │
+│      Cache cache = mock(Cache.class);                                          │
+│                                                                                │
+│      // 30 lines of stubbing...                                                │
+│      when(gateway.process(any())).thenReturn(...);                             │
+│      when(userRepo.findById(any())).thenReturn(...);                           │
+│      // ... etc                                                                │
+│                                                                                │
+│      PaymentService service = new PaymentService(                              │
+│          gateway, userRepo, emailService, logger, config, cache);              │
+│                                                                                │
+│      service.processPayment(100, "ACC123");                                    │
+│                                                                                │
+│      verify(gateway).process(any());                                           │
+│      verify(emailService).send(any());                                         │
+│  }                                                                              │
+│                                                                                │
+│  PROBLEMS:                                                                     │
+│  • Test is brittle (breaks with small refactorings)                            │
+│  • Test doesn't verify actual behavior                                         │
+│  • Mocks are so configured, they hide bugs                                     │
+│  • If payment API fails, test passes (mocks hide it)                           │
+│  • Hard to see what's actually being tested                                    │
+│                                                                                │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                │
+│  BETTER APPROACH:                                                              │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                │
+│  @SpringBootTest  // Load real Spring context                                 │
+│  @Testcontainers  // Real database                                            │
+│  class PaymentServiceTest {                                                    │
+│                                                                                │
+│      @MockBean                                                                 │
+│      private PaymentGateway gateway;  // Only mock external API                │
+│                                                                                │
+│      @Autowired                                                                │
+│      private PaymentService service;  // Real implementation                   │
+│                                                                                │
+│      @Autowired                                                                │
+│      private UserRepository userRepo; // Real repository                       │
+│                                                                                │
+│      @Test                                                                     │
+│      void processPayment_Success() {                                           │
+│          // Given                                                              │
+│          User user = userRepo.save(new User("John", "john@example.com"));      │
+│          when(gateway.process(any())).thenReturn(true);                        │
+│                                                                                │
+│          // When                                                               │
+│          service.processPayment(100, user.getId());                            │
+│                                                                                │
+│          // Then - verify against real database                                │
+│          assertTrue(userRepo.findById(user.getId()).get().isPremium());        │
+│          verify(gateway).process(any());  // Only verify external call         │
+│      }                                                                          │
+│  }                                                                              │
+│                                                                                │
+│  BENEFITS:                                                                     │
+│  • Tests actual behavior (not mock behavior)                                   │
+│  • Catches more bugs (real logic runs)                                         │
+│  • More resilient to refactoring                                               │
+│  • Still fast with @DataJpaTest, Testcontainers                                │
+│                                                                                │
+└────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 2.2 Mockito Setup
@@ -2316,6 +2971,400 @@ class AsyncTestingDemo {
 │  • Branch coverage over line coverage                                           │
 │  • Testing behavior, not implementation                                         │
 │  • Meaningful assertions over coverage percentage                               │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 7.8 The Testing Pyramid in Practice
+
+The testing pyramid is not just theory—it's a practical guide for building sustainable test suites:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                    The Testing Pyramid (Practical Guide)                        │
+│                                                                                 │
+│                               ▲                                                │
+│                              / \                                               │
+│                             /   \                                              │
+│                            / E2E  \     Slow, Expensive, Fragile               │
+│                           /        \    ├─ 5-30 seconds per test               │
+│                          /          \   ├─ Cost: $$ (compute resources)        │
+│                         /            \  ├─ Example: Full app in Docker         │
+│                        /──────────────\ ├─ Test: Real browser + API + DB       │
+│                       /                \└─ When to test: Key user workflows    │
+│                      / Integration      \                                      │
+│                     /   Tests            \   Medium speed, Reliable             │
+│                    /                      \  ├─ 100-500ms per test              │
+│                   /  • Real dependencies   \ ├─ Cost: $ (moderate)              │
+│                  /  • Spring context loads  \├─ Example: @DataJpaTest           │
+│                 /  • Database/cache calls   │├─ Test: API + DB, mocks ext API   │
+│                /  • No mock services ───────┘└─ When to test: Critical paths    │
+│               /──────────────────────────────                                   │
+│              /                                 \                                │
+│             /   Unit Tests                      \                               │
+│            /   • ONE CLASS ONLY                  \  Fast, Cheap, Brittle        │
+│           /   • All deps mocked                   \ ├─ 1-5ms per test           │
+│          /   • No Spring context                   \├─ Cost: $ (free/cheap)      │
+│         /   • No I/O ──────────────────────────────┤├─ Example: @ExtendWith     │
+│        /   • Pure logic tests ───────────────────────└─ When: Everything else    │
+│       /──────────────────────────────────────────                               │
+│                                                                                 │
+│                                                                                 │
+│  COMPOSITION GUIDE (from real projects):                                        │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  BUDGET 100 tests, 1 hour to run:                                               │
+│  ├─ 70 Unit Tests       (70ms total)    [Fast, runs everywhere]                 │
+│  ├─ 25 Integration Tests (2s total)     [Test database + APIs]                  │
+│  └─  5 E2E Tests        (60s total)     [Critical user journeys]                │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  COMMON MISTAKES:                                                               │
+│  ✗ Too many E2E tests (slow pipeline)                                           │
+│  ✗ Every test calls database (even when it shouldn't)                           │
+│  ✗ Mocking everything (no confidence in actual behavior)                        │
+│  ✗ Too many heavy setup methods                                                 │
+│  ✗ Monolithic test suite (impossible to run single test)                        │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 7.9 Building a Sustainable Test Strategy
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│               Designing a Testing Strategy for Your Project                    │
+│                                                                                 │
+│  STEP 1: Identify What Needs Testing                                           │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│  NOT EVERYTHING EQUALLY MATTERS!                                                │
+│                                                                                 │
+│      Business Rules (HIGH PRIORITY)                                             │
+│      ├─ Revenue calculations                                                    │
+│      ├─ Payment processing                                                      │
+│      ├─ Authorization checks                                                    │
+│      └─ Discount eligibility                                                    │
+│                                                                                 │
+│      Integration Points (MEDIUM PRIORITY)                                       │
+│      ├─ API responses                                                           │
+│      ├─ Database persistence                                                    │
+│      ├─ Cache behavior                                                          │
+│      └─ Message queues                                                          │
+│                                                                                 │
+│      Utilities (LOW PRIORITY)                                                   │
+│      ├─ String formatting                                                       │
+│      ├─ Collection operations                                                   │
+│      └─ Simple getters/setters                                                  │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  STEP 2: Choose Test Types by Risk                                             │
+│  ──────────────────────────────────────────────────────────────────────────── │
+│                                                                                 │
+│  Revenue-Critical Feature: Payment Processing                                   │
+│  │                                                                             │
+│  ├─ Unit Tests (70%)                                                            │
+│  │  └─ AmountCalculator.calculateDiscount()                                    │
+│  │     ├─ Null amount throws exception                                          │
+│  │     ├─ Negative discount returns 0                                           │
+│  │     ├─ Eligible customer gets discount                                       │
+│  │     └─ Ineligible customer gets no discount                                  │
+│  │                                                                             │
+│  ├─ Integration Tests (20%)                                                     │
+│  │  └─ PaymentService with real DB + mocked gateway                            │
+│  │     ├─ Valid payment persists to DB                                          │
+│  │     ├─ Invalid payment rolls back                                            │
+│  │     └─ Failure email sent on error                                           │
+│  │                                                                             │
+│  └─ E2E Tests (10%)                                                              │
+│     └─ User can complete payment flow end-to-end                                │
+│        ├─ Browse products                                                      │
+│        ├─ Add to cart                                                           │
+│        ├─ Checkout with real payment                                            │
+│        └─ Receive confirmation                                                  │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  STEP 3: Test Pyramid per Service                                              │
+│  ──────────────────────────────────────────────────────────────────────────── │
+│                                                                                 │
+│  PaymentService (High Risk)                                                     │
+│  • Unit: 60 tests                                                               │
+│  • Integration: 30 tests                                                        │
+│  • E2E: 10 tests                                                                │
+│                                                                                 │
+│  NotificationService (Medium Risk)                                              │
+│  • Unit: 40 tests                                                               │
+│  • Integration: 8 tests                                                         │
+│  • E2E: 2 tests                                                                 │
+│                                                                                 │
+│  UtilityService (Low Risk)                                                      │
+│  • Unit: 20 tests                                                               │
+│  • Integration: 0 tests                                                         │
+│  • E2E: 0 tests                                                                 │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  STEP 4: Set Coverage Goals (Not Targets!)                                     │
+│  ──────────────────────────────────────────────────────────────────────────── │
+│                                                                                 │
+│  DON'T DO THIS:                                                                 │
+│  ✗ "We need 80% coverage"     ← Leads to testing getters/setters               │
+│  ✗ "Coverage must never drop" ← Creates test debt                              │
+│  ✗ "All branches must be tested" ← Tests defensive code nobody uses            │
+│                                                                                 │
+│  DO THIS INSTEAD:                                                               │
+│  ✓ "Business logic should be thoroughly tested"                                 │
+│  ✓ "All error paths should be exercised"                                        │
+│  ✓ "Tests should be fast and independent"                                       │
+│  ✓ "Every test should have a purpose"                                           │
+│                                                                                 │
+│  Guidelines per layer:                                                        │
+│  • Service layer: 80%+ (business logic)                                         │
+│  • Controller layer: 60%+ (HTTP handling, mostly tested via integration)        │
+│  • Repository layer: 90%+ (data persistence)                                    │
+│  • Utility layer: As needed (often 0% is fine)                                  │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 7.10 Common Testing Antipatterns & How to Avoid Them
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                     Testing Antipatterns You'll Encounter                       │
+│                                                                                 │
+│  ANTIPATTERN 1: The Assertion Roulette                                          │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ❌ BAD: Multiple assertions without clarity                                    │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  @Test                                                                          │
+│  void createOrder() {                                                           │
+│      Order order = service.createOrder(user, items);                            │
+│                                                                                 │
+│      assertEquals(100, order.getTotal());                                       │
+│      assertEquals("PENDING", order.getStatus());                                │
+│      assertEquals(3, order.getItems().size());                                  │
+│      assertTrue(order.getId() > 0);                                             │
+│      assertNotNull(order.getCreatedAt());                                       │
+│      // If 3rd assertion fails, which is wrong? Total? Status? Items?           │
+│  }                                                                              │
+│                                                                                 │
+│  ✅ GOOD: Clear, single behavior per test                                       │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  @Test                                                                          │
+│  void createOrder_CalculatesCorrectTotal() {                                    │
+│      Order order = service.createOrder(user, items);                            │
+│      assertEquals(100, order.getTotal());                                       │
+│  }                                                                              │
+│                                                                                 │
+│  @Test                                                                          │
+│  void createOrder_SetsStatusToPending() {                                       │
+│      Order order = service.createOrder(user, items);                            │
+│      assertEquals("PENDING", order.getStatus());                                │
+│  }                                                                              │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ANTIPATTERN 2: Testing Implementation Instead of Behavior                     │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ❌ BAD: Tests care HOW it works (brittle)                                      │
+│  ──────────────────────────────────────────────────────────────────────────── │
+│                                                                                 │
+│  @Test                                                                          │
+│  void processPayment() {                                                        │
+│      // Testing INTERNAL CALLS, not behavior!                                   │
+│      verify(logger).info(any());          // Why test logging?                  │
+│      verify(cache).put(eq("payment"), any()); // Why verify caching?            │
+│      verify(database).save(any());        // Why not just verify result?        │
+│      verify(emailService, times(1)).send(any());                                │
+│  }                                                                              │
+│                                                                                 │
+│  Problem: Refactoring breaks test (maybe add another log line)                  │
+│                                                                                 │
+│  ✅ GOOD: Tests care WHAT it does (resilient)                                   │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  @Test                                                                          │
+│  void processPayment_UpdatesUserBalance() {                                     │
+│      User user = userRepository.save(new User(1000));                            │
+│                                                                                 │
+│      paymentService.processPayment(user.getId(), 100);                          │
+│                                                                                 │
+│      User updated = userRepository.findById(user.getId()).get();                │
+│      assertEquals(900, updated.getBalance()); // Behavior: balance decreased    │
+│  }                                                                              │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ANTIPATTERN 3: Shared Test Fixtures                                            │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ❌ BAD: Tests depend on each other (fragile)                                   │
+│  ──────────────────────────────────────────────────────────────────────────── │
+│                                                                                 │
+│  class OrderServiceTest {                                                       │
+│      static Order testOrder;  // Shared state!                                  │
+│                                                                                 │
+│      @BeforeAll                                                                 │
+│      static void setup() {                                                      │
+│          testOrder = new Order(1L);                                             │
+│          // If test1 modifies testOrder, test2 gets wrong state!                │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      void test1() {                                                             │
+│          testOrder.setStatus("SHIPPED");  // Modifies shared state!             │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      void test2() {                                                             │
+│          assertEquals("PENDING", testOrder.getStatus());  // Fails!             │
+│      }                                                                          │
+│  }                                                                              │
+│                                                                                 │
+│  ✅ GOOD: Each test is independent                                              │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  class OrderServiceTest {                                                       │
+│      @BeforeEach  // Fresh data per test                                        │
+│      void setup() {                                                             │
+│          // Each test gets new instance                                         │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      void test1() {                                                             │
+│          Order order = new Order(1L);                                            │
+│          order.setStatus("SHIPPED");                                            │
+│      }                                                                          │
+│                                                                                 │
+│      @Test                                                                      │
+│      void test2() {                                                             │
+│          Order order = new Order(2L);  // Different instance!                   │
+│          assertEquals("PENDING", order.getStatus());                            │
+│      }                                                                          │
+│  }                                                                              │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ANTIPATTERN 4: Hidden Dependencies                                             │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ❌ BAD: Dependencies hidden in static methods/singletons                       │
+│  ──────────────────────────────────────────────────────────────────────────── │
+│                                                                                 │
+│  class OrderService {                                                           │
+│      public Order createOrder(OrderRequest req) {                               │
+│          Currency currency = CurrencyConverter.getCurrentCurrency();  // Static!  │
+│          ExchangeRate rate = ExternalRateService.get();  // Singleton!          │
+│          // Can't mock these in tests!                                          │
+│      }                                                                          │
+│  }                                                                              │
+│                                                                                 │
+│  ✅ GOOD: Dependencies injected explicitly                                      │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  class OrderService {                                                           │
+│      private final CurrencyConverter converter;                                 │
+│      private final ExchangeRateService rateService;                             │
+│                                                                                 │
+│      public OrderService(CurrencyConverter converter,                            │
+│                          ExchangeRateService rateService) {                     │
+│          this.converter = converter;                                            │
+│          this.rateService = rateService;                                        │
+│      }                                                                          │
+│                                                                                 │
+│      public Order createOrder(OrderRequest req) {                               │
+│          Currency currency = converter.getCurrentCurrency();  // Mockable!      │
+│          ExchangeRate rate = rateService.get();  // Mockable!                   │
+│      }                                                                          │
+│  }                                                                              │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ANTIPATTERN 5: Mocking What You Don't Own                                      │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ❌ BAD: Mocking third-party libraries                                          │
+│  ──────────────────────────────────────────────────────────────────────────── │
+│                                                                                 │
+│  @Mock private ObjectMapper mapper;  // Jackson library                         │
+│  @Mock private Logger logger;        // SLF4J library                           │
+│  @Mock private LocalDateTime now;    // JDK LocalDateTime                       │
+│                                                                                 │
+│  Problems:                                                                      │
+│  • Your mock might not behave like real library                                 │
+│  • Defeats purpose of using well-tested library                                 │
+│  • Test passes but real code breaks                                             │
+│                                                                                 │
+│  ✅ GOOD: Use real third-party code                                             │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  private ObjectMapper mapper = new ObjectMapper();  // Real                       │
+│  private Logger logger = LoggerFactory.getLogger(this.getClass());               │
+│  private LocalDateTime now = LocalDateTime.now();                                │
+│                                                                                 │
+│  If you need to mock time:                                                     │
+│  • Create a Clock service                                                       │
+│  • Inject it into class                                                         │
+│  • Mock the Clock, not LocalDateTime                                            │
+│                                                                                 │
+│  ────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ANTIPATTERN 6: Testing Multiple Concerns                                       │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  ❌ BAD: Super test that does everything                                        │
+│  ──────────────────────────────────────────────────────────────────────────── │
+│                                                                                 │
+│  @Test                                                                          │
+│  void endToEndFlow() {  // What happens when it fails?                          │
+│      // Create user                                                             │
+│      User user = service.createUser(request);                                   │
+│      assertEquals("john@example.com", user.getEmail());                         │
+│                                                                                 │
+│      // Login user                                                              │
+│      Token token = service.login(user);                                         │
+│      assertNotNull(token);                                                      │
+│                                                                                 │
+│      // Create order                                                            │
+│      Order order = service.createOrder(token, items);                           │
+│      assertEquals(100, order.getTotal());                                       │
+│                                                                                 │
+│      // Process payment                                                         │
+│      Result result = service.pay(order);                                        │
+│      assertTrue(result.isSuccess());                                            │
+│      // If fails here, was it user creation, login, order, or payment?          │
+│  }                                                                              │
+│                                                                                 │
+│  ✅ GOOD: Separate tests per behavior                                           │
+│  ─────────────────────────────────────────────────────────────────────────────  │
+│                                                                                 │
+│  class UserServiceTest {                                                        │
+│      @Test                                                                      │
+│      void createUser_SetsEmail() { ... }                                        │
+│  }                                                                              │
+│                                                                                 │
+│  class AuthServiceTest {                                                        │
+│      @Test                                                                      │
+│      void login_ReturnsToken() { ... }                                          │
+│  }                                                                              │
+│                                                                                 │
+│  class OrderServiceTest {                                                       │
+│      @Test                                                                      │
+│      void createOrder_CalculatesTotal() { ... }                                 │
+│  }                                                                              │
+│                                                                                 │
+│  class PaymentServiceTest {                                                     │
+│      @Test                                                                      │
+│      void processPayment_UpdatesStatus() { ... }                                │
+│  }                                                                              │
+│                                                                                 │
 │                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
