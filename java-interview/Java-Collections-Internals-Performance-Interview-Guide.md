@@ -66,17 +66,17 @@
             └─────┬────┘ └─────┬─────┘  └─────┬─────┘
                   │            │              │
             ┌─────┘      ┌────┴─────┐   ┌────▼─────┐
-            │            │          │   │   Deque   │
-      Implementations  SortedSet   │   └──────────┘
-      - ArrayList      │          │   - ArrayDeque
-      - LinkedList  NavigableSet  │   - LinkedList
-      - Vector         │          │   - PriorityQueue
-      - CopyOnWrite  TreeSet      │   - BlockingQueues
-        ArrayList    LinkedHashSet│
-                     HashSet      │
-                     EnumSet      │
-                                  │
-                            ┌─────┘
+            │            │          │   │   Deque  │
+      Implementations  SortedSet    │   └──────────┘
+      - ArrayList      │            │    - ArrayDeque
+      - LinkedList  NavigableSet    │    - LinkedList
+      - Vector         │            │   - PriorityQueue
+      - CopyOnWrite  TreeSet        │   - BlockingQueues
+        ArrayList    LinkedHashSet  │
+                     HashSet        │
+                     EnumSet        │
+                                    │
+                            ┌────--─┘
                             │
                       Implementations
                       - HashSet
@@ -152,17 +152,17 @@ while (lit.hasPrevious()) {
 
 ```
 ╔══════════════════════════╦═════════════════════════════════════════════════╗
-║       Comparable         ║         Comparator                             ║
+║       Comparable         ║         Comparator                              ║
 ╠══════════════════════════╬═════════════════════════════════════════════════╣
-║ java.lang.Comparable<T>  ║ java.util.Comparator<T>                       ║
-║ Object defines its own   ║ External comparison logic                     ║
-║   natural ordering       ║   (decoupled from class)                      ║
-║ compareTo(T o)           ║ compare(T o1, T o2)                           ║
-║ One per class            ║ Many per class (different orderings)           ║
-║ Used by: TreeSet,        ║ Used by: Collections.sort(list, comp),         ║
-║   TreeMap, sorted()      ║   stream().sorted(comp), TreeSet(comp)        ║
-║ Consistent with equals() ║ May differ from equals()                      ║
-║   — STRONGLY recommended ║   — document if inconsistent                  ║
+║ java.lang.Comparable<T>  ║ java.util.Comparator<T>                         ║
+║ Object defines its own   ║ External comparison logic                       ║
+║   natural ordering       ║   (decoupled from class)                        ║
+║ compareTo(T o)           ║ compare(T o1, T o2)                             ║
+║ One per class            ║ Many per class (different orderings)            ║
+║ Used by: TreeSet,        ║ Used by: Collections.sort(list, comp),          ║
+║   TreeMap, sorted()      ║   stream().sorted(comp), TreeSet(comp)          ║
+║ Consistent with equals() ║ May differ from equals()                        ║
+║   — STRONGLY recommended ║   — document if inconsistent                    ║
 ╚══════════════════════════╩═════════════════════════════════════════════════╝
 ```
 
@@ -223,23 +223,23 @@ Map<K,V> modern = new HashMap<>(legacyHashtable);
 
 ```
 ╔══════════════════════╦═══════╦════════╦═════════╦══════════╦════════════════════════════╗
-║ Implementation        ║ Order  ║ Nulls  ║ Thread  ║ Dups     ║ Backed By                 ║
-║                       ║        ║        ║ Safe    ║          ║                           ║
+║ Implementation       ║ Order ║ Nulls  ║ Thread  ║ Dups     ║ Backed By                  ║
+║                      ║       ║        ║ Safe    ║          ║                            ║
 ╠══════════════════════╬═══════╬════════╬═════════╬══════════╬════════════════════════════╣
-║ ArrayList            ║ Index  ║ Yes    ║ No      ║ Yes      ║ Object[]                  ║
-║ LinkedList           ║ Index  ║ Yes    ║ No      ║ Yes      ║ Doubly-linked nodes       ║
-║ CopyOnWriteArrayList ║ Index  ║ Yes    ║ Yes     ║ Yes      ║ Copy-on-write Object[]    ║
+║ ArrayList            ║ Index ║ Yes    ║ No      ║ Yes      ║ Object[]                   ║
+║ LinkedList           ║ Index ║ Yes    ║ No      ║ Yes      ║ Doubly-linked nodes        ║
+║ CopyOnWriteArrayList ║ Index ║ Yes    ║ Yes     ║ Yes      ║ Copy-on-write Object[]     ║
 ╠══════════════════════╬═══════╬════════╬═════════╬══════════╬════════════════════════════╣
-║ HashSet              ║ None   ║ 1 null ║ No      ║ No       ║ HashMap                   ║
-║ LinkedHashSet        ║ Insert ║ 1 null ║ No      ║ No       ║ LinkedHashMap              ║
-║ TreeSet              ║ Sorted ║ No*    ║ No      ║ No       ║ TreeMap (Red-Black Tree)   ║
+║ HashSet              ║ None  ║ 1 null ║ No      ║ No       ║ HashMap                    ║
+║ LinkedHashSet        ║ Insert ║ 1 null ║ No      ║ No       ║ LinkedHashMap             ║
+║ TreeSet              ║ Sorted ║ No*    ║ No      ║ No       ║ TreeMap (Red-Black Tree)  ║
 ║ EnumSet              ║ Enum   ║ No     ║ No      ║ No       ║ Bit vector                ║
 ║ CopyOnWriteArraySet  ║ Insert ║ Yes    ║ Yes     ║ No       ║ CopyOnWriteArrayList      ║
 ╠══════════════════════╬═══════╬════════╬═════════╬══════════╬════════════════════════════╣
 ║ HashMap              ║ None   ║ 1 null ║ No      ║ No (key) ║ Array + linked/tree bins  ║
-║                       ║        ║ key    ║         ║          ║                           ║
+║                      ║        ║ key    ║         ║          ║                           ║
 ║ LinkedHashMap        ║ Insert ║ 1 null ║ No      ║ No (key) ║ HashMap + doubly-linked   ║
-║                       ║ /Access║ key   ║         ║          ║                           ║
+║                      ║ /Access║ key    ║         ║          ║                           ║
 ║ TreeMap              ║ Sorted ║ No*    ║ No      ║ No (key) ║ Red-Black Tree            ║
 ║ ConcurrentHashMap    ║ None   ║ No     ║ Yes     ║ No (key) ║ CAS + synchronized bins   ║
 ║ WeakHashMap          ║ None   ║ 1 null ║ No      ║ No (key) ║ Weak ref keys + ReferenceQ║
@@ -248,7 +248,7 @@ Map<K,V> modern = new HashMap<>(legacyHashtable);
 ╠══════════════════════╬═══════╬════════╬═════════╬══════════╬════════════════════════════╣
 ║ PriorityQueue        ║ Heap   ║ No     ║ No      ║ Yes      ║ Object[] (binary heap)    ║
 ║ ArrayDeque           ║ FIFO/  ║ No     ║ No      ║ Yes      ║ Circular Object[]         ║
-║                       ║ LIFO   ║        ║         ║          ║                           ║
+║                      ║ LIFO   ║        ║         ║          ║                           ║
 ║ ArrayBlockingQueue   ║ FIFO   ║ No     ║ Yes     ║ Yes      ║ Circular Object[] + locks ║
 ║ LinkedBlockingQueue  ║ FIFO   ║ No     ║ Yes     ║ Yes      ║ Linked nodes + 2 locks    ║
 ║ ConcurrentLinkedQueue║ FIFO   ║ No     ║ Yes     ║ Yes      ║ Lock-free linked nodes    ║
@@ -378,14 +378,14 @@ For ArrayList:
 ArrayList<E>:
   ┌─────────────────────────────────────────────────────┐
   │  Object[] elementData  (the backing array)          │
-  │  int size              (logical size, NOT capacity)  │
+  │  int size              (logical size, NOT capacity) │
   ├─────────────────────────────────────────────────────┤
   │  elementData:                                       │
   │  ┌────┬────┬────┬────┬────┬────┬────┬────┬────┬───┐ │
   │  │ e0 │ e1 │ e2 │ e3 │ e4 │null│null│null│null│...│ │
   │  └────┴────┴────┴────┴────┴────┴────┴────┴────┴───┘ │
-  │  ◄────── size=5 ──────►◄──── unused capacity ────► │
-  │  ◄────────────── elementData.length = 10 ────────► │
+  │  ◄────── size=5 ──────►◄──── unused capacity ────►  │
+  │  ◄────────────── elementData.length = 10 ────────►  │
   └─────────────────────────────────────────────────────┘
 ```
 
@@ -465,18 +465,18 @@ public E next() {
 ```
 LinkedList<E>:
   ┌──────────────────────────────────────────────────────────────┐
-  │  int size                                                     │
+  │  int size                                                    │
   │  Node<E> first  ──────────┐                                  │
   │  Node<E> last   ──────────┼──┐                               │
   ├────────────────────────────┼──┼──────────────────────────────┤
-  │                            │  │                               │
-  │  null ◄── prev             ▼  │                               │
+  │                            │  │                              │
+  │  null ◄── prev             ▼  │                              │
   │        ┌──────┐  next  ┌──────┐  next  ┌──────┐  next        │
   │        │ Node │ ─────► │ Node │ ─────► │ Node │ ─────► null  │
   │   null │ item │ ◄───── │ item │ ◄───── │ item │              │
-  │        │  =A  │  prev  │  =B  │  prev  │  =C  │◄─────┘      │
+  │        │  =A  │  prev  │  =B  │  prev  │  =C  │◄─────┘       │
   │        └──────┘        └──────┘        └──────┘              │
-  │          ▲ first                          ▲ last              │
+  │          ▲ first                          ▲ last             │
   └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -608,7 +608,7 @@ NOT suitable for:
 
 ```
 ╔═══════════════════════╦════════════════╦════════════════╦══════════════════════╗
-║ Operation              ║ ArrayList      ║ LinkedList     ║ CopyOnWriteArrayList ║
+║ Operation             ║ ArrayList      ║ LinkedList     ║ CopyOnWriteArrayList ║
 ╠═══════════════════════╬════════════════╬════════════════╬══════════════════════╣
 ║ get(index)            ║ O(1)           ║ O(N)           ║ O(1)                 ║
 ║ set(index, e)         ║ O(1)           ║ O(N)           ║ O(N) (copy)          ║
@@ -619,7 +619,7 @@ NOT suitable for:
 ║ contains(e)           ║ O(N)           ║ O(N)           ║ O(N)                 ║
 ║ iterator.next()       ║ O(1)           ║ O(1)           ║ O(1) (snapshot)      ║
 ║ iterator.remove()     ║ O(N)           ║ O(1)           ║ Not supported        ║
-║ addFirst/addLast      ║ O(N) / O(1)*   ║ O(1) / O(1)   ║ O(N) (copy)          ║
+║ addFirst/addLast      ║ O(N) / O(1)*   ║ O(1) / O(1)    ║ O(N) (copy)          ║
 ║ size()                ║ O(1)           ║ O(1)           ║ O(1)                 ║
 ╠═══════════════════════╬════════════════╬════════════════╬══════════════════════╣
 ║ Thread-safe           ║ No             ║ No             ║ Yes                  ║
@@ -767,14 +767,14 @@ Load Factor (λ) = number of entries / number of buckets
   Why 0.75?
   ┌──────────────────────────────────────────────┐
   │  At λ = 0.75, Poisson distribution predicts: │
-  │  P(bucket has 0 entries) = 0.4724             │
-  │  P(bucket has 1 entry)   = 0.3543             │
-  │  P(bucket has 2 entries) = 0.1329             │
-  │  P(bucket has 8+ entries)= 0.00000006         │
-  │                                                │
-  │  → 8+ collisions virtually never happen       │
-  │  → treeification is extremely rare            │
-  │  → 25% wasted space is acceptable trade-off   │
+  │  P(bucket has 0 entries) = 0.4724            │
+  │  P(bucket has 1 entry)   = 0.3543            │
+  │  P(bucket has 2 entries) = 0.1329            │
+  │  P(bucket has 8+ entries)= 0.00000006        │
+  │                                              │
+  │  → 8+ collisions virtually never happen      │
+  │  → treeification is extremely rare           │
+  │  → 25% wasted space is acceptable trade-off  │
   └──────────────────────────────────────────────┘
 ```
 
@@ -827,12 +827,12 @@ When size > threshold → resize (double the capacity)
 ```
 The Contract (JSR / java.lang.Object JavaDoc):
   ╔═══════════════════════════════════════════════════════════════════════╗
-  ║ 1. If a.equals(b) is true  → a.hashCode() == b.hashCode() MUST hold ║
-  ║ 2. If a.hashCode() != b.hashCode() → a.equals(b) MUST be false      ║
-  ║ 3. If a.hashCode() == b.hashCode() → a.equals(b) MAY be true or not ║
+  ║ 1. If a.equals(b) is true  → a.hashCode() == b.hashCode() MUST hold   ║
+  ║ 2. If a.hashCode() != b.hashCode() → a.equals(b) MUST be false        ║
+  ║ 3. If a.hashCode() == b.hashCode() → a.equals(b) MAY be true or not   ║
   ║    (hash collisions are allowed)                                      ║
-  ║ 4. hashCode() must return the same value within a single execution   ║
-  ║    (consistency — unless fields used in equals() change)             ║
+  ║ 4. hashCode() must return the same value within a single execution    ║
+  ║    (consistency — unless fields used in equals() change)              ║
   ╚═══════════════════════════════════════════════════════════════════════╝
 
 Breaking the contract:
@@ -931,17 +931,17 @@ HashSet.add("Hello"):
 
 ```
 ╔═══════════════════════╦══════════════════════════════════════════════════╗
-║ Parameter              ║ Details                                          ║
+║ Parameter             ║ Details                                          ║
 ╠═══════════════════════╬══════════════════════════════════════════════════╣
-║ Default capacity      ║ 16 (always power of 2)                          ║
-║ Default load factor   ║ 0.75 (good balance of space vs. time)           ║
-║ Threshold             ║ capacity × loadFactor = 12 (initial resize at)  ║
-║ Resize factor         ║ 2× (doubles capacity)                           ║
-║ TREEIFY_THRESHOLD     ║ 8 — bin converts to Red-Black Tree when chain   ║
-║                        ║   length >= 8 AND capacity >= 64                ║
-║ UNTREEIFY_THRESHOLD   ║ 6 — tree converts back to list after removal    ║
-║ MIN_TREEIFY_CAPACITY  ║ 64 — won't treeify if capacity < 64 (resizes   ║
-║                        ║   instead)                                      ║
+║ Default capacity      ║ 16 (always power of 2)                           ║
+║ Default load factor   ║ 0.75 (good balance of space vs. time)            ║
+║ Threshold             ║ capacity × loadFactor = 12 (initial resize at)   ║
+║ Resize factor         ║ 2× (doubles capacity)                            ║
+║ TREEIFY_THRESHOLD     ║ 8 — bin converts to Red-Black Tree when chain    ║
+║                       ║   length >= 8 AND capacity >= 64                 ║
+║ UNTREEIFY_THRESHOLD   ║ 6 — tree converts back to list after removal     ║
+║ MIN_TREEIFY_CAPACITY  ║ 64 — won't treeify if capacity < 64 (resizes     ║
+║                       ║   instead)                                       ║
 ╚═══════════════════════╩══════════════════════════════════════════════════╝
 
 Collision handling evolution:
@@ -969,15 +969,15 @@ LinkedHashSet<E>:
   │  Extends HashSet, backed by LinkedHashMap                       │
   │                                                                 │
   │  Hash Table buckets:     Doubly-linked list (insertion order):  │
-  │  ┌───┐                                                         │
-  │  │ 0 │──► nodeA ──────────────────────────────────────────┐    │
+  │  ┌───┐                                                          │
+  │  │ 0 │──► nodeA ──────────────────────────────────────────┐     │
   │  ├───┤                                                     │    │
-  │  │ 1 │──► nodeC      head ──► nodeA ──► nodeB ──► nodeC ──►tail│
-  │  ├───┤                 ◄──────── ◄──────── ◄──────── ◄─────    │
+  │  │ 1 │──► nodeC      head ──► nodeA ──► nodeB ──► nodeC ──►tail │
+  │  ├───┤                 ◄──────── ◄──────── ◄──────── ◄─────     │
   │  │ 2 │                (doubly-linked for insertion order)       │
-  │  ├───┤                                                         │
-  │  │ 3 │──► nodeB                                                │
-  │  └───┘                                                         │
+  │  ├───┤                                                          │
+  │  │ 3 │──► nodeB                                                 │
+  │  └───┘                                                          │
   └─────────────────────────────────────────────────────────────────┘
 
   Each node has: before/after pointers (linked list) + next pointer (bucket chain)
@@ -1035,13 +1035,13 @@ A **self-balancing BST** that uses node coloring and rotation rules to guarantee
 ```
 Red-Black Tree Properties (ALL must be maintained):
   ╔══════════════════════════════════════════════════════════════════╗
-  ║ 1. Every node is either RED or BLACK                            ║
-  ║ 2. Root is always BLACK                                         ║
-  ║ 3. Every leaf (NIL/null) is BLACK                               ║
-  ║ 4. If a node is RED, both its children must be BLACK            ║
-  ║    (no two consecutive red nodes on any path)                   ║
-  ║ 5. Every path from root to any NIL leaf has the SAME number    ║
-  ║    of BLACK nodes ("black-height" is uniform)                   ║
+  ║ 1. Every node is either RED or BLACK                             ║
+  ║ 2. Root is always BLACK                                          ║
+  ║ 3. Every leaf (NIL/null) is BLACK                                ║
+  ║ 4. If a node is RED, both its children must be BLACK             ║
+  ║    (no two consecutive red nodes on any path)                    ║
+  ║ 5. Every path from root to any NIL leaf has the SAME number      ║
+  ║    of BLACK nodes ("black-height" is uniform)                    ║
   ╚══════════════════════════════════════════════════════════════════╝
 
   These properties guarantee:
@@ -1311,7 +1311,7 @@ record Point(int x, int y) {}  // correct equals/hashCode/toString for free
 
 ```
 ╔═══════════════════════╦═══════════╦═══════════════╦════════════╦══════════╗
-║ Operation              ║ HashSet   ║ LinkedHashSet ║ TreeSet    ║ EnumSet  ║
+║ Operation             ║ HashSet   ║ LinkedHashSet ║ TreeSet    ║ EnumSet  ║
 ╠═══════════════════════╬═══════════╬═══════════════╬════════════╬══════════╣
 ║ add(e)                ║ O(1)*     ║ O(1)*         ║ O(log N)   ║ O(1)     ║
 ║ contains(e)           ║ O(1)*     ║ O(1)*         ║ O(log N)   ║ O(1)     ║
@@ -1338,23 +1338,23 @@ record Point(int x, int y) {}  // correct equals/hashCode/toString for free
 HashMap<K,V>:
   ┌──────────────────────────────────────────────────────────────────────┐
   │  transient Node<K,V>[] table;    // bucket array (power of 2 length) │
-  │  int size;                        // number of key-value pairs        │
-  │  int threshold;                   // capacity × loadFactor            │
-  │  float loadFactor;                // default 0.75                     │
-  │  int modCount;                    // structural modification counter  │
+  │  int size;                        // number of key-value pairs       │
+  │  int threshold;                   // capacity × loadFactor           │
+  │  float loadFactor;                // default 0.75                    │
+  │  int modCount;                    // structural modification counter │
   └──────────────────────────────────────────────────────────────────────┘
 
   table (capacity = 16, loadFactor = 0.75, threshold = 12):
   ┌─────┬──────────────────────────────────────────────────────────────┐
-  │  0  │ null                                                          │
+  │  0  │ null                                                         │
   │  1  │ → Node(hash, "key1", val1, null)                             │
-  │  2  │ null                                                          │
-  │  3  │ → Node → Node → Node  (chain of 3, same bucket)             │
-  │  4  │ null                                                          │
-  │  5  │ → TreeNode (root of Red-Black Tree, ≥8 collisions)          │
-  │  6  │ null                                                          │
+  │  2  │ null                                                         │
+  │  3  │ → Node → Node → Node  (chain of 3, same bucket)              │
+  │  4  │ null                                                         │
+  │  5  │ → TreeNode (root of Red-Black Tree, ≥8 collisions)           │
+  │  6  │ null                                                         │
   │  7  │ → Node(hash, "key7", val7, null)                             │
-  │ ... │ ...                                                           │
+  │ ... │ ...                                                          │
   │ 15  │ → Node → Node (chain of 2)                                   │
   └─────┴──────────────────────────────────────────────────────────────┘
 ```
@@ -1508,22 +1508,22 @@ Why 8?
 
 ```
 ╔═══════════════════════╦══════════════════════╦════════════════════════════════╗
-║ Aspect                 ║ Pre-Java 8 (Segment) ║ Java 8+ (CAS + sync bins)    ║
+║ Aspect                ║ Pre-Java 8 (Segment) ║ Java 8+ (CAS + sync bins)      ║
 ╠═══════════════════════╬══════════════════════╬════════════════════════════════╣
-║ Locking granularity   ║ Segment (groups of   ║ Per-bin (each bucket has its  ║
-║                        ║   buckets), default  ║   own lock via synchronized   ║
-║                        ║   16 segments         ║   on first node in bin)      ║
-║ Read mechanism         ║ volatile reads,      ║ volatile reads, Unsafe/      ║
-║                        ║   no locking         ║   VarHandle, NO locking      ║
-║ Write mechanism        ║ Segment.lock()       ║ CAS for empty bin, sync on   ║
-║                        ║   (ReentrantLock)    ║   first node for occupied bin ║
-║ Concurrency level     ║ Fixed at construction║ Dynamic — scales to # bins    ║
-║ Treeification         ║ No                   ║ Yes (same as HashMap: ≥8)     ║
-║ size() accuracy       ║ Locks all segments   ║ Approximate (baseCount +      ║
-║                        ║                      ║   CounterCell[] for low       ║
-║                        ║                      ║   contention)                 ║
-║ computeIfAbsent       ║ N/A                  ║ Atomic — CAS + sync           ║
-║ Null keys/values      ║ No                   ║ No (by design — ambiguity)    ║
+║ Locking granularity   ║ Segment (groups of   ║ Per-bin (each bucket has its   ║
+║                       ║   buckets), default  ║   own lock via synchronized    ║
+║                       ║   16 segments        ║   on first node in bin)        ║
+║ Read mechanism        ║ volatile reads,      ║ volatile reads, Unsafe/        ║
+║                       ║   no locking         ║   VarHandle, NO locking        ║
+║ Write mechanism       ║ Segment.lock()       ║ CAS for empty bin, sync on     ║
+║                       ║   (ReentrantLock)    ║   first node for occupied bin  ║
+║ Concurrency level     ║ Fixed at construction║ Dynamic — scales to # bins     ║
+║ Treeification         ║ No                   ║ Yes (same as HashMap: ≥8)      ║
+║ size() accuracy       ║ Locks all segments   ║ Approximate (baseCount +       ║
+║                       ║                      ║   CounterCell[] for low        ║
+║                       ║                      ║   contention)                  ║
+║ computeIfAbsent       ║ N/A                  ║ Atomic — CAS + sync            ║
+║ Null keys/values      ║ No                   ║ No (by design — ambiguity)     ║
 ╚═══════════════════════╩══════════════════════╩════════════════════════════════╝
 ```
 
@@ -1624,11 +1624,11 @@ LinkedHashMap<K,V> extends HashMap<K,V>:
   │  + Doubly-linked list threading through ALL entries              │
   │                                                                  │
   │  Has two modes:                                                  │
-  │    accessOrder = false (default): linked list = insertion order   │
-  │    accessOrder = true:  linked list = access order (LRU → MRU)  │
+  │    accessOrder = false (default): linked list = insertion order  │
+  │    accessOrder = true:  linked list = access order (LRU → MRU)   │
   │                                                                  │
   │  Entry extends HashMap.Node, adds:                               │
-  │    Entry<K,V> before, after;   // doubly-linked list pointers   │
+  │    Entry<K,V> before, after;   // doubly-linked list pointers    │
   └──────────────────────────────────────────────────────────────────┘
 
   accessOrder = true:
@@ -1685,20 +1685,20 @@ TreeMap<K,V>:
   - Implements NavigableMap → range queries, floor/ceiling, etc.
 
   Internal structure:
-  ┌─────────────────────────────────────────────────────────┐
-  │  Entry<K,V> root;        // root of red-black tree       │
+  ┌───────────────────────────────────────────────────────────┐
+  │  Entry<K,V> root;        // root of red-black tree        │
   │  Comparator<? super K> comparator; // null = natural order│
   │  int size;                                                │
   │  int modCount;                                            │
-  └─────────────────────────────────────────────────────────┘
+  └───────────────────────────────────────────────────────────┘
 
   Entry node:
-  ┌─────────────────────────┐
-  │  K key                   │
-  │  V value                 │
+  ┌───────────────────────────┐
+  │  K key                    │
+  │  V value                  │
   │  Entry left, right, parent│
   │  boolean color (RED/BLACK)│
-  └─────────────────────────┘
+  └───────────────────────────┘
   Memory: ~56 bytes per entry
 ```
 
@@ -1730,7 +1730,7 @@ WeakHashMap<K,V>:
   ┌─────────────────────────────────────────────────────────────────┐
   │  Keys are wrapped in WeakReference<K>                           │
   │  When key has no strong references elsewhere → GC collects key  │
-  │  On next access to map, expired entries are silently cleaned up  │
+  │  On next access to map, expired entries are silently cleaned up │
   │                                                                 │
   │  Internal: ReferenceQueue<Object> queue; // GC enqueues expired │
   │  Before each operation: expungeStaleEntries() drains queue      │
@@ -1767,20 +1767,20 @@ map.put(new String("hello"), "world"); // new String → eligible for GC
 
 ```
 ╔══════════════════════╦════════════╦════════════════╦═══════════════╦══════════════╗
-║ Feature               ║ HashMap    ║ ConcurrentHM   ║ Hashtable     ║ synced Map   ║
+║ Feature              ║ HashMap    ║ ConcurrentHM   ║ Hashtable     ║ synced Map   ║
 ╠══════════════════════╬════════════╬════════════════╬═══════════════╬══════════════╣
-║ Thread-safe          ║ No         ║ Yes             ║ Yes           ║ Yes          ║
-║ Lock granularity     ║ N/A        ║ Per-bin (CAS +  ║ Entire map    ║ Entire map   ║
-║                       ║            ║   sync)        ║ (every method)║ (wrapper)    ║
-║ Null key             ║ 1 allowed  ║ Not allowed     ║ Not allowed   ║ 1 allowed    ║
-║ Null value           ║ Allowed    ║ Not allowed     ║ Not allowed   ║ Allowed      ║
-║ Iterator             ║ Fail-fast  ║ Weakly          ║ Fail-fast     ║ Fail-fast    ║
-║                       ║            ║   consistent    ║               ║              ║
-║ Atomic operations    ║ No         ║ Yes (compute,   ║ No            ║ No           ║
-║                       ║            ║ merge, putIf)  ║               ║              ║
-║ Read throughput      ║ Highest    ║ Near HashMap    ║ Low           ║ Low          ║
+║ Thread-safe          ║ No         ║ Yes            ║ Yes           ║ Yes          ║
+║ Lock granularity     ║ N/A        ║ Per-bin (CAS + ║ Entire map    ║ Entire map   ║
+║                      ║            ║   sync)        ║ (every method)║ (wrapper)    ║
+║ Null key             ║ 1 allowed  ║ Not allowed    ║ Not allowed   ║ 1 allowed    ║
+║ Null value           ║ Allowed    ║ Not allowed    ║ Not allowed   ║ Allowed      ║
+║ Iterator             ║ Fail-fast  ║ Weakly         ║ Fail-fast     ║ Fail-fast    ║
+║                      ║            ║   consistent   ║               ║              ║
+║ Atomic operations    ║ No         ║ Yes (compute,  ║ No            ║ No           ║
+║                      ║            ║ merge, putIf)  ║               ║              ║
+║ Read throughput      ║ Highest    ║ Near HashMap   ║ Low           ║ Low          ║
 ║   (multi-threaded)   ║ (unsafe)   ║ (no locks)     ║ (global lock) ║ (global lock)║
-║ Write throughput     ║ N/A        ║ High            ║ Low           ║ Low          ║
+║ Write throughput     ║ N/A        ║ High           ║ Low           ║ Low          ║
 ║   (multi-threaded)   ║ (unsafe)   ║ (per-bin lock) ║ (global lock) ║ (global lock)║
 ╚══════════════════════╩════════════╩════════════════╩═══════════════╩══════════════╝
 
@@ -1836,21 +1836,21 @@ Every Java object has a header, then fields, then optional padding:
 ```
   64-bit JVM with Compressed Oops (default for heap < 32GB):
   ┌─────────────────────────────────────────────────┐
-  │  Mark Word              (8 bytes)             │  ← hash, GC age, lock state
-  │  Klass Pointer           (4 bytes compressed)  │  ← pointer to class metadata
+  │  Mark Word              (8 bytes)               │  ← hash, GC age, lock state
+  │  Klass Pointer           (4 bytes compressed)   │  ← pointer to class metadata
   │  [Array Length]          (4 bytes, arrays only) │
-  │  Instance Fields         (varies)              │
-  │  Padding                 (to 8-byte boundary)  │
+  │  Instance Fields         (varies)               │
+  │  Padding                 (to 8-byte boundary)   │
   └─────────────────────────────────────────────────┘
 
   Minimum object size: 16 bytes (12-byte header + 4-byte padding)
   
   Example: Integer object
-  ┌────────────────────────┐
-  │ Mark Word     (8 bytes) │
-  │ Klass Ptr     (4 bytes) │
-  │ int value     (4 bytes) │
-  └────────────────────────┘
+  ┌──────────────────────────┐
+  │ Mark Word     (8 bytes)  │
+  │ Klass Ptr     (4 bytes)  │
+  │ int value     (4 bytes)  │
+  └──────────────────────────┘
   Total: 16 bytes for one int (4× overhead vs primitive)
 
   Example: String object (Java 9+ compact strings)
@@ -1858,9 +1858,9 @@ Every Java object has a header, then fields, then optional padding:
   │ Mark Word         (8 bytes)  │
   │ Klass Ptr         (4 bytes)  │
   │ byte[] value ref  (4 bytes)  │  ← reference to backing array
-  │ int hash           (4 bytes)  │  ← cached hashCode
+  │ int hash          (4 bytes)  │  ← cached hashCode
   │ byte coder         (1 byte)  │  ← LATIN1 or UTF16
-  │ padding            (3 bytes)  │
+  │ padding           (3 bytes)  │
   └──────────────────────────────┘
   String object: 24 bytes + byte[] array overhead  
 ```
@@ -1900,17 +1900,17 @@ Every Java object has a header, then fields, then optional padding:
   Strong > Soft > Weak > Phantom
   
   GC decision tree:
-  ┌──────────────────────────────────────────────┐
-  │ Object has strong reference?                    │
-  │   YES → KEEP (never collected)                  │
-  │   NO → Has soft reference?                       │
-  │          YES → KEEP unless memory pressure       │
-  │          NO → Has weak reference?                 │
-  │                 YES → COLLECT at next GC          │
+  ┌────────────────────────────────────────────────────┐
+  │ Object has strong reference?                       │
+  │   YES → KEEP (never collected)                     │
+  │   NO → Has soft reference?                         │
+  │          YES → KEEP unless memory pressure         │
+  │          NO → Has weak reference?                  │
+  │                 YES → COLLECT at next GC           │
   │                 NO → Has phantom reference?        │
-  │                        YES → Enqueue, then COLLECT│
-  │                        NO → COLLECT immediately   │
-  └──────────────────────────────────────────────┘
+  │                        YES → Enqueue, then COLLECT │
+  │                        NO → COLLECT immediately    │
+  └────────────────────────────────────────────────────┘
 ```
 
 ```java
@@ -1941,15 +1941,15 @@ if (data == null) {
 
 ```
   Mark Word (64-bit JVM):
-  ┌─────────────────────────────────────────────────┐
-  │ State          │  Bits Layout                     │
-  ├────────────────┼────────────────────────────────┤
-  │ Unlocked       │ [hashCode:31][age:4][biased:0][01]│
-  │ Biased Lock    │ [threadId:54][epoch:2][age:4][1][01]│
-  │ Lightweight    │ [ptr to lock record :62][00]      │
-  │ Heavyweight    │ [ptr to monitor   :62][10]      │
-  │ GC Marked      │ [forwarding address:62][11]      │
-  └────────────────┴────────────────────────────────┘
+  ┌───────────────────────────────────────────────────────┐
+  │ State          │  Bits Layout                         │
+  ├────────────────┼──────────────────────────────────────┤
+  │ Unlocked       │ [hashCode:31][age:4][biased:0][01]   │
+  │ Biased Lock    │ [threadId:54][epoch:2][age:4][1][01] │
+  │ Lightweight    │ [ptr to lock record :62][00]         │
+  │ Heavyweight    │ [ptr to monitor   :62][10]           │
+  │ GC Marked      │ [forwarding address:62][11]          │
+  └────────────────┴──────────────────────────────────────┘
 
   This is why:
   - hashCode() is "free" for identity hashing (stored in header)
@@ -1969,9 +1969,9 @@ if (data == null) {
 ```
 PriorityQueue<E>:
   ┌──────────────────────────────────────────────────────────────┐
-  │  Object[] queue;          // binary heap stored in array      │
-  │  int size;                                                    │
-  │  Comparator<? super E> comparator;  // null = natural order   │
+  │  Object[] queue;          // binary heap stored in array     │
+  │  int size;                                                   │
+  │  Comparator<? super E> comparator;  // null = natural order  │
   └──────────────────────────────────────────────────────────────┘
 
   Binary min-heap property: parent ≤ both children (for min-heap)
@@ -2075,18 +2075,18 @@ ArrayDeque<E>:
 #### Why ArrayDeque Is Better Than Stack and LinkedList
 
 ```
-╔══════════════════════╦════════════════╦═══════════════╦═══════════════════╗
-║ Property              ║ ArrayDeque     ║ Stack (Vector) ║ LinkedList       ║
-╠══════════════════════╬════════════════╬═══════════════╬═══════════════════╣
-║ Push/Pop             ║ O(1) amortized ║ O(1) amortized║ O(1)             ║
-║ Synchronized         ║ No             ║ Yes (always!)  ║ No               ║
-║ Memory/element       ║ ~8 bytes       ║ ~8 bytes + sync║ ~40 bytes (node) ║
-║ Cache-friendly       ║ Yes (array)    ║ Yes (array)    ║ No (scattered)   ║
-║ Random access        ║ No (by design) ║ Yes (breaks    ║ O(N) — slow      ║
-║                       ║                ║   stack API)   ║                   ║
-║ Null elements        ║ No             ║ Yes            ║ Yes              ║
-║ Iterator order       ║ Head → Tail    ║ Bottom → Top   ║ First → Last     ║
-╚══════════════════════╩════════════════╩═══════════════╩═══════════════════╝
+╔══════════════════════╦════════════════╦═════════════════╦═══════════════════╗
+║ Property             ║ ArrayDeque     ║ Stack (Vector)  ║ LinkedList        ║
+╠══════════════════════╬════════════════╬═════════════════╬═══════════════════╣
+║ Push/Pop             ║ O(1) amortized ║ O(1) amortized  ║ O(1)              ║
+║ Synchronized         ║ No             ║ Yes (always!)   ║ No                ║
+║ Memory/element       ║ ~8 bytes       ║ ~8 bytes + sync ║ ~40 bytes (node)  ║
+║ Cache-friendly       ║ Yes (array)    ║ Yes (array)     ║ No (scattered)    ║
+║ Random access        ║ No (by design) ║ Yes (breaks     ║ O(N) — slow       ║
+║                      ║                ║   stack API)    ║                   ║
+║ Null elements        ║ No             ║ Yes             ║ Yes               ║
+║ Iterator order       ║ Head → Tail    ║ Bottom → Top    ║ First → Last      ║
+╚══════════════════════╩════════════════╩═════════════════╩═══════════════════╝
 
 Javadoc: "This class is likely to be faster than Stack when used as a stack,
           and faster than LinkedList when used as a queue."
@@ -2100,7 +2100,7 @@ Javadoc: "This class is likely to be faster than Stack when used as a stack,
 
 ```
 ╔═══════════════════════════╦═════════════╦═══════════╦════════════════════════════════╗
-║ Implementation             ║ Bounded?    ║ Ordering  ║ Internal Structure             ║
+║ Implementation            ║ Bounded?    ║ Ordering  ║ Internal Structure             ║
 ╠═══════════════════════════╬═════════════╬═══════════╬════════════════════════════════╣
 ║ ArrayBlockingQueue        ║ Yes (fixed) ║ FIFO      ║ Circular array + single lock   ║
 ║ LinkedBlockingQueue       ║ Optional    ║ FIFO      ║ Linked nodes + TWO locks       ║
@@ -2115,25 +2115,25 @@ Javadoc: "This class is likely to be faster than Stack when used as a stack,
 
 ```
 ArrayBlockingQueue:
-  ┌──────────────────────────────────────────────────────┐
+  ┌───────────────────────────────────────────────────────┐
   │  Object[] items;         // fixed-size circular array │
   │  int takeIndex, putIndex; // head and tail pointers   │
   │  int count;                                           │
   │  ReentrantLock lock;     // SINGLE lock for both ops  │
   │  Condition notEmpty;     // signals waiting consumers │
   │  Condition notFull;      // signals waiting producers │
-  └──────────────────────────────────────────────────────┘
+  └───────────────────────────────────────────────────────┘
   → Single lock = producers and consumers contend with each other
   → Fixed capacity → predictable memory usage
 
 LinkedBlockingQueue:
-  ┌──────────────────────────────────────────────────────┐
+  ┌───────────────────────────────────────────────────────┐
   │  Node<E> head, last;                                  │
   │  AtomicInteger count;                                 │
   │  ReentrantLock takeLock;  // separate lock for takes  │
   │  ReentrantLock putLock;   // separate lock for puts   │
   │  Condition notEmpty, notFull;                         │
-  └──────────────────────────────────────────────────────┘
+  └───────────────────────────────────────────────────────┘
   → TWO locks = producers and consumers can operate concurrently
   → Higher throughput when both putting and taking simultaneously
   → Default capacity: Integer.MAX_VALUE (effectively unbounded — dangerous!)
@@ -2217,7 +2217,7 @@ SynchronousQueue:
 
 ```
 ╔═══════════════════════════╦═══════════╦═════════════╦═══════════════╦═══════════╗
-║ Operation                  ║ ArrayDeque║ PriorityQ   ║ ArrayBlockQ   ║ LinkedBQ  ║
+║ Operation                 ║ ArrayDeque║ PriorityQ   ║ ArrayBlockQ   ║ LinkedBQ  ║
 ╠═══════════════════════════╬═══════════╬═════════════╬═══════════════╬═══════════╣
 ║ offer / add (tail)        ║ O(1)*     ║ O(log N)    ║ O(1)          ║ O(1)      ║
 ║ poll / remove (head)      ║ O(1)      ║ O(log N)    ║ O(1)          ║ O(1)      ║
@@ -2299,14 +2299,14 @@ try {
 
 ```
   Java Memory Model (JMM) Happens-Before Rules:
-  ╔════════════════════════════════════════════════════════════════════╗
-  ║ 1. Program order: actions in a thread happen in sequence       ║
+  ╔═══════════════════════════════════════════════════════════════╗
+  ║ 1. Program order: actions in a thread happen in sequence      ║
   ║ 2. Monitor lock: unlock HB subsequent lock of same monitor    ║
   ║ 3. Volatile: write HB subsequent read of same variable        ║
-  ║ 4. Thread start: Thread.start() HB any action in new thread  ║
+  ║ 4. Thread start: Thread.start() HB any action in new thread   ║
   ║ 5. Thread join: all actions in thread HB return from join()   ║
-  ║ 6. Transitivity: if A HB B and B HB C, then A HB C           ║
-  ╚════════════════════════════════════════════════════════════════════╝
+  ║ 6. Transitivity: if A HB B and B HB C, then A HB C            ║
+  ╚═══════════════════════════════════════════════════════════════╝
   
   HB = Happens-Before
   → This is how ConcurrentHashMap guarantees visibility WITHOUT global locks:
@@ -2391,16 +2391,16 @@ do {
 
 ```
 ╔═══════════════════════╦══════════════════════════════╦═══════════════════════════════╗
-║ Property               ║ Fail-Fast                    ║ Weakly Consistent (Fail-Safe) ║
+║ Property              ║ Fail-Fast                    ║ Weakly Consistent (Fail-Safe) ║
 ╠═══════════════════════╬══════════════════════════════╬═══════════════════════════════╣
 ║ Throws CME?           ║ Yes — on structural mod      ║ Never                         ║
-║ Detection             ║ modCount != expectedModCount║ N/A                           ║
-║ Data snapshot          ║ No — sees live structure     ║ Yes — snapshot or eventual    ║
+║ Detection             ║ modCount != expectedModCount ║ N/A                           ║
+║ Data snapshot         ║ No — sees live structure     ║ Yes — snapshot or eventual    ║
 ║ Used by               ║ ArrayList, HashMap, HashSet, ║ ConcurrentHashMap,            ║
-║                        ║ LinkedList, TreeMap          ║ CopyOnWriteArrayList,         ║
-║                        ║                              ║ ConcurrentLinkedQueue          ║
+║                       ║ LinkedList, TreeMap          ║ CopyOnWriteArrayList,         ║
+║                       ║                              ║ ConcurrentLinkedQueue         ║
 ║ Guarantees            ║ "Best effort" only — not     ║ Elements returned at most     ║
-║                        ║ guaranteed under races       ║ once, no CME, eventual data   ║
+║                       ║ guaranteed under races       ║ once, no CME, eventual data   ║
 ║ Concurrent safe?      ║ No — designed for detection  ║ Yes — designed for concurrency║
 ╚═══════════════════════╩══════════════════════════════╩═══════════════════════════════╝
 ```
@@ -2441,7 +2441,7 @@ Synchronized wrappers (Collections.synchronizedXxx):
   │  Problems:                                                       │
   │  1. Global lock → only ONE thread can access at a time           │
   │  2. Compound operations are NOT atomic:                          │
-  │     if (!map.containsKey(k)) map.put(k, v);  // RACE CONDITION! │
+  │     if (!map.containsKey(k)) map.put(k, v);  // RACE CONDITION!  │
   │  3. Iteration requires manual synchronization:                   │
   │     synchronized (map) {                                         │
   │         for (var entry : map.entrySet()) { ... }  // must hold lock │
@@ -2452,8 +2452,8 @@ Synchronized wrappers (Collections.synchronizedXxx):
 Concurrent collections (java.util.concurrent):
   ┌──────────────────────────────────────────────────────────────────┐
   │  Fine-grained locking or lock-free algorithms                    │
-  │  Atomic compound operations (computeIfAbsent, merge, etc.)      │
-  │  Weakly consistent iterators (no CME, no external sync needed)  │
+  │  Atomic compound operations (computeIfAbsent, merge, etc.)       │
+  │  Weakly consistent iterators (no CME, no external sync needed)   │
   │  Much higher throughput under contention                         │
   └──────────────────────────────────────────────────────────────────┘
 ```
@@ -2480,7 +2480,7 @@ concMap.computeIfAbsent("customer-1", k -> new CopyOnWriteArrayList<>()).add(new
 
 ```
 ╔═══════════════════════════════════╦═══════════════════════════════════════════════╗
-║ Requirement                        ║ Recommended Collection                        ║
+║ Requirement                       ║ Recommended Collection                        ║
 ╠═══════════════════════════════════╬═══════════════════════════════════════════════╣
 ║ Concurrent key-value store        ║ ConcurrentHashMap                             ║
 ║ Concurrent sorted map             ║ ConcurrentSkipListMap                         ║
@@ -2797,8 +2797,8 @@ Key insight:
 
 ```
 ╔═══════════════════╦═══════╦═════════╦══════════╦════════╦═══════════╦════════════╗
-║ Operation          ║ Array ║ Linked  ║ HashMap  ║ TreeMap║ PriorityQ ║ ArrayDeque ║
-║                    ║ List  ║ List    ║ /HashSet ║/TreeSet║ (heap)    ║            ║
+║ Operation         ║ Array ║ Linked  ║ HashMap  ║ TreeMap║ PriorityQ ║ ArrayDeque ║
+║                   ║ List  ║ List    ║ /HashSet ║/TreeSet║ (heap)    ║            ║
 ╠═══════════════════╬═══════╬═════════╬══════════╬════════╬═══════════╬════════════╣
 ║ get(index)        ║ O(1)  ║ O(N)    ║  N/A     ║  N/A   ║  N/A      ║  N/A       ║
 ║ get(key)          ║ N/A   ║ N/A     ║ O(1)*    ║O(log N)║  N/A      ║  N/A       ║
@@ -2831,7 +2831,7 @@ Key insight:
 Bytes per element (approximate, 64-bit JVM, compressed oops):
 
 ╔══════════════════════════╦═════════════════╦══════════════════════════════════╗
-║ Data Structure            ║ Bytes/Element   ║ Breakdown                        ║
+║ Data Structure           ║ Bytes/Element   ║ Breakdown                        ║
 ╠══════════════════════════╬═════════════════╬══════════════════════════════════╣
 ║ int[] (primitive array)  ║      4 bytes    ║ raw value, no overhead           ║
 ║ Integer[] (boxed)        ║     20 bytes    ║ 16 (header) + 4 (int value)      ║
@@ -2843,8 +2843,8 @@ Bytes per element (approximate, 64-bit JVM, compressed oops):
 ║ TreeSet<String>          ║   ~88 bytes     ║ 56 (TreeEntry) + ~32 (String)    ║
 ║ EnumSet                  ║    ~1 bit       ║ bit vector (1 long for ≤64 enums)║
 ╠══════════════════════════╬═════════════════╬══════════════════════════════════╣
-║ HashMap<String,String>   ║   ~120 bytes    ║ 48 (Node) + 32 (key) + 32 (val) ║
-║ TreeMap<String,String>   ║   ~128 bytes    ║ 56 (Entry) + 32 (key) + 32 (val)║
+║ HashMap<String,String>   ║   ~120 bytes    ║ 48 (Node) + 32 (key) + 32 (val)  ║
+║ TreeMap<String,String>   ║   ~128 bytes    ║ 56 (Entry) + 32 (key) + 32 (val) ║
 ║ ConcurrentHashMap        ║   ~120 bytes    ║ similar to HashMap per entry     ║
 ╠══════════════════════════╬═════════════════╬══════════════════════════════════╣
 ║ PriorityQueue<Integer>   ║   ~28 bytes     ║ 8 (ref in array) + 20 (Integer)  ║
@@ -2981,29 +2981,29 @@ When dealing with millions of entries:
 ╔══════════════════════════════════════╦══════════════════════════════════════════╗
 ║ Concern                              ║ Mitigation                               ║
 ╠══════════════════════════════════════╬══════════════════════════════════════════╣
-║ OOM from large HashMap              ║ Use off-heap: Chronicle Map, MapDB       ║
+║ OOM from large HashMap               ║ Use off-heap: Chronicle Map, MapDB       ║
 ║                                      ║ Or partition across JVMs (Redis, Hazelcast)║
 ╠══════════════════════════════════════╬══════════════════════════════════════════╣
-║ HashMap resize spike                ║ Pre-size aggressively                    ║
-║ (copies millions of entries)        ║ Or use ConcurrentHashMap (incremental    ║
+║ HashMap resize spike                 ║ Pre-size aggressively                    ║
+║ (copies millions of entries)         ║ Or use ConcurrentHashMap (incremental    ║
 ║                                      ║   resize via forwarding nodes)           ║
 ╠══════════════════════════════════════╬══════════════════════════════════════════╣
-║ GC pressure from boxed primitives   ║ Eclipse Collections: IntObjectHashMap    ║
+║ GC pressure from boxed primitives    ║ Eclipse Collections: IntObjectHashMap    ║
 ║                                      ║ Koloboke: HashIntIntMap                  ║
 ║                                      ║ HPPC: IntIntHashMap (no boxing)          ║
 ╠══════════════════════════════════════╬══════════════════════════════════════════╣
-║ Sorting millions of elements        ║ Arrays.parallelSort() (fork-join merge)  ║
+║ Sorting millions of elements         ║ Arrays.parallelSort() (fork-join merge)  ║
 ║                                      ║ External merge sort for disk-based data  ║
 ╠══════════════════════════════════════╬══════════════════════════════════════════╣
-║ Memory layout inefficiency          ║ Consider array-of-structs vs struct-of-  ║
-║ (pointers to objects everywhere)    ║   arrays layout for cache efficiency     ║
+║ Memory layout inefficiency           ║ Consider array-of-structs vs struct-of-  ║
+║ (pointers to objects everywhere)     ║   arrays layout for cache efficiency     ║
 ║                                      ║ Project Valhalla (value types) will fix  ║
 ╠══════════════════════════════════════╬══════════════════════════════════════════╣
-║ Concurrent access at scale          ║ ConcurrentHashMap (not sync wrapper)     ║
+║ Concurrent access at scale           ║ ConcurrentHashMap (not sync wrapper)     ║
 ║                                      ║ Striped locks for custom structures      ║
 ║                                      ║ Thread-local accumulation + periodic merge║
 ╠══════════════════════════════════════╬══════════════════════════════════════════╣
-║ Iteration over huge collections     ║ Stream.parallel() for CPU-bound          ║
+║ Iteration over huge collections      ║ Stream.parallel() for CPU-bound          ║
 ║                                      ║ Batched processing (limit/skip)          ║
 ║                                      ║ Cursor/pagination for external data      ║
 ╚══════════════════════════════════════╩══════════════════════════════════════════╝
@@ -3179,23 +3179,23 @@ Collections.shuffle(list);                   // random permutation
 
 ```
 ╔══════════════════════════════╦═══════════════════════════╦═══════════════════════════════╗
-║ Method                        ║ Returns                   ║ Notes                         ║
+║ Method                       ║ Returns                   ║ Notes                         ║
 ╠══════════════════════════════╬═══════════════════════════╬═══════════════════════════════╣
-║ Collections.unmodifiable      ║ Unmodifiable VIEW         ║ Backed by original — changes  ║
+║ Collections.unmodifiable     ║ Unmodifiable VIEW         ║ Backed by original — changes  ║
 ║   List/Set/Map(original)     ║ of the original           ║   to original reflect here!   ║
 ╠══════════════════════════════╬═══════════════════════════╬═══════════════════════════════╣
-║ List.of() / Set.of()        ║ Truly IMMUTABLE copy      ║ No null elements allowed.     ║
-║ Map.of()  (Java 9+)         ║ (not backed by anything)  ║ Set.of: no duplicates         ║
+║ List.of() / Set.of()         ║ Truly IMMUTABLE copy      ║ No null elements allowed.     ║
+║ Map.of()  (Java 9+)          ║ (not backed by anything)  ║ Set.of: no duplicates         ║
 ╠══════════════════════════════╬═══════════════════════════╬═══════════════════════════════╣
-║ List.copyOf() / Set.copyOf()║ Immutable copy of input   ║ Returns same reference if     ║
-║ Map.copyOf()  (Java 10+)    ║                           ║ input is already immutable    ║
+║ List.copyOf() / Set.copyOf() ║ Immutable copy of input   ║ Returns same reference if     ║
+║ Map.copyOf()  (Java 10+)     ║                           ║ input is already immutable    ║
 ╠══════════════════════════════╬═══════════════════════════╬═══════════════════════════════╣
 ║ Collectors.toUnmodifiable    ║ Immutable from stream     ║ toUnmodifiableList(),         ║
-║   List/Set/Map (Java 10+)   ║   pipeline                ║ toUnmodifiableSet(),          ║
-║                               ║                           ║ toUnmodifiableMap()           ║
+║   List/Set/Map (Java 10+)    ║   pipeline                ║ toUnmodifiableSet(),          ║
+║                              ║                           ║ toUnmodifiableMap()           ║
 ╠══════════════════════════════╬═══════════════════════════╬═══════════════════════════════╣
-║ Stream.toList() (Java 16+)  ║ Unmodifiable list         ║ Shorthand for                 ║
-║                               ║                           ║ collect(toUnmodifiableList()) ║
+║ Stream.toList() (Java 16+)   ║ Unmodifiable list         ║ Shorthand for                 ║
+║                              ║                           ║ collect(toUnmodifiableList()) ║
 ╚══════════════════════════════╩═══════════════════════════╩═══════════════════════════════╝
 ```
 
@@ -3257,7 +3257,7 @@ Spliterator<T>: "Splittable Iterator" — designed for parallel processing
   │                                                                 │
   │  int characteristics()                                          │
   │     → Bit flags describing the source (ORDERED, DISTINCT,       │
-  │       SORTED, SIZED, NONNULL, IMMUTABLE, CONCURRENT, SUBSIZED) │
+  │       SORTED, SIZED, NONNULL, IMMUTABLE, CONCURRENT, SUBSIZED)  │
   └─────────────────────────────────────────────────────────────────┘
 
 How parallel streams use Spliterator:
@@ -3320,13 +3320,13 @@ class ResultSetSpliterator implements Spliterator<Row> {
 ╔════════════════════════════════╦══════════════════════════════════════════════╗
 ║ Use parallel WHEN              ║ AVOID parallel WHEN                          ║
 ╠════════════════════════════════╬══════════════════════════════════════════════╣
-║ CPU-intensive computation     ║ I/O-bound operations (DB, HTTP, file)        ║
-║ Large datasets (>10K elements)║ Small datasets (<10K elements)               ║
-║ Stateless operations          ║ Stateful operations (shared mutable state)   ║
-║ Source: ArrayList, arrays     ║ Source: LinkedList, Stream.iterate()          ║
-║   (good Spliterator split)   ║   (poor split → sequential bottleneck)       ║
-║ Independent element processing║ Order-dependent processing                   ║
-║ No contention in reduction    ║ Synchronized/contended collectors            ║
+║ CPU-intensive computation      ║ I/O-bound operations (DB, HTTP, file)        ║
+║ Large datasets (>10K elements) ║ Small datasets (<10K elements)               ║
+║ Stateless operations           ║ Stateful operations (shared mutable state)   ║
+║ Source: ArrayList, arrays      ║ Source: LinkedList, Stream.iterate()         ║
+║   (good Spliterator split)     ║   (poor split → sequential bottleneck)       ║
+║ Independent element processing ║ Order-dependent processing                   ║
+║ No contention in reduction     ║ Synchronized/contended collectors            ║
 ╚════════════════════════════════╩══════════════════════════════════════════════╝
 ```
 
@@ -3938,23 +3938,23 @@ Requirements clarification:
 
 Architecture:
   ┌─────────────────────────────────────────────────────────┐
-  │                  CacheManager                            │
+  │                  CacheManager                           │
   │                                                         │
   │  ┌──────────────────────────────────────────────────┐   │
-  │  │  Partitioned Cache (16-256 segments)              │   │
-  │  │                                                    │   │
-  │  │  Segment[0]: ConcurrentHashMap + LRU eviction     │   │
-  │  │  Segment[1]: ConcurrentHashMap + LRU eviction     │   │
-  │  │  ...                                               │   │
-  │  │  Segment[N]: ConcurrentHashMap + LRU eviction     │   │
-  │  │                                                    │   │
+  │  │  Partitioned Cache (16-256 segments)             │   │
+  │  │                                                  │   │
+  │  │  Segment[0]: ConcurrentHashMap + LRU eviction    │   │
+  │  │  Segment[1]: ConcurrentHashMap + LRU eviction    │   │
+  │  │  ...                                             │   │
+  │  │  Segment[N]: ConcurrentHashMap + LRU eviction    │   │
+  │  │                                                  │   │
   │  │  Key → Segment mapping: hash(key) & (N-1)        │   │
   │  └──────────────────────────────────────────────────┘   │
   │                                                         │
-  │  ┌─────────────┐  ┌────────────────┐  ┌──────────────┐ │
-  │  │  Expiration  │  │  Size Monitor  │  │   Metrics    │ │
-  │  │  Scheduler   │  │  (background)  │  │  (hit/miss)  │ │
-  │  └─────────────┘  └────────────────┘  └──────────────┘ │
+  │  ┌─────────────┐  ┌────────────────┐  ┌──────────────┐  │
+  │  │  Expiration │  │  Size Monitor  │  │   Metrics    │  │
+  │  │  Scheduler  │  │  (background)  │  │  (hit/miss)  │  │
+  │  └─────────────┘  └────────────────┘  └──────────────┘  │
   └─────────────────────────────────────────────────────────┘
 ```
 
@@ -4054,12 +4054,12 @@ Option 4: Off-heap storage (Chronicle Map)
   ❌ Serialization overhead, more complex API
 
 Recommended architecture:
-  ┌──────────────────────────────────────────────┐
-  │  Per-thread: ThreadLocal<HashMap<Long, long>>│  ← batch events locally
+  ┌───────────────────────────────────────────────┐
+  │  Per-thread: ThreadLocal<HashMap<Long, long>> │  ← batch events locally
   │  Periodically: merge into central counters    │
   │  Central: ConcurrentHashMap<Long, AtomicLong> │  ← or off-heap
-  │  Aggregation: entrySet().parallelStream()    │
-  └──────────────────────────────────────────────┘
+  │  Aggregation: entrySet().parallelStream()     │
+  └───────────────────────────────────────────────┘
   
   Thread-local accumulation → periodic merge drastically reduces contention
   10M per-user merges per minute vs 50M individual increments per day
@@ -4153,23 +4153,23 @@ HFT constraints:
 
 Collection choices:
   ╔════════════════════════════╦══════════════════════════════════════════╗
-  ║ Use Case                    ║ Collection Choice                        ║
+  ║ Use Case                   ║ Collection Choice                        ║
   ╠════════════════════════════╬══════════════════════════════════════════╣
   ║ Order book (price→qty)     ║ Primitive-specialized TreeMap or         ║
-  ║                              ║ manually sorted array (fixed size)      ║
-  ║                              ║ NEVER java.util.TreeMap (object alloc)  ║
+  ║                            ║ manually sorted array (fixed size)       ║
+  ║                            ║ NEVER java.util.TreeMap (object alloc)   ║
   ╠════════════════════════════╬══════════════════════════════════════════╣
   ║ Symbol lookup table        ║ Open-addressing hash map with primitive  ║
-  ║                              ║ keys (Koloboke/HPPC) or perfect hashing ║
+  ║                            ║ keys (Koloboke/HPPC) or perfect hashing  ║
   ╠════════════════════════════╬══════════════════════════════════════════╣
   ║ Message queue              ║ Ring buffer (Disruptor pattern),         ║
-  ║                              ║ NOT BlockingQueue (lock contention)     ║
+  ║                            ║ NOT BlockingQueue (lock contention)      ║
   ╠════════════════════════════╬══════════════════════════════════════════╣
   ║ Connection pool            ║ Pre-allocated array, NOT ArrayList       ║
-  ║                              ║ (control exact object count)            ║
+  ║                            ║ (control exact object count)             ║
   ╠════════════════════════════╬══════════════════════════════════════════╣
   ║ Event log                  ║ Off-heap circular buffer                 ║
-  ║                              ║ (zero GC, memory-mapped)               ║
+  ║                            ║ (zero GC, memory-mapped)                 ║
   ╚════════════════════════════╩══════════════════════════════════════════╝
 
 Key principles:
@@ -4206,10 +4206,10 @@ Architecture options:
   ❌ Split-brain risk (need quorum config)
 
   Option B: External distributed cache (Redis, Memcached)
-  ┌──────────┐     ┌──────────────────┐
+  ┌──────────┐      ┌──────────────────┐
   │  App JVM  │────►│  Redis Cluster   │
   │  (client) │     │  (sharded, HA)   │
-  └──────────┘     └──────────────────┘
+  └──────────┘      └──────────────────┘
   ✅ Battle-tested at scale
   ✅ Persistence options (RDB, AOF)
   ❌ Serialization overhead (network roundtrip)
@@ -4218,9 +4218,9 @@ Architecture options:
   Option C: Near-cache + distributed backend (hybrid)
   ┌──────────────────────────────────┐
   │  JVM (Caffeine L1 cache)         │
-  │    ↓ miss                         │
+  │    ↓ miss                        │
   │  Redis / Hazelcast (L2 cache)    │
-  │    ↓ miss                         │
+  │    ↓ miss                        │
   │  Database (source of truth)      │
   └──────────────────────────────────┘
   ✅ Sub-microsecond for hot data (L1 hit)
@@ -4248,3 +4248,4 @@ Cache coherence for L1:
 > **End of Guide**  
 > Sections 1–8 cover technical foundations. Section 9 maps directly to senior/staff interview expectations.  
 > For each answer: demonstrate internals knowledge, production awareness, and trade-off analysis.
+
