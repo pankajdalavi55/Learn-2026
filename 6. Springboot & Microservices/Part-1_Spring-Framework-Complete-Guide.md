@@ -449,14 +449,14 @@ Spring's IoC container acts as a **sophisticated object factory** with these res
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Spring IoC Container                         │
 ├─────────────────────────────────────────────────────────────────┤
-│  1. Read Configuration    │  XML, annotations, Java config     │
+│  1. Read Configuration    │  XML, annotations, Java config      │
 │  2. Create Bean Graph     │  Resolve dependencies, detect cycles│
 │  3. Instantiate Beans     │  Call constructors in correct order │
-│  4. Inject Dependencies   │  Wire beans together               │
-│  5. Apply Post-Processing │  AOP proxies, validation           │
-│  6. Initialize            │  Call @PostConstruct, init methods │
-│  7. Make Available        │  Beans ready for use               │
-│  8. Destroy               │  Clean shutdown, release resources │
+│  4. Inject Dependencies   │  Wire beans together                │
+│  5. Apply Post-Processing │  AOP proxies, validation            │
+│  6. Initialize            │  Call @PostConstruct, init methods  │
+│  7. Make Available        │  Beans ready for use                │
+│  8. Destroy               │  Clean shutdown, release resources  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
