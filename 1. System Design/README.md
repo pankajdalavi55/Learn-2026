@@ -22,6 +22,15 @@ The fundamental concepts you MUST understand before any system design interview.
 - Strong vs Eventual Consistency
 - Idempotency
 
+### [Back-of-Envelope Calculations Guide](./back-of-envelope-calculations.md)
+A comprehensive guide to estimation techniques with worked examples (Twitter, YouTube, WhatsApp, URL Shortener). Covers the essential numbers, step-by-step framework, server/storage/bandwidth estimation, and interview presentation scripts.
+
+- Essential Numbers to Memorize (Powers of 2, Latency, Throughput)
+- The 4-Step Estimation Framework
+- 5 Fully Worked Examples with Summary Tables
+- Server & Database Sizing
+- Common Mistakes & Practice Problems
+
 ### [Phase 1: Core Building Blocks](./01-core-building-blocks.md)
 The essential components you'll use in every system design. Master these before moving to distributed systems.
 
