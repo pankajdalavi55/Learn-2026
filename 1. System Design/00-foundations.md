@@ -119,7 +119,7 @@ Red Flag: Ignoring tail latency (p99/p999)
 
 ### Concept Overview (What & Why)
 
-**Availability:** Every request receives a response (success or failure), even if some nodes are down.
+**Availability:** Every request receives a response (success or failure), even if some nodes are down. 
 **Consistency:** Every read returns the most recent write.
 
 The **CAP Theorem** states that in a distributed system experiencing a network partition, you must choose between Consistency and Availability. You cannot have both.
