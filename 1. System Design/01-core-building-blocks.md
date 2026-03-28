@@ -1167,6 +1167,25 @@ HOT PARTITION SOLUTIONS:
 
 # Section 4: Caching
 
+### What is caching?
+
+Caching is a performance optimization technique where frequently accessed data is stored in a fast, temporary storage layer so future requests can be served quicker without recomputing or fetching from slow systems.
+
+**🔹 Simple Definition**
+Caching = storing frequently used data in memory (or fast storage) to reduce latency, load, and cost.
+
+### Why caching works
+
+**Locality:** Workloads usually show *temporal locality* (what was used recently is likely used again soon) and *spatial locality* (nearby data is accessed together). A cache keeps a small, fast subset of “hot” data so most requests never reach the slow path.
+
+**Cost hierarchy:** Each step away from the client—browser → edge → app server → distributed cache → database—tends to add latency and shared capacity pressure. Caching moves work *up* that chain: answer from the cheapest tier that is still fresh and correct enough for the product.
+
+**Hit rate is the lever:** Value is roughly proportional to *hit ratio* × *cost saved per hit*. Cold or unique keys, low reuse, or wrong TTLs mean high miss rates and little benefit for the operational complexity.
+
+**Copies and consistency:** A cache is almost always a *replica*, not the system of record. The core theory problem is *how stale* answers may be and *how* you invalidate or refresh when the source of truth changes—TTL trades simplicity for bounded staleness; explicit invalidation improves freshness at the cost of coupling and complexity.
+
+---
+
 ## 4.1 Cache Levels: Client vs CDN vs Server
 
 ### Concept Overview (What & Why)
@@ -1198,6 +1217,12 @@ Each tier reduces load on the next.
 | Computed aggregations | Application + Redis |
 | Full page responses | CDN (for anonymous) |
 
+### Theory tie-in
+
+**Scope vs freshness:** Closer tiers (browser, CDN) serve one user or edge POP—great latency, but hard to coordinate invalidation across everyone. Deeper tiers (Redis) see cluster-wide state but add a hop. You place data where reuse is high *and* where you can still meet freshness SLAs.
+
+**Private vs shared:** Browser and per-process app caches are *private*; Redis/CDN are *shared*. Shared caches amplify efficiency (one fill benefits many) but also amplify mistakes (one bad entry affects many clients) and contention (hot keys).
+
 ### Interview Perspective
 
 **Strong signals:**
@@ -1218,6 +1243,14 @@ Each tier reduces load on the next.
 | TTL (Time To Live) | Expired items | Data with known freshness |
 | FIFO (First In First Out) | Oldest inserted | Simple, predictable |
 | Random | Random item | Simple, surprisingly effective |
+
+### Theory tie-in
+
+**What “optimal” would need:** The classic optimal offline policy (evict the item used farthest in the future) is not implementable online; real policies *approximate* future reuse from past behavior. LRU assumes *recency* predicts reuse; LFU assumes *frequency* does—neither is universally right.
+
+**TTL vs algorithmic eviction:** TTL removes entries in the *time* dimension (“this answer is too old”). LRU/LFU evict when *space* is full. Production systems almost always combine both: bounded memory *and* bounded staleness.
+
+**Scan and churn:** A one-off large scan can push useful items out of an LRU (low *scan resistance*). LFU can trap “once popular, never evicted” ghosts; aging or windowed counts mitigates that.
 
 ### Key Design Principles
 
@@ -1286,6 +1319,21 @@ Write:
 3. Async: Cache writes to database in batches
 ```
 
+**Read-through (loader-owned miss path):**
+```
+Read:
+1. App asks cache
+2. On miss, cache (or cache library) calls a loader that reads DB and populates cache
+3. Return value
+```
+The app does not manually “if miss then DB then set”; the cache layer triggers the load. Compared to cache-aside, logic is centralized—good for libraries— but the loader contract and timeouts must be designed carefully.
+
+### Theory tie-in
+
+**Who owns the truth:** In cache-aside, the *application* orchestrates DB + cache and usually invalidates on writes. In write-through/write-behind, the *cache path* is coupled to persistence—simpler reads, more machinery on writes.
+
+**Invalidation vs update:** On a write you can *delete* cache keys (next read refills) or *update* them in place (fewer misses, riskier if the update is partial or wrong). Delete + refill is the common default because it is easier to reason about.
+
 ### Key Design Principles
 
 | Pattern | Consistency | Read Performance | Write Performance | Complexity |
@@ -1320,6 +1368,16 @@ All 1000 see cache miss
 All 1000 query database
 Database overwhelmed
 ```
+
+### Theory tie-in
+
+**Root cause:** Expiry and thundering herd are *synchronization* problems—many workers observe the same “empty” state and all try to repair it. The fix is to make *recomputation* or *reload* mutually exclusive, or to *refresh before* the key goes empty.
+
+**Single-flight / request coalescing:** Only one concurrent “rebuild this key” runs per hot key; others await the same in-flight result (in-process mutex, distributed lock, or “promise” future in the cache layer). Same idea as deduplicating in-flight identical queries at the DB.
+
+**Probabilistic early expiration:** Spread refreshes over time so keys do not all go cold at the same instant; small chance of serving slightly stale data while one worker repopulates—classic latency vs freshness trade.
+
+**HTTP analogy:** *Stale-while-revalidate* serves an expired entry while asynchronously fetching the new one—same philosophy as background refresh at the application layer.
 
 ### Solutions
 
@@ -1385,6 +1443,7 @@ TTL: Time-based freshness
 
 CACHE PATTERNS:
 Cache-Aside: App checks cache, fills on miss
+Read-Through: Cache triggers loader on miss (app does not hand-fill)
 Write-Through: Cache writes to DB synchronously
 Write-Behind: Cache writes to DB async
 
