@@ -165,17 +165,17 @@ These are the essential components you'll use in every system design. Master the
 ```
 REST vs gRPC
 
-REST:
+REST: Representational State Transfer
 • HTTP + JSON
 • Universal support
 • Human readable
 • Browser native
 • Best for: Public APIs, CRUD, simplicity
 
-gRPC:
-• HTTP/2 + Protobuf
+gRPC: Google Remote Procedure Call
+• HTTP/2 + Protobuf (Protocol Buffers) - binary serialization
 • Binary (smaller, faster)
-• Strongly typed
+• Strongly typed via .proto definitions
 • Native streaming
 • Best for: Internal services, streaming, performance
 
@@ -2057,643 +2057,163 @@ Mobile App ← REST API
 | Principal (L7) | Can challenge conventional wisdom, knows edge cases     |
 
 
+
 ---
 
 ## Common Interview Questions & Model Answers
 
-This section provides realistic interview questions based on the core building blocks covered above, with ideal answers and follow-up questions.
+---
+
+### Q1: When would you choose REST over gRPC?
+
+**Expected Answer:**
+
+- REST for public-facing APIs — universal browser/client support, human-readable JSON, mature caching (ETags, 304)
+- gRPC for internal microservices — binary Protobuf (7-10x smaller payloads), HTTP/2 multiplexing, native bidirectional streaming
+- Hybrid is the standard pattern: Public → REST → API Gateway → gRPC → Internal services
+- REST when developer onboarding, third-party integrations, or caching is the priority
+- gRPC when latency, bandwidth, or streaming is critical (e.g., real-time stock quotes)
+
+**Follow-up Q:** "How would you handle API versioning?"
+
+- URL versioning (`/v1/users`) for public APIs — explicit, cacheable, easy deprecation (used by Stripe, GitHub)
+- Header versioning for internal APIs — cleaner URLs
+- Support N-1 versions; deprecate with 6-12 month sunset period
+- Add optional fields (safe), never remove fields without version bump
+
+**Follow-up Q:** "How do you debug gRPC traffic?"
+
+- gRPC reflection + grpcurl or Postman gRPC support
+- Log requests/responses at interceptor level, convert Protobuf to JSON for readability
+- Load balancer must support HTTP/2; confirm with health-check endpoints
 
 ---
 
-### Q1: When would you choose REST over gRPC? Give a specific example.
+### Q2: What load balancing algorithm would you use and why?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"I'd choose **REST** when:
+- Round Robin for homogeneous stateless services (simple, fair)
+- Least Connections for long-lived connections (WebSocket, database pools)
+- Consistent Hashing for cache layers (minimizes cache misses on topology changes)
+- Weighted Round Robin for heterogeneous servers (bigger servers get more traffic)
+- L4 for raw TCP/UDP throughput; L7 for HTTP routing, SSL termination, path-based routing
 
-1. **Public-facing APIs:** REST is universally supported by browsers, curl, Postman
-  - Example: Stripe's payment API is REST because developers integrate from any language
-  - JSON is human-readable, making debugging easier
-2. **Simple CRUD operations:** No need for streaming or high performance
-  - Example: Blog management system with basic Create/Read/Update/Delete
-3. **Caching is important:** HTTP caching (304 Not Modified, ETags) is mature
-  - Example: News API where articles rarely change
-4. **Third-party integrations:** Not all partners support gRPC
-  - Example: Webhook endpoints must be REST/HTTP
+**Follow-up Q:** "How do you avoid the load balancer becoming a single point of failure?"
 
-I'd choose **gRPC** when:
+- Active-passive pair with VRRP (1-3s failover)
+- Active-active with DNS round-robin across multiple LBs
+- Managed cloud LBs (AWS ALB/NLB) — multi-AZ by default, no SPOF
+- L4 + L7 layered approach for redundancy
 
-1. **Internal microservices:** Performance and type safety matter more than simplicity
-  - Example: Payment service → Fraud detection service (low latency, high throughput)
-  - 7-10x smaller payload size than JSON
-2. **Streaming required:** Bidirectional streaming, server push
-  - Example: Real-time stock quotes, live chat
-3. **Polyglot environments:** .proto files generate code for any language
-  - Example: Frontend in TypeScript, backend in Go—shared contract
-4. **Performance critical:** Mobile apps with limited bandwidth
-  - Example: Google Maps uses gRPC internally for efficiency
+**Follow-up Q:** "When would you use sticky sessions?"
 
-**Hybrid approach (common):**
-
-- Public API: REST (for accessibility)
-- Internal services: gRPC (for performance)
-- Example: Uber uses REST for driver app API, gRPC between backend services"
-
-**Follow-up Q:** "How would you version a REST API?"
-
-**Ideal Answer:**
-
-"There are three common approaches:
-
-**1. URL versioning** (Most common, my preference for public APIs)
-
-```
-/v1/users
-/v2/users
-```
-
-- **Pros:** Clear, easy to route, can run multiple versions simultaneously
-- **Cons:** URL proliferation
-- **Used by:** Stripe, Twitter, GitHub
-
-**2. Header versioning**
-
-```
-GET /users
-Accept: application/vnd.myapi.v2+json
-```
-
-- **Pros:** Clean URLs, follows REST principles
-- **Cons:** Less discoverable, harder to test (can't just paste URL)
-- **Used by:** GitHub (also supports URL versioning)
-
-**3. Query parameter**
-
-```
-/users?version=2
-```
-
-- **Pros:** Simple
-- **Cons:** Mixes versioning with query params, easy to forget
-- **Less common** in production
-
-**My recommendation:** URL versioning for public APIs because:
-
-- Explicit and discoverable
-- Easy to deprecate old versions (remove `/v1` routes)
-- Can maintain different infrastructure per version if needed
-
-**Best practices:**
-
-- Version from day one (even if it's v1)
-- Semantic versioning: Major version for breaking changes only
-- Support N-1 versions for 6-12 months (give clients time to migrate)
-- Document deprecation timeline clearly
-- Use sunset headers: `Sunset: Sat, 31 Dec 2024 23:59:59 GMT`"
-
----
-
-### Q2: Explain load balancing algorithms. Which would you use for a stateful application?
-
-**Ideal Answer:**
-
-"Common load balancing algorithms:
-
-**1. Round Robin**
-
-- Each request goes to the next server in rotation
-- **Pros:** Simple, even distribution (if all requests are similar)
-- **Cons:** Doesn't consider server load or capacity
-- **Use case:** Homogeneous servers, stateless apps
-
-**2. Least Connections**
-
-- Route to server with fewest active connections
-- **Pros:** Better for long-lived connections (WebSockets)
-- **Cons:** Doesn't consider request complexity
-- **Use case:** Database connection pools, WebSocket servers
-
-**3. Weighted Round Robin**
-
-- Assign weights to servers based on capacity (more powerful → more weight)
-- **Pros:** Handles heterogeneous servers
-- **Cons:** Static weights, doesn't adapt to real-time load
-- **Use case:** Mix of server types (new powerful servers + old servers)
-
-**4. Least Response Time**
-
-- Route to server with lowest latency
-- **Pros:** Adapts to real-time performance
-- **Cons:** More complex, requires health checks
-- **Use case:** Geo-distributed servers
-
-**5. IP Hash (Consistent Hashing)**
-
-- Hash client IP to determine server
-- **Pros:** Same client → same server (session affinity)
-- **Cons:** Uneven distribution if clients aren't uniformly distributed
-- **Use case:** Stateful applications
-
-**For stateful applications, I'd use:**
-
-**IP Hash or Consistent Hashing** because:
-
-- Same user always hits same server (sticky sessions)
-- Server can cache user-specific data in memory
-- Example: Gaming servers where player state is in memory
-
-**However, better approach is to make the app stateless:**
-
-- Store session in Redis (not server memory)
-- Any server can handle any request
-- Use Round Robin or Least Connections
-- This gives better availability (server can die without losing sessions)
-
-**Example:** E-commerce checkout
-
-- **Stateful approach:** Use IP hash to ensure cart stays on one server
-- **Better approach:** Store cart in Redis, use Round Robin for load balancing"
-
-**Follow-up Q:** "Your load balancer becomes a single point of failure. How do you handle this?"
-
-**Ideal Answer:**
-
-"Multiple layers of redundancy:
-
-**1. Active-Passive Load Balancer Pair**
-
-- Two load balancers, one active, one standby
-- Health checks between them (VRRP protocol)
-- Virtual IP floats to passive if active fails
-- **Failover time:** 1-3 seconds
-- **Trade-off:** Wastes 50% capacity
-
-**2. Active-Active with DNS**
-
-- Multiple load balancers, all active
-- DNS round-robin between them
-- Each LB handles a portion of traffic
-- **Trade-off:** DNS caching means slow failover (30-300 seconds)
-
-**3. Cloud-native approach (best for most)**
-
-- Use managed load balancers (AWS ALB, GCP Load Balancer)
-- Provider handles redundancy automatically
-- Multi-AZ by default
-- **Example:** AWS ALB is distributed across multiple AZs, no single point of failure
-
-**4. Layer 4 + Layer 7 combo**
-
-- Layer 4 (TCP) load balancer at edge (simple, redundant)
-- Layer 7 (HTTP) load balancer behind it (application-aware)
-- Edge LB routes to healthy L7 LBs
-
-**5. Geographic distribution**
-
-- DNS routes to nearest region (Route53, Cloudflare)
-- Each region has its own load balancers
-- Region failure → DNS fails over to next region
-
-**My recommendation for production:**
-
-- Use managed cloud load balancers (AWS ALB, GCP)
-- Multi-AZ deployment (automatic)
-- Health checks to remove unhealthy targets
-- Combine with CDN (Cloudflare) for DDoS protection
-
-This gives you multiple layers—if LB fails, CDN can serve cached content while it recovers."
+- Prefer to avoid — creates uneven load, complicates scaling, SPOF per user session
+- If unavoidable (WebSocket, in-memory cache): use cookie-based affinity
+- Better alternative: externalize state to Redis, use JWT for client-side sessions
 
 ---
 
 ### Q3: How does database indexing work? When would you NOT add an index?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"An index is a data structure (usually B+ tree or hash table) that allows fast lookups without scanning the entire table.
+- Index = B+ tree data structure enabling O(log n) lookups vs O(n) full table scan
+- Composite index follows leftmost prefix rule: `(A, B, C)` works for queries on `(A)`, `(A, B)`, or `(A, B, C)`
+- Covering index includes all queried columns — avoids table lookup entirely (index-only scan)
+- **Do NOT index:** small tables (<1K rows), low cardinality columns (boolean/status), frequently updated columns, write-heavy log tables
 
-**How it works:**
+**Follow-up Q:** "Query is using an index but still slow. What could be wrong?"
 
-**Without index:**
-
-```sql
-SELECT * FROM users WHERE email = 'alice@example.com';
--- Scans all 1 million rows → O(n)
-```
-
-**With index on email:**
-
-```
-email_index (B+ tree):
-  alice@example.com → row pointer
-  bob@example.com → row pointer
-  ...
--- Binary search → O(log n)
-```
-
-**Types of indexes:**
-
-1. **Primary Key Index** (clustered)
-  - Data is physically sorted by this key
-  - One per table
-  - Fastest lookups
-2. **Secondary Index** (non-clustered)
-  - Separate data structure pointing to rows
-  - Multiple allowed per table
-  - Still fast, but additional lookup required
-3. **Composite Index**
-  - Index on multiple columns: `(user_id, created_at)`
-  - Useful for range queries: `WHERE user_id = 5 AND created_at > '2024-01-01'`
-4. **Covering Index**
-  - Index includes all columns in the query
-  - No need to access table data (index-only scan)
-
-**When NOT to add an index:**
-
-1. **Small tables** (<1000 rows)
-  - Table scan is faster than index overhead
-  - Index maintenance cost outweighs benefit
-2. **High write/low read workload**
-  - Every INSERT/UPDATE/DELETE must update indexes
-  - Slows down writes significantly
-  - Example: Log table (write-heavy, rarely queried)
-3. **Low cardinality columns**
-  - Columns with few distinct values (e.g., `gender: M/F`)
-  - Index doesn't help much (scans half the table anyway)
-  - Exception: Combined with other columns in composite index
-4. **Frequently updated columns**
-  - Index must be rebuilt on every update
-  - Example: `last_modified` timestamp that changes on every update
-5. **When selectivity is poor**
-  - If query matches 20%+ of rows, table scan is faster
-  - Database optimizer often ignores the index
-
-**Rule of thumb:**
-
-- Index columns used in WHERE, JOIN, ORDER BY
-- Limit to 3-5 indexes per table
-- Monitor query performance and index usage
-- Drop unused indexes (they slow down writes for no benefit)"
-
-**Follow-up Q:** "Your query is using an index but still slow. What could be wrong?"
-
-**Ideal Answer:**
-
-"Several possibilities:
-
-**1. Wrong index type**
-
-- Query: `WHERE name LIKE '%smith'` (starts with wildcard)
-- Index can't help (needs to scan entire index)
-- **Fix:** Full-text search index or rethink query
-
-**2. Index not being used (database optimizer chooses table scan)**
-
-- Check with `EXPLAIN` or `EXPLAIN ANALYZE`
-- Happens when query matches >20% of rows
-- **Fix:** Add WHERE conditions to be more selective
-
-**3. Index on low cardinality column**
-
-- Example: `WHERE status = 'active'` (90% of rows are active)
-- Index doesn't help much
-- **Fix:** Composite index with more selective column first
-
-**4. Large OFFSET in pagination**
-
-```sql
-SELECT * FROM posts ORDER BY created_at LIMIT 20 OFFSET 1000000;
-```
-
-- Database scans 1M rows, then returns 20
-- **Fix:** Cursor-based pagination: `WHERE created_at < ? LIMIT 20`
-
-**5. Returning too many columns**
-
-- Index exists but query selects `*`
-- Index-only scan not possible, must fetch row data
-- **Fix:** Select only needed columns (covering index)
-
-**6. Implicit type conversion**
-
-```sql
-WHERE user_id = '123'  -- user_id is INT, but passing string
-```
-
-- Database can't use index (must convert each row)
-- **Fix:** Use correct types: `WHERE user_id = 123`
-
-**7. Function on indexed column**
-
-```sql
-WHERE LOWER(email) = 'alice@example.com'
-```
-
-- Can't use index on `email`
-- **Fix:** Functional index: `CREATE INDEX ON users(LOWER(email))`
-
-**8. Database statistics are stale**
-
-- Optimizer makes bad decisions with old stats
-- **Fix:** `ANALYZE` table to update statistics
-
-**Debugging approach:**
-
-1. Run `EXPLAIN ANALYZE` to see actual plan
-2. Check if index is used: Look for 'Index Scan' vs 'Seq Scan'
-3. Look at row estimates vs actual
-4. Check for type conversions, functions
-5. Verify index exists: `SHOW INDEXES FROM table`"
+- Leading wildcard (`LIKE '%smith'`) — index can't help
+- Function on indexed column (`WHERE LOWER(email) = ...`) — use functional index
+- Implicit type conversion (string vs int) — mismatched types bypass index
+- Large OFFSET pagination — switch to cursor-based
+- Stale optimizer statistics — run `ANALYZE` to refresh
 
 ---
 
-### Q4: Explain the differences between SQL and NoSQL databases. When would you choose each?
+### Q4: When would you choose SQL vs NoSQL? Give a concrete example of using both.
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"**SQL (Relational Databases):**
+- **SQL:** ACID required, complex joins, well-defined schema, ad-hoc queries (orders, payments, inventory)
+- **NoSQL Key-Value (Redis):** caching, sessions, simple lookups — sub-ms latency
+- **NoSQL Document (MongoDB):** flexible schema, nested data, evolving models
+- **NoSQL Column (Cassandra):** write-heavy, time-series, append-only workloads — 1M+ writes/sec
+- Polyglot persistence is the norm: PostgreSQL for transactions + Redis for cache + Cassandra for logs + Elasticsearch for search
 
-- **Schema:** Fixed schema, defined upfront
-- **Data model:** Tables with rows and columns
-- **Relationships:** Foreign keys, JOINs
-- **Transactions:** ACID guarantees
-- **Scaling:** Vertical primarily (horizontal via sharding is complex)
-- **Examples:** PostgreSQL, MySQL
+**Follow-up Q:** "How would you handle a sharding key that creates hot partitions?"
 
-**NoSQL (Non-Relational):**
-
-- **Schema:** Flexible or schema-less
-- **Data model:** Various (document, key-value, wide-column, graph)
-- **Relationships:** Denormalized, no JOINs
-- **Transactions:** Limited (some offer eventual consistency)
-- **Scaling:** Horizontal (designed for distributed systems)
-- **Examples:** MongoDB, Cassandra, DynamoDB, Redis
-
-**When to choose SQL:**
-
-1. **Complex relationships and JOINs**
-  - Example: E-commerce (orders, products, users, inventory—many relationships)
-  - Need for multi-table transactions
-2. **ACID guarantees required**
-  - Example: Banking, financial systems
-  - Can't tolerate inconsistency
-3. **Well-defined, stable schema**
-  - Example: HR system, CRM
-  - Schema rarely changes
-4. **Strong consistency needed**
-  - Example: Inventory management (can't oversell)
-5. **Ad-hoc queries and reporting**
-  - SQL is powerful for analytics
-  - Example: Business intelligence dashboards
-
-**When to choose NoSQL:**
-
-1. **High write throughput**
-  - Example: Logging, time-series data
-  - Cassandra: 1M+ writes/sec per node
-2. **Horizontal scalability**
-  - Example: Social media (billions of users)
-  - Need to distribute across many servers
-3. **Flexible schema**
-  - Example: Content management, user profiles
-  - Different users have different fields
-4. **Simple queries (key-value lookups)**
-  - Example: Session store, caching
-  - Redis: Get/Set by key
-5. **Geographical distribution**
-  - Example: Global application
-  - Cassandra multi-datacenter replication
-
-**Specific NoSQL types:**
-
-
-| Type        | Use Case                       | Example                        |
-| ----------- | ------------------------------ | ------------------------------ |
-| Document    | Flexible schema, nested data   | MongoDB (user profiles)        |
-| Key-Value   | Caching, session store         | Redis, DynamoDB                |
-| Wide-Column | Time-series, write-heavy       | Cassandra, HBase               |
-| Graph       | Relationships, social networks | Neo4j (friend recommendations) |
-
-
-**Real-world (often use both):**
-
-- PostgreSQL for transactions (orders, payments)
-- Redis for caching
-- Cassandra for activity logs
-- Elasticsearch for search"
-
-**Follow-up Q:** "Can you give an example where you'd use multiple database types in one system?"
-
-**Ideal Answer:**
-
-"Yes, polyglot persistence is common in modern systems. Here's an e-commerce example:
-
-**System: E-commerce Platform**
-
-**1. PostgreSQL (Primary transactional data)**
-
-- **Use:** Orders, payments, inventory, user accounts
-- **Why:** ACID transactions, complex relationships (order → order_items → products)
-- **Pattern:** Strong consistency, source of truth
-- **Scale:** ~10K orders/sec with read replicas
-
-**2. Redis (Caching + Session Store)**
-
-- **Use:** Session data, shopping cart, product cache
-- **Why:** Sub-millisecond latency, high throughput
-- **Pattern:** Cache-aside (check Redis first, fallback to PostgreSQL)
-- **TTL:** 30 minutes for sessions, 5 minutes for product cache
-- **Scale:** 100K+ reads/sec
-
-**3. Elasticsearch (Search + Analytics)**
-
-- **Use:** Product search, autocomplete, sales analytics
-- **Why:** Full-text search, aggregations, faceting
-- **Pattern:** Async replication from PostgreSQL (via Kafka)
-- **Data:** Eventually consistent copy of products
-- **Scale:** Sub-second search across millions of products
-
-**4. MongoDB (Product Catalog)**
-
-- **Use:** Product descriptions, attributes, variations
-- **Why:** Flexible schema (different products have different attributes)
-- **Pattern:** Phone has [color, storage], Shirt has [size, fabric]
-- **Data:** Read-heavy, eventual consistency acceptable
-- **Scale:** Fast reads, easy to scale horizontally
-
-**5. Cassandra (User Activity / Logs)**
-
-- **Use:** View history, clickstream, audit logs
-- **Why:** High write throughput, time-series queries
-- **Pattern:** Append-only writes, query recent activity
-- **Retention:** 90 days, then archive to S3
-- **Scale:** 1M+ writes/sec
-
-**Data flow example: User views product**
-
-```
-1. Check Redis cache for product details → Hit (fast)
-2. If miss, query MongoDB for product → Store in Redis
-3. Write view event to Kafka → Cassandra (async)
-4. User adds to cart → Write to Redis (session)
-5. User checks out → Transaction in PostgreSQL
-6. Order created → Async update to Elasticsearch (searchable)
-```
-
-**Trade-offs:**
-
-- **Complexity:** More databases = more operational overhead
-- **Consistency:** Each DB has its own consistency model
-- **Cost:** More infrastructure
-- **Benefits:** Right tool for each job, better performance
-
-This is how companies like Amazon, Netflix, Uber actually architect their systems."
+- Salt/suffix the key (`celebrity_id + random(0-99)`) to spread writes across partitions
+- Scatter-gather on reads (query all sub-partitions, merge)
+- Use consistent hashing for easier rebalancing
+- Dedicated shards for known hot entities (celebrity accounts)
 
 ---
 
-### Q5: Explain cache stampede. How would you prevent it?
+### Q5: Explain cache-aside vs write-through. When do you use each?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"**Cache stampede** (also called thundering herd) happens when a popular cache entry expires and many requests simultaneously try to regenerate it, overwhelming the backend.
+- **Cache-aside:** App checks cache → miss → query DB → store in cache; write goes to DB, cache invalidated
+  - Simple, only caches accessed data, risk of stale reads
+  - Best for: read-heavy general-purpose (product catalogs, user profiles)
+- **Write-through:** Write → cache → DB synchronously; reads always from cache
+  - Strong consistency, higher write latency
+  - Best for: critical data (banking, configuration)
+- **Write-behind:** Write → cache → async DB; fastest writes, risk of data loss on cache crash
+  - Best for: analytics, logging, high-write systems
 
-**Scenario:**
+**Follow-up Q:** "How do you prevent cache stampede?"
 
-```
-1. Popular item (trending product) cached in Redis, TTL = 5 min
-2. Cache expires at exactly 10:00:00
-3. 10,000 requests arrive at 10:00:01
-4. All 10,000 check cache → MISS
-5. All 10,000 query database simultaneously
-6. Database overloaded, times out
-7. None can repopulate cache
-8. More requests come → cycle continues
-```
+- Mutex/locking: one request fetches, others wait
+- Probabilistic early expiry: refresh before TTL with randomized jitter
+- Stale-while-revalidate: serve stale data, refresh in background
+- Background refresh for known hot keys (trending items)
 
-**Prevention strategies:**
+**Follow-up Q:** "What is your cache invalidation strategy?"
 
-**1. Probabilistic Early Expiration**
+- Write-invalidate + TTL (most common): delete cache on DB write, TTL as safety net
+- Event-based invalidation in microservices (DB update → Kafka event → cache delete)
+- Add retry on cache delete failure; monitor cache hit ratio as key metric
 
-- Don't wait for exact TTL expiry
-- Refresh cache probabilistically before expiry
+---
 
-```python
-def get_from_cache(key, ttl):
-    value, remaining_ttl = cache.get(key)
-    
-    # Refresh early with probability based on remaining TTL
-    beta = 1.0  # tuning parameter
-    if random.random() < beta * time.now() / remaining_ttl:
-        refresh_cache(key)
-    
-    return value
-```
+### Q6: How would you design a rate limiter?
 
-- First request likely refreshes, others use stale cache
-- **Pros:** Simple, spreads refresh over time
-- **Cons:** Occasional stale reads
+**Expected Answer:**
 
-**2. Cache Locking (Mutual Exclusion)**
+- Token Bucket (most common): allows bursts up to bucket size, steady average at refill rate
+- Sliding Window Counter for balanced accuracy and memory efficiency
+- Fixed Window is simple but has boundary burst problem (2x rate at window edges)
+- Distributed: Redis with atomic `INCR` + `EXPIRE`; accept approximate counts
+- Response: HTTP 429 + `Retry-After` header + rate limit headers (`X-RateLimit-Remaining`)
+- Rate limit by user ID (not just IP) to prevent multi-account bypass
 
-- First request to detect miss gets a lock
-- Other requests wait for the lock holder to populate cache
+**Follow-up Q:** "What if the rate limiter itself becomes a bottleneck?"
 
-```python
-def get_with_lock(key):
-    value = cache.get(key)
-    if value:
-        return value
-    
-    lock_key = f'lock:{key}'
-    if cache.set_nx(lock_key, 1, ttl=10):  # Only one succeeds
-        # I got the lock, compute and cache
-        value = expensive_db_query()
-        cache.set(key, value, ttl=300)
-        cache.delete(lock_key)
-        return value
-    else:
-        # Someone else is computing, wait and retry
-        sleep(0.1)
-        return get_with_lock(key)  # Retry
-```
+- Shard rate limiting state by client ID across multiple Redis instances
+- Use local in-memory counters with periodic sync (accept approximation)
+- Cache rate limit decisions locally for short TTL (e.g., 1 second)
 
-- **Pros:** Only one DB query
-- **Cons:** Other requests wait (higher latency)
+---
 
-**3. Stale-While-Revalidate**
+### Q7: Explain JWT-based authentication in a microservices architecture.
 
-- Serve stale cache while refreshing in background
+**Expected Answer:**
 
-```python
-def get_swr(key):
-    value, timestamp = cache.get(key)
-    age = time.now() - timestamp
-    
-    if age < FRESH_TTL:
-        return value  # Fresh, return immediately
-    elif age < STALE_TTL:
-        # Stale but acceptable, return immediately
-        # Async refresh in background
-        async_refresh(key)
-        return value  # Return stale
-    else:
-        # Too stale, must refresh synchronously
-        return refresh_cache(key)
-```
+- Client authenticates with Auth Service → receives JWT (short-lived, ~15 min) + refresh token (~7 days)
+- JWT is stateless: contains claims (sub, roles, exp), verified by signature — any service can validate
+- API Gateway validates JWT signature, forwards user context to downstream services
+- Trade-off: cannot revoke JWT until expiry — mitigate with short TTL + refresh token rotation
+- Store tokens in httpOnly cookies (not localStorage — XSS vulnerable)
 
-- **Pros:** Low latency, graceful degradation
-- **Cons:** Temporary stale data
-- **Used by:** CDNs, HTTP caching
+**Follow-up Q:** "How do you revoke a JWT before it expires?"
 
-**4. Refresh Before Expiry (Background Job)**
-
-- Don't let popular items expire
-- Proactive refresh based on access patterns
-
-```python
-# Every minute, refresh top 1000 accessed keys
-scheduler.run(every=1_minute):
-    hot_keys = analytics.get_top_keys(limit=1000)
-    for key in hot_keys:
-        refresh_cache(key)
-```
-
-- **Pros:** Cache never expires for hot items
-- **Cons:** Requires tracking access patterns, wastes refresh on items about to go cold
-
-**5. Request Coalescing**
-
-- Deduplicate identical in-flight requests
-
-```python
-in_flight = {}  # Shared dict
-
-def get_coalesced(key):
-    if key in in_flight:
-        # Another request is already fetching, wait for it
-        return in_flight[key].wait()
-    
-    # Create promise, others will wait on it
-    promise = Promise()
-    in_flight[key] = promise
-    
-    value = expensive_db_query()
-    cache.set(key, value)
-    
-    promise.resolve(value)
-    del in_flight[key]
-    return value
-```
-
-- **Pros:** Minimal DB load
-- **Cons:** Requires shared state (tricky in distributed systems)
-
-**My recommendation:**
-
-- Use **stale-while-revalidate** for most cases (good balance)
-- Add **cache locking** for expensive computations (ML model inference)
-- Use **background refresh** for known hot keys (trending items)
-
-**Example:** Stripe uses stale-while-revalidate for API rate limits—serves cached count, refreshes in background."
+- Maintain a token blacklist in Redis (check on each request) — adds statefulness
+- Keep access tokens very short-lived (5-15 min) — reduces revocation window
+- Rotate refresh tokens on each use — detect theft if old token reused
 
 ---
 

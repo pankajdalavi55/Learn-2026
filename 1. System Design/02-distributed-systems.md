@@ -1248,502 +1248,124 @@ These concepts form the foundation of distributed systems design. Mastery here s
 - "What if the shard key changes?"
 - "How do you debug an event that was lost?"
 
+
 ---
 
 ## Common Interview Questions & Model Answers
-
-This section provides realistic interview questions on distributed systems concepts, with ideal answers and follow-up questions.
 
 ---
 
 ### Q1: How would you handle a hot partition in a sharded database?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"A hot partition occurs when one shard receives disproportionately more traffic than others, causing performance degradation.
-
-**Common causes:**
-1. **Poor shard key choice:** Celebrity user gets all their followers' queries
-2. **Temporal hotspot:** Today's date shard gets all new writes
-3. **Popular item:** Product goes viral, all queries hit its shard
-
-**Detection:**
-- Monitor per-shard QPS, latency, CPU
-- Alerting when one shard is 3x+ busier than others
-- Query slow query logs for patterns
-
-**Short-term mitigations:**
-
-**1. Read replicas for hot shard**
-- Add more read replicas to hot shard
-- Distribute read load
-- **Pros:** Quick fix for read-heavy hotspots
-- **Cons:** Doesn't help with write hotspots
-
-**2. Cache hot data**
-- Put Redis/Memcached in front of hot shard
-- Example: Cache celebrity user profile
-- **TTL:** Short (1-5 min) to keep fresh
-- **Pros:** Reduces DB load immediately
-- **Cons:** Cache stampede risk, stale data
-
-**3. Rate limiting**
-- Limit requests to hot partition
-- Queue excess requests or return 429
-- **Pros:** Prevents cascade failure
-- **Cons:** Degrades user experience
-
-**Long-term solutions:**
-
-**1. Split the hot shard**
-- Divide hot shard into sub-shards
-- Example: user_id 1-1M split into 1-500K and 500K-1M
-- **Requires:** Live migration, risky
-
-**2. Change shard key (resharding)**
-- Add entropy to shard key
-- Before: `shard = hash(celebrity_id)`
-- After: `shard = hash(celebrity_id + request_id)` (spread followers across shards)
-- **Cons:** Expensive, requires application changes
-
-**3. Hybrid sharding**
-- Hot entities use dedicated shards
-- Normal entities use regular sharding
-```python
-if is_celebrity(user_id):
-    shard = dedicated_celebrity_shard(user_id)
-else:
-    shard = hash(user_id) % num_shards
-```
-- **Example:** Twitter likely does this for highly-followed accounts
-
-**4. Denormalization**
-- Duplicate hot data across shards
-- Example: Cache popular product in all shards
-- **Trade-off:** Storage cost, consistency challenges
-
-**Prevention (design-time):**
-- Choose shard keys with high cardinality
-- Monitor shard key distribution during development
-- Use consistent hashing (easier to add nodes)
-- Design for resharding from day one
-
-**Real example:** Instagram resharded when Kim Kardashian's account created a hotspot—moved celebrity accounts to dedicated infrastructure."
+- Hot partition: one shard receives disproportionate traffic (celebrity problem, temporal hotspot, viral item)
+- **Detection:** monitor per-shard QPS, latency, CPU; alert when one shard is 3x+ busier
+- **Short-term:** add read replicas to hot shard, cache hot data in Redis (short TTL), rate limit to protect shard
+- **Long-term:** salt/suffix shard key (`celebrity_id + random(0-99)`) with scatter-gather reads, split the hot shard, dedicate infrastructure for known hot entities
+- **Prevention:** high-cardinality shard keys, consistent hashing, design for resharding from day one
 
 **Follow-up Q:** "How would you reshard without downtime?"
 
-**Ideal Answer:**
-
-"Resharding live is complex but achievable with these steps:
-
-**Phase 1: Dual Writing (Week 1)**
-1. Add `shard_id` column to all tables (nullable initially)
-2. Deploy code that writes to both old and new shard locations
-3. New records get `shard_id` populated based on new shard key
-4. Old records have `null` shard_id (use old routing logic)
-5. Monitor for dual-write errors
-
-**Phase 2: Background Migration (Week 2-4)**
-1. Run batch job to copy old data to new shards
-2. Compute new shard_id for each row
-3. Copy in chunks (10K rows at a time) to avoid locks
-4. Use checkpoints to resume if interrupted
-5. Compare checksums between old and new shards
-6. Catch-up: Apply recent changes (CDC or binlog)
-
-**Phase 3: Read Switchover (Week 5)**
-1. Start routing reads to new shards gradually (1%, 10%, 50%, 100%)
-2. Monitor error rates, latency at each step
-3. Keep dual-writing (safety net)
-4. Use feature flags for instant rollback
-5. Dark launch: Query both old and new, compare results (don't serve new yet)
-
-**Phase 4: Write Switchover (Week 6)**
-1. Stop writing to old shards
-2. Wait for replication lag to catch up
-3. Final consistency check
-4. Mark old shards as read-only (don't delete yet)
-
-**Phase 5: Cleanup (Week 7+)**
-1. Run both systems in parallel for 1-2 weeks (confidence period)
-2. If no issues, drop old shard routing code
-3. Archive old shards to cold storage (don't delete immediately)
-4. Delete after 30-90 days (regulatory compliance)
-
-**Key techniques:**
-
-**1. Consistent hashing**
-- Minimizes data movement
-- Only ~1/N keys move when adding Nth shard
-- Use virtual nodes for better distribution
-
-**2. Proxy layer**
-- Routes queries to correct shard
-- Update proxy config instead of app code
-- Tools: Vitess (MySQL), ProxySQL
-
-**3. Feature flags**
-- Instant rollback if issues arise
-- Per-user or per-table rollout
-- Example: Route premium users first (canaries)
-
-**4. Shadow traffic**
-- Replay prod traffic to new shards
-- Don't serve results, just measure performance
-- Find issues before real switchover
-
-**Rollback plan:**
-- Keep old shards running during switchover
-- Route back to old shards via feature flag
-- Have runbook for common failure modes
-
-**Real-world timeline:**
-- Small system (<10 shards): 2-4 weeks
-- Large system (Discord, 1 → 12 shards): 3 months planning, 2 days execution"
+- Dual-write phase: write to both old and new shard locations simultaneously
+- Background migration: copy data in chunks, use CDC/binlog for catch-up
+- Gradual read switchover with feature flags (1% → 10% → 50% → 100%)
+- Write switchover after final consistency check
+- Keep old shards read-only for 30+ days as fallback
 
 ---
 
-### Q2: Explain the difference between leader-based and leaderless replication. When would you use each?
+### Q2: Explain leader-based vs leaderless replication. When would you use each?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"**Leader-based replication:**
-- One primary (leader) node accepts writes
-- Replicas (followers) copy data from leader
-- Reads can go to leader or replicas
-
-**Leaderless replication:**
-- All nodes accept writes
-- Nodes sync with each other (no designated leader)
-- Client writes to multiple nodes (quorum)
-
-**Comparison:**
-
-| Aspect | Leader-Based | Leaderless |
-|--------|--------------|------------|
-| Write path | Always to leader | Any node |
-| Consistency | Strong (if sync replication) | Tunable (quorum) |
-| Availability | Leader failure → downtime | No single point of failure |
-| Conflict resolution | Simpler (single source of truth) | Complex (version vectors, LWW) |
-| Examples | PostgreSQL, MySQL, MongoDB | Cassandra, DynamoDB, Riak |
-
-**Leader-based (when to use):**
-
-**1. Strong consistency required**
-- Financial transactions, inventory
-- Leader serializes all writes
-- Followers are exact copies
-
-**2. Simple operational model**
-- One node to monitor (leader)
-- Clear failure mode (promote follower)
-- Most teams familiar with this model
-
-**3. Read scalability (read-heavy workloads)**
-- Add read replicas for reads
-- Leader handles writes only
-- Example: Analytics dashboards reading from replicas
-
-**Failure handling:**
-- Leader dies → Promote follower to leader (failover)
-- Downtime: 30 seconds to 2 minutes
-- Risk: Split brain if network partition
-
-**Leaderless (when to use):**
-
-**1. High availability critical**
-- Multi-datacenter with partition tolerance
-- Can tolerate network splits
-- No single point of failure
-- Example: DynamoDB (99.99% availability SLA)
-
-**2. Write-heavy workload**
-- Distribute writes across all nodes
-- Each node handles 1/N of writes
-- Example: Time-series data (IoT sensors)
-
-**3. Global distribution**
-- Write to nearest node (low latency)
-- Eventually sync to other regions
-- Example: Shopping cart (eventual consistency OK)
-
-**Quorum writes/reads:**
-```
-W + R > N ensures consistency
-W = write quorum (must ack write)
-R = read quorum (must read from)
-N = total replicas
-
-Example: N=3, W=2, R=2
-- Write succeeds if 2/3 nodes ack
-- Read from 2/3 nodes, take latest version
-- Guarantees you read what you wrote
-```
-
-**Conflict resolution in leaderless:**
-- **Last Write Wins (LWW):** Use timestamp, discard older writes (simple but can lose data)
-- **Version vectors:** Track causality, merge conflicts (complex but preserves all data)
-- **Application-level:** Shopping cart merges items from both versions
-
-**My recommendation:**
-- **Default to leader-based** (simpler, well-understood)
-- **Choose leaderless** when availability > consistency (e.g., social media likes, session store)"
+- **Leader-based:** single primary accepts writes, replicates to followers; strong consistency possible, simpler conflict model
+  - Use for: financial transactions, inventory, most OLTP applications (PostgreSQL, MySQL, MongoDB)
+- **Leaderless:** all nodes accept writes, use quorum (W+R > N for consistency); no SPOF, higher availability
+  - Use for: high-availability needs, write-heavy, global distribution (Cassandra, DynamoDB)
+- Default to leader-based (simpler, well-understood); choose leaderless only when availability > consistency
 
 **Follow-up Q:** "What is split-brain and how do you prevent it?"
 
-**Ideal Answer:**
-
-"**Split-brain** occurs when network partition causes multiple nodes to think they're the leader, leading to divergent data.
-
-**Prevention strategies:**
-
-**1. Quorum-based leader election**
-- Require majority (N/2 + 1) to elect leader
-- Only one side of partition can have majority
-- **Used by:** Raft, ZooKeeper, etcd
-
-**2. Fencing tokens**
-- Monotonically increasing token with each leader term
-- Older leaders can't write (token rejected)
-
-**3. Witness/Tiebreaker node**
-- Third node in different datacenter votes in election
-
-**4. STONITH (Shoot The Other Node In The Head)**
-- Physically power off the old leader
-
-**5. Lease-based leadership**
-- Leader holds a time-limited lease
-- Must renew lease periodically (heartbeat)
-
-**6. Consensus algorithms (best practice)**
-- Use proven algorithms: Raft, Multi-Paxos
-- Built-in split-brain prevention
-
-**My recommendation:**
-- Use managed services (AWS RDS) or consensus layer (etcd + Patroni for PostgreSQL)"
+- Split-brain: network partition causes two nodes to believe they're leader → divergent data
+- Quorum-based election: majority vote ensures only one side can elect leader
+- Fencing tokens: monotonically increasing token rejects writes from stale leader
+- STONITH ("Shoot The Other Node In The Head"): physically power off old leader
+- Best practice: use consensus layer (etcd + Patroni) or managed services (AWS RDS)
 
 ---
 
-### Q3: Explain exactly-once vs at-least-once vs at-most-once delivery semantics.
+### Q3: Explain the quorum model. What does W + R > N guarantee?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"These are delivery guarantees in distributed systems, especially message queues.
+- N = total replicas, W = write quorum (ack count), R = read quorum (read count)
+- W + R > N ensures at least one node in read set has the latest write → strong consistency
+- Example: N=3, W=2, R=2 → write to 2 nodes, read from 2 nodes → guaranteed overlap
+- Tunable: W=1, R=1 (fast, eventually consistent); W=N, R=1 (slow writes, fast consistent reads)
+- Cassandra and DynamoDB support per-query tunable consistency via quorum settings
 
-**At-most-once (Fire and Forget):**
-- Message sent, no acknowledgment required
-- If failure occurs, message is lost
-- **Guarantee:** 0 or 1 delivery
-- **Use case:** Metrics logging, acceptable to lose occasional data
+**Follow-up Q:** "What happens if a node is unavailable during a quorum write?"
 
-**At-least-once (Retry Until Success):**
-- Message sent, wait for acknowledgment
-- If no ack, retry (message might be delivered multiple times)
-- **Guarantee:** 1 or more deliveries
-- **Use case:** Duplicates are acceptable (idempotent processing)
-
-**Exactly-once (The Holy Grail):**
-- Message delivered and processed exactly one time
-- No loss, no duplicates
-- **Guarantee:** Exactly 1 delivery
-- **Use case:** Financial transactions, order processing
-
-**Implementation:**
-
-**At-least-once:**
-```python
-def send_message(message):
-    while True:
-        try:
-            send_to_queue(message)
-            wait_for_ack(timeout=5s)
-            break  # Success
-        except TimeoutError:
-            continue  # Retry (might create duplicate)
-```
-
-**Exactly-once (Method 1: Idempotency)**
-```python
-def process_payment(payment_id, amount):
-    if db.exists(f'payment:{payment_id}'):
-        return db.get(f'payment:{payment_id}')  # Already processed
-    
-    result = charge_card(amount)
-    db.set(f'payment:{payment_id}', result)
-    return result
-```
-
-**Exactly-once (Method 2: Transactions)**
-```python
-with transaction:
-    message = queue.consume()
-    process_message(message)
-    queue.commit_offset(message)
-```
-
-**When to use each:**
-- **At-most-once:** Metrics, logging (OK to lose occasional data)
-- **At-least-once (most common):** Design for idempotency, use at-least-once
-- **Exactly-once:** Financial transactions, inventory updates
-
-**My recommendation:** Default to at-least-once with idempotent processing (simpler, faster)."
-
-**Follow-up Q:** "How would you make a non-idempotent operation idempotent?"
-
-**Ideal Answer:**
-
-"Common patterns:
-
-**1. Track processed requests**
-```python
-def record_page_view(request_id, page_id):
-    if db.exists(f'processed:{request_id}'):
-        return  # Already processed
-    
-    db.increment(f'views:{page_id}', 1)
-    db.set(f'processed:{request_id}', True, ttl=24hours)
-```
-
-**2. Use client-generated IDs**
-```python
-def create_order(idempotency_key, user_id, items):
-    try:
-        order_id = generate_id()
-        db.insert({
-            'order_id': order_id,
-            'idempotency_key': idempotency_key,  # UNIQUE constraint
-            'user_id': user_id,
-            'items': items
-        })
-        return order_id
-    except UniqueConstraintError:
-        return db.get_by_idempotency_key(idempotency_key).order_id
-```
-
-**3. Deduplication tracking**
-```python
-def send_welcome_email(user_id):
-    key = f'email_sent:welcome:{user_id}'
-    if cache.exists(key):
-        return  # Already sent
-    
-    email_service.send(user_id, 'Welcome!')
-    cache.set(key, True, ttl=7days)
-```
-
-**Real example:** Stripe requires `Idempotency-Key` header, stores for 24 hours."
+- If W nodes can't acknowledge, write fails — availability reduced
+- Sloppy quorum / hinted handoff: write to any available node, relay later when failed node recovers
+- Trade-off: higher availability but temporarily weaker consistency guarantee
 
 ---
 
-### Q4: Explain consensus algorithms. Why is distributed consensus hard?
+### Q4: When would you use Kafka vs RabbitMQ vs SQS?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"**Distributed consensus** is getting multiple nodes to agree on a single value despite failures.
+- **Kafka:** log-based, retains messages (configurable days/forever), consumer replay, ordering per partition, high throughput (100K+ msg/s) → event streaming, audit logs, data pipelines
+- **RabbitMQ:** traditional queue, deletes after consumption, complex routing (fanout/topic/headers), low per-message latency → task queues, RPC, notifications
+- **SQS:** fully managed, auto-scales, standard (at-least-once) or FIFO (exactly-once, lower throughput) → AWS-native workloads, simple decoupling
 
-**Why it's hard:**
-1. **Network is unreliable:** Messages lost, delayed, reordered
-2. **Nodes can fail:** Can't distinguish crashed vs slow node
-3. **No global clock:** Can't rely on timestamps
-4. **FLP impossibility:** Consensus impossible in fully asynchronous system with even one failure
+**Follow-up Q:** "What is at-least-once delivery and how do you handle duplicates?"
 
-**Common algorithms:**
-
-**1. Raft (most understandable)**
-```
-1. Leader election (majority votes required)
-2. Log replication (leader → followers)
-3. Safety (only up-to-date nodes can become leader)
-```
-- **Used by:** etcd, Consul
-- **Pros:** Easier to understand than Paxos
-- **Cons:** Leader bottleneck
-
-**2. Paxos (classic, complex)**
-- Theoretical foundation
-- Very complex to implement
-- "There is only one consensus protocol, and that's Paxos" - Lamport
-
-**Practical use cases:**
-1. **Leader election:** Database failover
-2. **Configuration management:** Store critical config
-3. **Distributed locks:** Only one node gets lock
-4. **Commit protocol:** Distributed transaction decision
-
-**Why NOT use consensus everywhere:**
-- Performance cost (multiple round trips, 10-100ms per decision)
-- Needs majority to function (availability trade-off)
-- Complex to implement correctly
-
-**My recommendation:**
-- Don't build your own (use etcd or ZooKeeper)
-- For most systems, use simpler patterns (leader-follower replication)
-- Use consensus only when critical (cluster state, leader election)"
+- At-least-once: message retried until acknowledged, may produce duplicates
+- Consumers must be idempotent: deduplicate by message ID, DB unique constraints, conditional version-checked updates
+- Exactly-once is expensive (Kafka transactions, FIFO SQS); prefer at-least-once + idempotent consumers
 
 ---
 
-### Q5: Explain message queue backpressure. How would you handle it?
+### Q5: Explain event-driven architecture. When would you use it vs synchronous calls?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"**Backpressure** occurs when producers generate data faster than consumers can process, causing queue depth to grow unbounded.
+- **Event-driven:** services publish/subscribe to events → loose coupling, resilience, independent scaling, fan-out
+- **Synchronous:** direct service-to-service calls → lower latency, simpler debugging, strong consistency possible
+- Use events when: loose coupling needed, multiple subscribers, eventual consistency acceptable
+- Use sync when: immediate response required, simple linear flow, strong consistency critical
+- Event design: eventId, eventType, timestamp, aggregateId, data payload
+- Schema evolution: add optional fields (safe), use schema registry (Avro/Protobuf) for contracts
 
-**Symptoms:**
-- Queue depth increasing continuously
-- Consumer lag growing
-- Memory pressure
-- Messages timing out
+**Follow-up Q:** "How do you handle backpressure in an event-driven system?"
 
-**Handling strategies:**
+- Bounded queues with overflow handling (reject or drop oldest)
+- Monitor queue depth → auto-scale consumers dynamically
+- Throttle producers when consumers can't keep up
+- For non-critical data (metrics, logs): sample or drop during overload
+- Kafka: consumers control own pace via offset management; monitor consumer lag metric
 
-**1. Scale consumers (most common)**
-- Add more workers to consumer group
-- Kafka: Limited by partition count
-- SQS: Can add unlimited workers
+---
 
-**2. Throttle producers**
-```python
-def send_with_backpressure(message):
-    queue_depth = get_queue_depth()
-    if queue_depth > THRESHOLD:
-        sleep(1)  # Block
-        # OR raise QueueFullError  # Reject
-        # OR sample (drop some messages)
-```
+### Q6: Explain consensus algorithms at a high level. Why is distributed consensus hard?
 
-**3. Bounded queues**
-```python
-queue = BoundedQueue(max_size=10000)
-try:
-    queue.put(message, block=False)
-except QueueFullError:
-    return error_response()
-```
+**Expected Answer:**
 
-**4. Priority queues**
-- High-priority (payments) always processed
-- Low-priority (analytics) dropped during overload
+- Consensus = getting distributed nodes to agree on a value despite failures
+- **Hard because:** unreliable network (lost/delayed messages), node failures indistinguishable from slow nodes, no global clock, FLP impossibility theorem
+- **Raft:** leader election by majority vote → log replication → committed when majority ack; used by etcd, Consul
+- Tolerates (N-1)/2 failures: 3 nodes → 1 failure, 5 nodes → 2 failures
+- Consensus is expensive (multiple network round trips per decision) — use sparingly, only for coordination (leader election, distributed locks, config management)
+- Don't build your own — use ZooKeeper, etcd, or managed services
 
-**5. Sampling/Aggregation**
-- Send 1 message per 100 pageviews instead of each
+**Follow-up Q:** "When should you NOT use consensus?"
 
-**6. Circuit breaker**
-- Stop sending during overload
-- Give system time to recover
-
-**7. Optimize consumer performance**
-- Batch processing
-- Cache expensive lookups
-- Profile slow code paths
-
-**Monitoring:**
-- Alert on queue depth > threshold
-- Consumer lag (Kafka offset lag)
-- Processing time p99
-- Consumer error rate
-
-**Real example:** Netflix auto-scales consumers based on lag, drops non-critical events during overload."
+- Not for high-throughput data storage — use databases with built-in replication
+- Not for every service-to-service decision — too slow (10-100ms per consensus round)
+- Reserve for: leader election, cluster membership, distributed locking, critical config changes
 
 ---
 

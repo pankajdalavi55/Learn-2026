@@ -910,868 +910,133 @@ These patterns are what separate production-ready systems from prototypes. In St
 - "SLO-based alerting with error budget"
 - "Start monolith, extract when team boundaries form"
 
+
 ---
 
 ## Common Interview Questions & Model Answers
 
-This section provides realistic interview questions on scalability patterns, with ideal answers and follow-up questions.
-
 ---
 
-### Q1: When would you break a monolith into microservices? What are the trade-offs?
+### Q1: When would you break a monolith into microservices?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"Breaking a monolith into microservices is a major decision with significant trade-offs. Here's when and why:
-
-**When to keep the monolith:**
-- Team < 10 engineers
-- Product still finding product-market fit
-- Simple domain with few bounded contexts
-- Deployment complexity not justified yet
-
-**When to consider microservices:**
-
-**1. Team scaling (organizational driver)**
-- Team > 50 engineers
-- Multiple teams stepping on each other's code
-- Deployment coordination becoming painful
-- Example: Can't deploy Team A's feature without Team B's changes
-
-**2. Technical scaling (performance driver)**
-- Different components have different scaling needs
-- Example: Image processing needs GPUs, API needs CPUs
-- Monolith forces scaling everything together (expensive)
-
-**3. Technology diversity**
-- Different services benefit from different tech stacks
-- Example: ML model in Python, API in Go
-- Monolith locks you into one language
-
-**4. Deployment independence**
-- Need to deploy services independently
-- Different release cycles (daily vs weekly)
-- Reduce blast radius (deploy one service, not entire app)
-
-**Trade-offs:**
-
-| Aspect | Monolith | Microservices |
-|--------|----------|---------------|
-| Complexity | Simple | High (distributed systems) |
-| Deployment | One artifact | Many (orchestration needed) |
-| Debugging | Easy (single process) | Hard (distributed tracing) |
-| Performance | Fast (in-process calls) | Slower (network calls) |
-| Transactions | ACID (database) | Saga pattern (eventual) |
-| Team autonomy | Low | High |
-| Infrastructure cost | Low | High (more services) |
-
-**Migration strategy (not all-or-nothing):**
-
-**Phase 1: Modular monolith**
-- Create clear module boundaries within monolith
-- Enforce module interfaces (no cross-module DB access)
-- Test deployment independently (feature flags)
-
-**Phase 2: Extract by bounded context**
-- Identify high-value candidates for extraction:
-  - Independent business capability (payment processing)
-  - Different scaling needs (image processing)
-  - Different team ownership (identity service)
-- Start with stateless services (easier)
-
-**Phase 3: Data separation**
-- Each service owns its database
-- Use API calls instead of shared DB
-- Eventual consistency where possible
-
-**Phase 4: Handle distributed concerns**
-- Service discovery (Kubernetes, Consul)
-- Distributed tracing (Jaeger, Zipkin)
-- Circuit breakers, retries
-- Saga pattern for transactions
-
-**Red flags (premature microservices):**
-- Startup with 3 engineers building 20 microservices
-- No clear service boundaries
-- "We need to be like Netflix" (they have 1000s of engineers)
-
-**My recommendation:**
-- Start with modular monolith (80% of systems should stay here)
-- Extract selectively when organizational or technical pressure is clear
-- Use strangler fig pattern (gradually extract services)
-
-**Real example:** Shopify stayed monolithic for years, only extracted specific services (payments, fulfillment) when they hit clear scaling limits."
+- **Keep monolith:** team < 50 engineers, still finding product-market fit, simple domain
+- **Extract selectively when:** teams stepping on each other (org driver), components need different scaling (tech driver), different release cadences needed, clear bounded contexts emerge
+- Start with modular monolith → extract by bounded context → separate databases → handle distributed concerns
+- Strangler fig pattern for gradual migration — never big-bang rewrite
+- 80% of systems should stay as modular monolith — microservices add complexity before value
 
 **Follow-up Q:** "How do you handle transactions across microservices?"
 
-**Ideal Answer:**
-
-"Distributed transactions are one of the hardest problems in microservices. Here are the approaches:
-
-**1. Saga Pattern (most common)**
-- Break transaction into multiple local transactions
-- Each service commits independently
-- If one fails, compensate (undo) previous steps
-
-**Example: E-commerce order**
-```
-1. Order Service: Create order (status=PENDING)
-2. Inventory Service: Reserve items
-3. Payment Service: Charge customer
-4. Order Service: Mark order CONFIRMED
-
-If Payment fails:
-  - Compensate: Release inventory
-  - Compensate: Mark order CANCELLED
-```
-
-**Two types of sagas:**
-
-**A. Choreography (event-driven)**
-```
-Order Service: OrderCreated event → 
-Inventory Service: InventoryReserved event →
-Payment Service: PaymentSuccessful event →
-Order Service: OrderConfirmed
-
-If PaymentFailed event:
-  Inventory Service: Release reservation
-  Order Service: Cancel order
-```
-- **Pros:** Decoupled, no orchestrator
-- **Cons:** Hard to track, debug (event soup)
-
-**B. Orchestration (coordinator)**
-```
-Order Saga Orchestrator:
-  1. Call Inventory Service (reserve)
-  2. Call Payment Service (charge)
-  3. If both succeed → confirm order
-  4. If Payment fails → tell Inventory to release
-```
-- **Pros:** Clear flow, easier to debug
-- **Cons:** Orchestrator is a single point of coordination
-- **My preference:** Orchestration for business-critical flows
-
-**2. Two-Phase Commit (2PC) - Avoid if possible**
-```
-Phase 1 (Prepare):
-  Coordinator asks: "Can you commit?"
-  Each service: "Yes, I can" (locks resources)
-
-Phase 2 (Commit):
-  Coordinator: "Everyone commit"
-  Each service: Commits
-```
-- **Pros:** ACID guarantees
-- **Cons:** Blocking (locks held during network calls), coordinator is single point of failure
-- **When to use:** Never in microservices (too slow, fragile)
-
-**3. Eventually Consistent (best for most cases)**
-- Accept temporary inconsistency
-- Example: Payment succeeded, but order confirmation email delayed
-- User sees "Processing order" for a few seconds
-- **Pros:** High availability, resilient
-- **Cons:** Complex error handling, user experience
-
-**4. Outbox Pattern (reliable event publishing)**
-```
-with transaction:
-  update_order(order_id, status='CONFIRMED')
-  insert_into_outbox({
-    'event': 'OrderConfirmed',
-    'payload': {...}
-  })
-
-Background job:
-  Read from outbox table
-  Publish events to message queue
-  Mark as published
-```
-- Guarantees: DB update and event publishing are atomic
-- Prevents: Order confirmed in DB but event lost
-
-**Best practices:**
-
-**1. Design for idempotency**
-- All operations must be safely retryable
-- Use idempotency keys
-
-**2. Timeouts and retries**
-- Set aggressive timeouts (don't wait forever)
-- Exponential backoff on retries
-- Circuit breakers to prevent cascade
-
-**3. Compensating actions must be idempotent**
-- Releasing inventory twice should be safe
-- Refunding twice should be safe
-
-**4. Monitor saga state**
-- Track which step each saga is on
-- Alert on stuck sagas (>5 minutes)
-- Dashboard showing active, completed, failed sagas
-
-**When NOT to use microservices:**
-- If you need ACID transactions everywhere
-- Domain doesn't have clear boundaries
-- Team isn't ready for operational complexity
-
-**Real example:** Uber uses saga pattern for trip booking:
-1. Driver service: Assign driver
-2. Rider service: Update rider
-3. Payment service: Pre-authorize card
-4. If any fails: Compensate (unassign driver, cancel ride)"
+- Saga pattern: sequence of local transactions + compensating actions on failure
+- Orchestration for complex flows (central coordinator, easier debugging, better for 4+ steps)
+- Choreography for simple flows (event-driven, loose coupling, 2-3 steps)
+- Outbox pattern for reliable event publishing (DB update + outbox insert in same transaction)
+- Every step and compensation must be idempotent
 
 ---
 
-### Q2: Explain the Circuit Breaker pattern. How would you implement it?
+### Q2: Explain the Circuit Breaker pattern.
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"The **Circuit Breaker** pattern prevents cascading failures by stopping requests to a failing service, giving it time to recover.
-
-**Analogy:** Like an electrical circuit breaker—if too much current flows (too many failures), it trips (opens) to prevent fire (system crash).
-
-**Three states:**
-
-**1. CLOSED (normal operation)**
-- Requests flow through normally
-- Track failures
-- If failure rate > threshold → Open circuit
-
-**2. OPEN (failure mode)**
-- Reject requests immediately (fail fast)
-- Don't even try the failing service
-- After timeout (e.g., 30 seconds) → Half-Open
-
-**3. HALF-OPEN (testing recovery)**
-- Allow limited requests through (e.g., 1 request)
-- If succeeds → Close circuit (back to normal)
-- If fails → Open circuit (back to failure mode)
-
-**State diagram:**
-```
-CLOSED --[too many failures]--> OPEN
-OPEN --[timeout expires]--> HALF-OPEN
-HALF-OPEN --[success]--> CLOSED
-HALF-OPEN --[failure]--> OPEN
-```
-
-**Implementation:**
-
-```python
-class CircuitBreaker:
-    def __init__(self, failure_threshold=5, timeout=60, half_open_attempts=1):
-        self.failure_threshold = failure_threshold
-        self.timeout = timeout  # seconds to wait before trying again
-        self.half_open_attempts = half_open_attempts
-        
-        self.failure_count = 0
-        self.last_failure_time = None
-        self.state = 'CLOSED'
-        self.half_open_count = 0
-    
-    def call(self, func, *args, **kwargs):
-        if self.state == 'OPEN':
-            # Check if timeout has passed
-            if time.now() - self.last_failure_time > self.timeout:
-                self.state = 'HALF-OPEN'
-                self.half_open_count = 0
-            else:
-                raise CircuitBreakerOpenError('Service unavailable')
-        
-        try:
-            result = func(*args, **kwargs)
-            self.on_success()
-            return result
-        except Exception as e:
-            self.on_failure()
-            raise
-    
-    def on_success(self):
-        if self.state == 'HALF-OPEN':
-            self.half_open_count += 1
-            if self.half_open_count >= self.half_open_attempts:
-                self.state = 'CLOSED'
-                self.failure_count = 0
-        elif self.state == 'CLOSED':
-            self.failure_count = 0  # Reset on success
-    
-    def on_failure(self):
-        self.failure_count += 1
-        self.last_failure_time = time.now()
-        
-        if self.state == 'HALF-OPEN':
-            self.state = 'OPEN'  # Back to open on any failure
-        elif self.state == 'CLOSED':
-            if self.failure_count >= self.failure_threshold:
-                self.state = 'OPEN'
-
-# Usage
-breaker = CircuitBreaker(failure_threshold=5, timeout=30)
-
-def call_payment_service():
-    return breaker.call(payment_api.charge, user_id, amount)
-```
-
-**Configuration tuning:**
-
-| Parameter | Typical Value | Purpose |
-|-----------|---------------|---------|
-| Failure threshold | 5-10 failures | How many failures before opening |
-| Timeout | 30-60 seconds | How long to wait before retrying |
-| Half-open attempts | 1-3 requests | How many test requests before closing |
-
-**When to use:**
-
-**1. External service calls**
-- Payment gateway, third-party APIs
-- Protect your system from their failures
-
-**2. Database queries**
-- If DB is overloaded, stop sending more queries
-- Give it time to recover
-
-**3. Microservice communication**
-- Service A calls Service B
-- If B is down, don't keep trying
-
-**Benefits:**
-
-1. **Fail fast:** Return error immediately instead of waiting for timeout
-2. **Prevent cascade:** Don't overload failing service with retries
-3. **Give time to recover:** Failing service gets breathing room
-4. **Improve UX:** Fast failure = faster response to user (show cached data or error)
-
-**Combined with other patterns:**
-
-**+ Fallback:**
-```python
-try:
-    return breaker.call(payment_service.charge)
-except CircuitBreakerOpenError:
-    return queue_for_retry()  # Process payment later
-```
-
-**+ Timeout:**
-```python
-try:
-    return breaker.call(timeout(payment_service.charge, 3_seconds))
-except TimeoutError:
-    # Counts as failure, increments circuit breaker count
-```
-
-**+ Bulkhead:**
-- Separate circuit breakers for different dependencies
-- Payment service failure doesn't affect inventory service
-
-**Monitoring:**
-
-```python
-metrics.gauge('circuit_breaker.state', state)  # 0=closed, 1=half-open, 2=open
-metrics.counter('circuit_breaker.failures')
-metrics.counter('circuit_breaker.open_count')
-metrics.timer('circuit_breaker.recovery_time')
-
-# Alert if circuit has been open for > 5 minutes
-if state == 'OPEN' and duration > 300:
-    alert('Circuit breaker stuck open: payment_service')
-```
-
-**Real examples:**
-- Netflix Hystrix (Java circuit breaker library)
-- AWS Lambda: Automatic throttling (similar concept)
-- Stripe API: Rate limiting + circuit breaking for failing merchants
-
-**My recommendation:**
-- Use library (resilience4j, polly) instead of building from scratch
-- Set conservative thresholds initially (high threshold, long timeout)
-- Tune based on metrics and alerts
-- Always have fallback strategy (cache, queue, graceful degradation)"
+- Prevents cascading failures by stopping calls to a failing service, giving it recovery time
+- Three states: Closed (normal) → Open (fail fast, no calls) → Half-Open (test recovery with limited requests)
+- Configuration: failure threshold (5-10 failures), open timeout (30-60s), half-open attempts (1-3)
+- Count 5xx and timeouts as failures; ignore 4xx (client errors)
+- Combine with fallback: return cached data, default values, or degraded experience
+- Use libraries (Resilience4j, Polly) — don't build from scratch
 
 **Follow-up Q:** "What's the difference between Circuit Breaker and Retry?"
 
-**Ideal Answer:**
-
-"Both handle failures, but they're complementary and serve different purposes:
-
-**Retry:**
-- **Purpose:** Handle transient failures (temporary network glitch)
-- **Assumption:** Problem will likely resolve quickly
-- **Action:** Try again immediately or after brief delay
-- **Risk:** Can make problem worse (overload failing service)
-
-**Circuit Breaker:**
-- **Purpose:** Handle sustained failures (service is down)
-- **Assumption:** Problem will NOT resolve in milliseconds
-- **Action:** Stop trying, fail fast
-- **Risk:** Might give up too early on intermittent issues
-
-**When to use each:**
-
-| Scenario | Pattern | Reason |
-|----------|---------|--------|
-| Network blip | Retry | Likely transient, retry helps |
-| Service overloaded | Circuit Breaker | Retries make it worse |
-| Database deadlock | Retry | Retrying after delay may succeed |
-| Database down | Circuit Breaker | Retries won't help, fail fast |
-
-**Best practice: Use both together**
-
-```python
-# Outer: Circuit breaker (protects against sustained failure)
-# Inner: Retry (handles transient failures)
-
-circuit_breaker = CircuitBreaker(failure_threshold=5, timeout=30)
-retry_policy = Retry(max_attempts=3, backoff=ExponentialBackoff())
-
-def call_service():
-    return circuit_breaker.call(
-        lambda: retry_policy.execute(actual_service_call)
-    )
-
-Flow:
-1. Circuit breaker checks state
-2. If CLOSED, allow through
-3. Retry policy tries up to 3 times
-4. If all 3 fail, circuit breaker increments failure count
-5. After 5 such failures, circuit breaker opens
-```
-
-**Configuration guidelines:**
-
-```
-Retry:
-- Max attempts: 2-3 (aggressive retries harmful)
-- Backoff: Exponential (100ms, 200ms, 400ms)
-- Jitter: Add randomness to prevent thundering herd
-
-Circuit Breaker:
-- Failure threshold: 5-10 (tolerate some failures)
-- Timeout: 30-60 seconds (time to recover)
-- Half-open attempts: 1-3 (test recovery conservatively)
-```
-
-**Real example:** AWS SDK uses both:
-- Retries: 3 attempts with exponential backoff for transient errors (500, 503)
-- Circuit breaking: If 10 consecutive failures (service down), stop trying for 60 seconds"
+- Retry handles transient failures (network blip) — try again with exponential backoff + jitter
+- Circuit Breaker handles sustained failures (service down) — stop trying, fail fast
+- Use both together: retry inside circuit breaker — retries handle transient errors, circuit breaks on sustained failures
+- Retries without circuit breaker can overwhelm a struggling service
 
 ---
 
-### Q3: What is the Saga pattern? Give an example of choreography vs orchestration.
+### Q3: What is the Saga pattern? Choreography vs Orchestration?
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"The **Saga pattern** manages distributed transactions as a sequence of local transactions with compensating actions if something fails.
+- Saga: distributed transaction as sequence of local transactions + compensating actions on failure
+- **Choreography:** each service publishes events, subscribers react → loose coupling, harder to trace and debug
+- **Orchestration:** central coordinator directs steps → clear flow, centralized monitoring, more coupling
+- Each step has a compensating action: CreateOrder → CancelOrder, ChargePayment → Refund, ReserveInventory → Release
+- Every step and compensation must be idempotent (retries expected)
+- Orchestration for business-critical flows (orders, payments); choreography for simple 2-3 step flows
 
-**Problem it solves:**
-- In microservices, you can't use database ACID transactions across services
-- Need to maintain consistency without distributed locks
+**Follow-up Q:** "What if a compensation fails?"
 
-**Two types:**
-
-**1. Choreography (event-driven, decentralized)**
-
-Each service listens for events and publishes new events. No central coordinator.
-
-**Example: E-commerce order**
-
-```
-┌─────────────┐
-│Order Service│ OrderCreated event
-└──────┬──────┘
-       │
-       v
-┌─────────────────┐
-│Inventory Service│ InventoryReserved event
-└───────┬─────────┘
-        │
-        v
-┌─────────────┐
-│Payment Svc  │ PaymentSuccessful event OR PaymentFailed event
-└──────┬──────┘
-       │
-       v (if successful)
-┌─────────────┐
-│Order Service│ OrderConfirmed
-└─────────────┘
-
-If PaymentFailed:
-  InventoryReleased event ← Inventory Service
-  OrderCancelled event ← Order Service
-```
-
-**Implementation:**
-```python
-# Order Service
-def create_order(order):
-    db.insert_order(order, status='PENDING')
-    event_bus.publish('OrderCreated', order)
-
-def on_payment_successful(event):
-    db.update_order(event.order_id, status='CONFIRMED')
-    event_bus.publish('OrderConfirmed', event)
-
-def on_payment_failed(event):
-    db.update_order(event.order_id, status='CANCELLED')
-    event_bus.publish('OrderCancelled', event)
-
-# Inventory Service
-def on_order_created(event):
-    if can_reserve(event.items):
-        reserve_inventory(event.items)
-        event_bus.publish('InventoryReserved', event)
-    else:
-        event_bus.publish('InventoryFailed', event)
-
-def on_order_cancelled(event):
-    release_inventory(event.items)  # Compensating action
-    event_bus.publish('InventoryReleased', event)
-
-# Payment Service
-def on_inventory_reserved(event):
-    if charge_customer(event.user_id, event.amount):
-        event_bus.publish('PaymentSuccessful', event)
-    else:
-        event_bus.publish('PaymentFailed', event)
-```
-
-**Pros:**
-- Loose coupling (services don't know about each other)
-- High availability (no single coordinator)
-- Scales well
-
-**Cons:**
-- Hard to track saga state (distributed across services)
-- Complex debugging (follow event trail)
-- Risk of event loops
-- Eventual consistency (order might be PENDING for seconds)
-
-**2. Orchestration (centralized coordinator)**
-
-A saga orchestrator coordinates all steps. Services don't publish events, just respond to orchestrator.
-
-**Example: Same order flow**
-
-```
-┌──────────────────┐
-│ Order Saga       │
-│ Orchestrator     │
-└────┬─────────────┘
-     │
-     ├─1─> Inventory.reserve()
-     │     └─> Success/Failure
-     │
-     ├─2─> Payment.charge()
-     │     └─> Success/Failure
-     │
-     └─3─> Order.confirm()
-           OR
-       Compensate:
-       ├─> Payment.refund()
-       └─> Inventory.release()
-```
-
-**Implementation:**
-```python
-class OrderSagaOrchestrator:
-    def execute(self, order):
-        saga_state = {
-            'order_id': order.id,
-            'status': 'STARTED',
-            'steps_completed': []
-        }
-        
-        try:
-            # Step 1: Reserve inventory
-            inventory_service.reserve(order.items)
-            saga_state['steps_completed'].append('INVENTORY_RESERVED')
-            
-            # Step 2: Charge payment
-            payment_service.charge(order.user_id, order.amount)
-            saga_state['steps_completed'].append('PAYMENT_CHARGED')
-            
-            # Step 3: Confirm order
-            order_service.confirm(order.id)
-            saga_state['status'] = 'COMPLETED'
-            
-        except InventoryError as e:
-            # No compensation needed (nothing committed yet)
-            order_service.cancel(order.id, reason='No inventory')
-            saga_state['status'] = 'FAILED'
-            
-        except PaymentError as e:
-            # Compensate: Release inventory
-            self.compensate(saga_state)
-            order_service.cancel(order.id, reason='Payment failed')
-            saga_state['status'] = 'COMPENSATED'
-        
-        return saga_state
-    
-    def compensate(self, saga_state):
-        # Execute compensating actions in reverse order
-        if 'INVENTORY_RESERVED' in saga_state['steps_completed']:
-            inventory_service.release(order.items)
-        
-        if 'PAYMENT_CHARGED' in saga_state['steps_completed']:
-            payment_service.refund(order.user_id, order.amount)
-```
-
-**Pros:**
-- Clear flow (easy to understand)
-- Centralized monitoring (saga state in one place)
-- Easier to debug (orchestrator logs show everything)
-- Better for complex workflows (many steps, conditional logic)
-
-**Cons:**
-- Orchestrator is a dependency (coupling)
-- Single point of coordination (but not failure—can be replicated)
-- Orchestrator needs to be highly available
-
-**Comparison:**
-
-| Aspect | Choreography | Orchestration |
-|--------|--------------|---------------|
-| Coupling | Loose | Medium |
-| Complexity | Distributed | Centralized |
-| Debugging | Hard | Easy |
-| Scalability | High | Medium (orchestrator bottleneck) |
-| Use case | Simple flows | Complex flows |
-
-**My recommendation:**
-- **Choreography:** Simple flows (2-3 steps), eventual consistency OK
-- **Orchestration:** Business-critical flows (orders, payments), complex logic
-
-**Real-world hybrid:**
-- High-level: Orchestration (order saga orchestrator)
-- Low-level: Choreography (within each service, event-driven)
-
-**Patterns to combine:**
-
-**1. Outbox pattern** (reliable event publishing)
-```python
-with transaction:
-    update_order(status='CONFIRMED')
-    insert_into_outbox({'event': 'OrderConfirmed', 'payload': order})
-
-# Background job publishes events from outbox
-```
-
-**2. Idempotency** (safe retries)
-```python
-def reserve_inventory(idempotency_key, items):
-    if already_reserved(idempotency_key):
-        return  # Idempotent
-    
-    actually_reserve(items)
-    save_idempotency_key(idempotency_key)
-```
-
-**3. Timeouts** (don't wait forever)
-```python
-try:
-    inventory_service.reserve(order.items, timeout=3_seconds)
-except TimeoutError:
-    compensate_and_fail()
-```
-
-**Real examples:**
-- Uber: Orchestration for trip booking saga
-- Netflix: Choreography for content delivery pipeline
-- Amazon: Hybrid (orchestration for checkout, choreography for recommendations)"
+- Retry compensations with exponential backoff
+- If still failing after max retries: dead letter queue + alert for manual intervention
+- Monitor saga states: alert on stuck sagas exceeding threshold duration
+- Design compensations to be idempotent — safe to retry indefinitely
 
 ---
 
-### Q4: Explain SLOs, SLIs, and SLAs. How do you set them?
+### Q4: Explain SLOs, SLIs, and SLAs.
 
-**Ideal Answer:**
+**Expected Answer:**
 
-"These are related but distinct concepts for measuring reliability:
+- **SLI (Indicator):** what you measure — p99 latency, error rate, availability percentage
+- **SLO (Objective):** internal target for the SLI — "p99 < 200ms", "99.95% success rate"
+- **SLA (Agreement):** external contract with financial penalties — always less strict than SLO (buffer)
+- Error budget = 100% − SLO; for 99.9% SLO: 43 min downtime/month allowed
+- Alert on SLO burn rate (not individual errors) to avoid alert fatigue
+- Track multiple dimensions: availability + latency + correctness
 
-**SLI (Service Level Indicator):**
-- **What:** A metric that measures service health
-- **Examples:** 
-  - Request latency (p99 < 200ms)
-  - Error rate (< 0.1%)
-  - Availability (% of successful requests)
+**Follow-up Q:** "How do you set SLOs for a new service?"
 
-**SLO (Service Level Objective):**
-- **What:** Target value for an SLI
-- **Examples:**
-  - \"99.9% of requests succeed\"
-  - \"p99 latency < 200ms\"
-  - \"99.95% uptime per month\"
+- Measure baseline performance over 90 days before committing to SLOs
+- Set SLO slightly below current performance (gives operational buffer)
+- Consider user expectations: user-facing < 200ms, internal < 500ms
+- Start with 99.9% (achievable without heroics), tighten over time
+- SLA = SLO minus buffer (e.g., SLO 99.95% → SLA 99.9%)
 
-**SLA (Service Level Agreement):**
-- **What:** Contract with consequences if SLO violated
-- **Examples:**
-  - \"If uptime < 99.9%, customer gets 10% credit\"
-  - Legal/financial commitment
-  - Always less strict than internal SLO (buffer)
+---
 
-**Relationship:**
-```
-SLI: How we measure (latency, errors, uptime)
-  ↓
-SLO: Our internal target (99.9% success rate)
-  ↓
-SLA: Promise to customers (99% success rate + penalty)
-```
+### Q5: How would you approach observability for a microservices system?
 
-**Example:**
+**Expected Answer:**
 
-| Layer | Description |
-|-------|-------------|
-| **SLI** | Request success rate: `successful_requests / total_requests` |
-| **SLO** | 99.95% of requests succeed in any 30-day window |
-| **SLA** | Guarantee 99.9% success rate; if breached, 10% refund |
+- Three pillars: Metrics (Prometheus/Datadog), Logs (ELK/Splunk), Traces (Jaeger/Zipkin)
+- **RED** for services: Rate (req/s), Errors (error rate), Duration (p50/p95/p99)
+- **USE** for infrastructure: Utilization (%), Saturation (queue depth), Errors
+- Correlation IDs propagated across all services — trace every request end-to-end
+- Structured logging (JSON), no PII, appropriate log levels (ERROR/WARN/INFO)
+- SLO-based alerting with error budgets — alert on symptoms not causes
 
-**How to set SLOs:**
+**Follow-up Q:** "How do you debug a latency spike in a distributed system?"
 
-**1. Start with current performance**
-```
-Look at last 90 days:
-- p50 latency: 50ms
-- p99 latency: 180ms
-- Success rate: 99.97%
+- Check distributed traces for the slow request path (identify which service/hop added latency)
+- Check RED metrics for that service (error rate spike, p99 increase)
+- Check USE metrics for infrastructure (CPU saturation, DB connection pool exhaustion, queue depth)
+- Common culprits: GC pauses, DB lock contention, replication lag, cache miss spike, downstream dependency degradation
 
-Set SLO slightly below current performance:
-- p99 latency: 200ms (gives 20ms buffer)
-- Success rate: 99.95% (gives 0.02% error budget)
-```
+---
 
-**2. Consider user expectations**
-- What do users notice? (>500ms latency = slow)
-- What's acceptable for the product? (Social media vs banking)
+### Q6: How do you ensure resilience in microservice-to-microservice communication?
 
-**3. Error budget**
-```
-SLO: 99.9% uptime per month
-Error budget: 0.1% downtime allowed
-= 30 days * 24 hours * 60 min * 0.001
-= 43.2 minutes of downtime per month
+**Expected Answer:**
 
-Use error budget for:
-- Deployments
-- Experimentation
-- Infrastructure maintenance
-```
+- **Timeouts** on all external calls — each hop's timeout shorter than caller's (timeout budget)
+- **Retries** with exponential backoff + jitter — only for transient errors (5xx), only for idempotent operations
+- **Circuit Breaker** — fail fast on sustained failures, fallback to cached/default data
+- **Bulkhead** — isolate resources per dependency (separate thread pools/connection pools) so one slow dependency doesn't exhaust all resources
+- Combined pattern: Request → Timeout → Retry → Circuit Breaker → Fallback
+- Health checks: L7 HTTP `/health` endpoint, 2-3 failure threshold before removal from load balancer
 
-**4. Multiple SLOs**
+**Follow-up Q:** "What happens when a critical downstream service goes completely down?"
 
-Don't use a single number. Track multiple dimensions:
-
-```
-API SLOs:
-1. Availability: 99.95% of requests return 2xx/3xx
-2. Latency: p99 < 200ms
-3. Correctness: 99.99% of payments succeed
-
-Why multiple?
-- Can have low error rate but high latency (bad UX)
-- Can have low latency but high error rate (unreliable)
-```
-
-**Setting thresholds:**
-
-| Tier | Uptime SLO | Downtime/month | Use Case |
-|------|------------|----------------|----------|
-| 99% | Two 9s | 7.2 hours | Non-critical, internal tools |
-| 99.9% | Three 9s | 43.2 minutes | Standard SaaS |
-| 99.95% | | 21.6 minutes | High-value SaaS |
-| 99.99% | Four 9s | 4.3 minutes | Financial, healthcare |
-| 99.999% | Five 9s | 26 seconds | Critical infrastructure |
-
-**SLO-based alerting:**
-
-Instead of alerting on every error, alert on SLO burn rate.
-
-```python
-# Bad: Alert on every error
-if error_rate > 0:
-    alert()  # Too noisy
-
-# Good: Alert on SLO violation trajectory
-def slo_burn_rate_alert():
-    error_rate_1h = errors_last_hour / requests_last_hour
-    monthly_budget = 0.001  # 99.9% SLO = 0.1% error budget
-    
-    # If current rate continues, will we violate SLO?
-    projected_monthly_errors = error_rate_1h * 30 * 24
-    
-    if projected_monthly_errors > monthly_budget:
-        alert('Burning SLO budget at 14x rate')
-```
-
-**Multi-window alerting:**
-
-```
-Alert levels:
-1. Critical: 5% of error budget consumed in 1 hour (36x burn rate)
-2. Warning: 10% of budget consumed in 6 hours (20x burn rate)
-3. Notice: 50% of budget consumed in 3 days (normal rate)
-
-This prevents:
-- Alert fatigue (not every blip)
-- Slow burns (gradually degrading, noticed too late)
-```
-
-**Monitoring dashboard:**
-
-```
-┌─────────────────────────────┐
-│ API Health - Last 30 Days   │
-├─────────────────────────────┤
-│ Success Rate:  99.96% ✓     │
-│   SLO: 99.95%               │
-│   Error Budget: 12% used    │
-├─────────────────────────────┤
-│ p99 Latency:  185ms ✓       │
-│   SLO: 200ms                │
-│   Budget: 8% used           │
-├─────────────────────────────┤
-│ p50 Latency:  45ms ✓        │
-└─────────────────────────────┘
-```
-
-**When you've violated SLO:**
-
-```
-1. Stop new deployments (preserve error budget)
-2. Root cause analysis (what changed?)
-3. Implement fix or rollback
-4. Post-mortem (blameless, focus on systems)
-5. Update runbooks
-6. If needed, adjust SLO (maybe too aggressive)
-```
-
-**Real examples:**
-
-**Google Search:**
-- SLI: Query success rate, latency
-- SLO: 99.9% success, p99 < 200ms
-- SLA: No public SLA (free product)
-
-**AWS S3:**
-- SLI: Request success rate, durability
-- SLO: Internal (likely 99.99%+)
-- SLA: 99.9% availability or get service credits
-
-**Stripe API:**
-- SLI: API success rate, latency
-- SLO: 99.99% uptime (internal)
-- SLA: 99.95% uptime with credits
-
-**My recommendations:**
-1. Start with 99.9% (achievable without heroics)
-2. Measure for 90 days before setting SLO
-3. Set SLA lower than SLO (give yourself buffer)
-4. Alert on SLO burn rate, not individual errors
-5. Review SLOs quarterly (adjust based on reality)"
+- Circuit breaker opens → fail fast, stop sending traffic
+- Serve from cache if available (stale-while-revalidate)
+- Graceful degradation: disable affected feature, show partial results
+- Queue requests for later processing if operation is not time-sensitive
+- Alert on-call team, track SLO error budget consumption
 
 ---
 
 **Navigation:** [← Previous: Distributed Systems](02-distributed-systems.md) | [Next: Case Studies (Mandatory) →](04-case-studies-mandatory.md)
-- "Saga with compensating transactions"
-- "SLO-based alerting with error budget"
-- "Start monolith, extract when team boundaries form"
