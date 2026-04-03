@@ -1205,27 +1205,27 @@ public class Application {
 │  ─────────────────────                                                      │
 │                                                                             │
 │  @Async                                                                     │
-│  public void sendEmail() { ... }    ──►  Runs on SAME thread (synchronous) │
+│  public void sendEmail() { ... }    ──►  Runs on SAME thread (synchronous)  │
 │                                                                             │
 │  With @EnableAsync:                                                         │
 │  ──────────────────                                                         │
 │                                                                             │
 │  Spring creates a PROXY around the bean:                                    │
 │                                                                             │
-│  ┌─────────────────┐      ┌──────────────────────────┐                     │
-│  │  Caller         │─────►│  AsyncProxy              │                     │
-│  │  (Main Thread)  │      │  • Intercepts @Async     │                     │
-│  └─────────────────┘      │  • Submits to Executor   │                     │
-│         │                 │  • Returns immediately   │                     │
-│         │                 └──────────────┬───────────┘                     │
+│  ┌─────────────────┐      ┌──────────────────────────┐                      │
+│  │  Caller         │─────►│  AsyncProxy              │                      │
+│  │  (Main Thread)  │      │  • Intercepts @Async     │                      │
+│  └─────────────────┘      │  • Submits to Executor   │                      │
+│         │                 │  • Returns immediately   │                      │
+│         │                 └──────────────┬───────────┘                      │
 │         │                                │                                  │
 │         ▼                                ▼                                  │
-│  Continues execution           ┌─────────────────┐                         │
-│  immediately                   │  TaskExecutor   │                         │
-│                                │  Thread Pool    │                         │
-│                                │  • Executes     │                         │
-│                                │    sendEmail()  │                         │
-│                                └─────────────────┘                         │
+│  Continues execution           ┌─────────────────┐                          │
+│  immediately                   │  TaskExecutor   │                          │
+│                                │  Thread Pool    │                          │
+│                                │  • Executes     │                          │
+│                                │    sendEmail()  │                          │
+│                                └─────────────────┘                          │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -2644,29 +2644,29 @@ logging:
 │                    THREADPOOLTASKEXECUTOR PARAMETERS                        │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    ThreadPoolTaskExecutor                            │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  corePoolSize: 10          │ Always-alive threads                   │   │
-│  │  ─────────────────         │ Created on demand, never destroyed     │   │
-│  │                            │ (unless allowCoreThreadTimeOut=true)   │   │
-│  │                                                                      │   │
-│  │  maxPoolSize: 50           │ Maximum threads under peak load        │   │
-│  │  ─────────────────         │ Additional threads beyond core         │   │
-│  │                            │ Destroyed when idle                    │   │
-│  │                                                                      │   │
-│  │  queueCapacity: 100        │ Tasks waiting when all threads busy   │   │
-│  │  ─────────────────         │ New threads created only when full    │   │
-│  │                            │ (and below maxPoolSize)                │   │
-│  │                                                                      │   │
-│  │  keepAliveSeconds: 60      │ Idle time before killing non-core     │   │
-│  │  ─────────────────         │ threads                                │   │
-│  │                                                                      │   │
-│  │  threadNamePrefix: "async-"│ Thread naming for debugging           │   │
-│  │  ─────────────────         │                                        │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    ThreadPoolTaskExecutor                           │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │                                                                     │    │
+│  │  corePoolSize: 10          │ Always-alive threads                   │    │
+│  │  ─────────────────         │ Created on demand, never destroyed     │    │
+│  │                            │ (unless allowCoreThreadTimeOut=true)   │    │
+│  │                                                                     │    │
+│  │  maxPoolSize: 50           │ Maximum threads under peak load        │    │
+│  │  ─────────────────         │ Additional threads beyond core         │    │
+│  │                            │ Destroyed when idle                    │    │
+│  │                                                                     │    │
+│  │  queueCapacity: 100        │ Tasks waiting when all threads busy    │    │
+│  │  ─────────────────         │ New threads created only when full     │    │
+│  │                            │ (and below maxPoolSize)                │    │
+│  │                                                                     │    │
+│  │  keepAliveSeconds: 60      │ Idle time before killing non-core      │    │
+│  │  ─────────────────         │ threads                                │    │
+│  │                                                                     │    │
+│  │  threadNamePrefix: "async-"│ Thread naming for debugging            │    │
+│  │  ─────────────────         │                                        │    │
+│  │                                                                     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -2675,7 +2675,7 @@ logging:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    TASK PROCESSING FLOW                                      │
+│                    TASK PROCESSING FLOW                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │                              New Task Arrives                               │
@@ -2684,24 +2684,24 @@ logging:
 │                    ┌────────────────────────────────┐                       │
 │                    │ Current Threads < corePoolSize │                       │
 │                    └────────────────┬───────────────┘                       │
-│                            Yes      │      No                               │
-│                             ▼       │       ▼                               │
-│                    ┌──────────┐    │     ┌─────────────────────┐           │
-│                    │ Create   │    │     │ Queue has capacity? │           │
-│                    │ new core │    │     └──────────┬──────────┘           │
-│                    │ thread   │    │        Yes     │     No               │
-│                    └──────────┘    │         ▼      │      ▼               │
-│                                    │  ┌──────────┐ │  ┌───────────────────┐│
-│                                    │  │Add task  │ │  │Threads<maxPoolSize││
-│                                    │  │to queue  │ │  └─────────┬─────────┘│
-│                                    │  └──────────┘ │    Yes     │    No    │
-│                                    │               │     ▼      │     ▼    │
-│                                    │               │ ┌────────┐│┌────────┐ │
-│                                    │               │ │Create  │││Reject  │ │
-│                                    │               │ │non-core│││Policy  │ │
+│                          Yes        │      No                               │
+│                           ▼         │       ▼                               │
+│                    ┌──────────┐    │     ┌─────────────────────┐            │
+│                    │ Create   │    │     │ Queue has capacity? │            │
+│                    │ new core │    │     └──────────┬──────────┘            │
+│                    │ thread   │    │        Yes     │     No                │
+│                    └──────────┘    │         ▼      │      ▼                │
+│                                    │  ┌──────────┐ │  ┌───────────────────┐ │
+│                                    │  │Add task  │ │  │Threads<maxPoolSize│ │
+│                                    │  │to queue  │ │  └─────────┬─────────┘ │
+│                                    │  └──────────┘ │    Yes     │    No     │
+│                                    │               │     ▼      │    ▼      │
+│                                    │               │ ┌────────┐│┌────────┐  │
+│                                    │               │ │Create  │││Reject  │  │
+│                                    │               │ │non-core│││Policy  │  │
 │                                    │               │ │thread  │││Triggered│ │
-│                                    │               │ └────────┘│└────────┘ │
-│                                    │               │           │           │
+│                                    │               │ └────────┘│└────────┘  │
+│                                    │               │           │            │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -2769,22 +2769,22 @@ public class ThreadPoolExplanation {
 │                                                                             │
 │  Time ──────────────────────────────────────────────────────────────────►   │
 │                                                                             │
-│  Load:     Low        Rising        Peak         Declining         Idle    │
-│           ─────       ──────       ─────         ─────────        ─────    │
+│  Load:     Low        Rising        Peak         Declining         Idle     │
+│           ─────       ──────       ─────         ─────────        ─────     │
 │                                                                             │
 │  Threads:   5    →      5     →     20       →      20    →   5             │
-│            (core)     (core)    (5+15 non-core) (shrinking)    (core only) │
+│            (core)     (core)    (5+15 non-core) (shrinking)    (core only)  │
 │                                                                             │
-│  Queue:     0    →     50     →    100      →      50     →    0           │
-│                      (filling)   (full!)       (draining)     (empty)      │
+│  Queue:     0    →     50     →    100      →      50     →    0            │
+│                      (filling)   (full!)       (draining)     (empty)       │
 │                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │ Threads: ████████████████████████████████████████░░░░░░░░░░░░░░░░░░│   │
-│  │ Queue:   ░░░░░░░████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░│   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│             ↑            ↑            ↑             ↑            ↑         │
-│          Startup    Core full    Max reached   Threads die    Stable       │
-│                     Queue fills  Queue full    after timeout  at core      │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Threads: ████████████████████████████████████████░░░░░░░░░░░░░░░░░░ │    │
+│  │ Queue:   ░░░░░░░████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░ │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│             ↑            ↑            ↑             ↑            ↑          │
+│          Startup    Core full    Max reached   Threads die    Stable        │
+│                     Queue fills  Queue full    after timeout  at core       │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -2853,20 +2853,20 @@ public class QueueBehaviorConfig {
 │                    QUEUE STRATEGY COMPARISON                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  Strategy          │ queueCapacity │ Behavior                              │
+│  Strategy          │ queueCapacity │ Behavior                               │
 │  ────────────────────────────────────────────────────────────────────────── │
 │                                                                             │
-│  BOUNDED QUEUE     │ 100           │ Tasks queue, then threads scale       │
-│  (Recommended)     │               │ Predictable resource usage            │
-│                    │               │ Good for most applications            │
+│  BOUNDED QUEUE     │ 100           │ Tasks queue, then threads scale        │
+│  (Recommended)     │               │ Predictable resource usage             │
+│                    │               │ Good for most applications             │
 │                                                                             │
-│  UNBOUNDED QUEUE   │ MAX_VALUE     │ Tasks always queue                    │
-│  (Careful!)        │               │ maxPoolSize has no effect             │
-│                    │               │ Can cause OOM under heavy load        │
+│  UNBOUNDED QUEUE   │ MAX_VALUE     │ Tasks always queue                     │
+│  (Careful!)        │               │ maxPoolSize has no effect              │
+│                    │               │ Can cause OOM under heavy load         │
 │                                                                             │
-│  DIRECT HANDOFF    │ 0             │ No queuing, immediate thread creation │
-│  (High throughput) │               │ Best for short-lived tasks            │
-│                    │               │ Higher rejection rate under load      │
+│  DIRECT HANDOFF    │ 0             │ No queuing, immediate thread creation  │
+│  (High throughput) │               │ Best for short-lived tasks             │
+│                    │               │ Higher rejection rate under load       │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -3031,23 +3031,23 @@ public class CustomRejectionHandler implements RejectedExecutionHandler {
 │                    REJECTION POLICY COMPARISON                              │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  Policy          │ Behavior                  │ Best For                    │
+│  Policy          │ Behavior                  │ Best For                     │
 │  ────────────────────────────────────────────────────────────────────────── │
 │                                                                             │
-│  AbortPolicy     │ Throws exception          │ Critical tasks where        │
-│  (Default)       │                           │ failure must be known       │
+│  AbortPolicy     │ Throws exception          │ Critical tasks where         │
+│  (Default)       │                           │ failure must be known        │
 │                                                                             │
-│  CallerRunsPolicy│ Caller thread executes    │ Most applications           │
-│  (Recommended)   │ Natural backpressure      │ No task loss acceptable     │
+│  CallerRunsPolicy│ Caller thread executes    │ Most applications            │
+│  (Recommended)   │ Natural backpressure      │ No task loss acceptable      │
 │                                                                             │
-│  DiscardPolicy   │ Silently drops task       │ Non-critical work           │
-│                  │                           │ (metrics, optional logs)    │
+│  DiscardPolicy   │ Silently drops task       │ Non-critical work            │
+│                  │                           │ (metrics, optional logs)     │
 │                                                                             │
-│  DiscardOldest   │ Drops oldest queued task  │ Time-sensitive data         │
-│  Policy          │ Adds new task             │ (latest value matters)      │
+│  DiscardOldest   │ Drops oldest queued task  │ Time-sensitive data          │
+│  Policy          │ Adds new task             │ (latest value matters)       │
 │                                                                             │
-│  Custom          │ Your logic                │ Complex requirements        │
-│                  │ (log, retry, alert)       │ (retry, dead letter queue)  │
+│  Custom          │ Your logic                │ Complex requirements         │
+│                  │ (log, retry, alert)       │ (retry, dead letter queue)   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -3347,7 +3347,7 @@ public class ExecutorInfoEndpoint {
 │  Optimal Threads = CPU Cores × (1 + Wait Time / Service Time)               │
 │                                                                             │
 │  Example: 8 cores, 100ms wait, 10ms compute                                 │
-│  Threads = 8 × (1 + 100/10) = 8 × 11 = 88 threads                          │
+│  Threads = 8 × (1 + 100/10) = 8 × 11 = 88 threads                           │
 │                                                                             │
 │  ─────────────────────────────────────────────────────────────────────────  │
 │                                                                             │
@@ -3357,7 +3357,7 @@ public class ExecutorInfoEndpoint {
 │  Threads = Target Throughput × Average Latency                              │
 │                                                                             │
 │  Example: 1000 req/sec target, 200ms average latency                        │
-│  Threads = 1000 × 0.2 = 200 threads                                        │
+│  Threads = 1000 × 0.2 = 200 threads                                         │
 │                                                                             │
 │  ─────────────────────────────────────────────────────────────────────────  │
 │                                                                             │
@@ -3373,7 +3373,7 @@ public class ExecutorInfoEndpoint {
 │  ──────────────────────────────                                             │
 │                                                                             │
 │  Threads = CPU Cores × 2 (minimum)                                          │
-│  Up to CPU Cores × 10 for heavy I/O                                        │
+│  Up to CPU Cores × 10 for heavy I/O                                         │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -3472,38 +3472,38 @@ public class ProductionTunedConfig {
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ☐ SIZING                                                                   │
-│    ├─ Profile your workload (CPU vs I/O bound)                             │
-│    ├─ Calculate optimal thread count using formulas                        │
-│    ├─ Start conservative, scale up based on metrics                        │
-│    └─ Consider downstream dependencies (DB pool, external APIs)            │
+│    ├─ Profile your workload (CPU vs I/O bound)                              │
+│    ├─ Calculate optimal thread count using formulas                         │
+│    ├─ Start conservative, scale up based on metrics                         │
+│    └─ Consider downstream dependencies (DB pool, external APIs)             │
 │                                                                             │
 │  ☐ QUEUE CONFIGURATION                                                      │
-│    ├─ Bounded queue for predictable memory usage                           │
-│    ├─ Size based on acceptable wait time × throughput                      │
-│    └─ Monitor queue depth - alert if consistently high                     │
+│    ├─ Bounded queue for predictable memory usage                            │
+│    ├─ Size based on acceptable wait time × throughput                       │
+│    └─ Monitor queue depth - alert if consistently high                      │
 │                                                                             │
 │  ☐ REJECTION HANDLING                                                       │
-│    ├─ CallerRunsPolicy for most cases (backpressure)                       │
-│    ├─ AbortPolicy for critical operations that must not be delayed         │
-│    ├─ Custom handler for monitoring and alerting                           │
-│    └─ Test rejection scenarios under load                                  │
+│    ├─ CallerRunsPolicy for most cases (backpressure)                        │
+│    ├─ AbortPolicy for critical operations that must not be delayed          │
+│    ├─ Custom handler for monitoring and alerting                            │
+│    └─ Test rejection scenarios under load                                   │
 │                                                                             │
 │  ☐ SHUTDOWN BEHAVIOR                                                        │
-│    ├─ setWaitForTasksToCompleteOnShutdown(true)                            │
-│    ├─ Set appropriate awaitTerminationSeconds                              │
-│    └─ Handle interrupted tasks gracefully                                  │
+│    ├─ setWaitForTasksToCompleteOnShutdown(true)                             │
+│    ├─ Set appropriate awaitTerminationSeconds                               │
+│    └─ Handle interrupted tasks gracefully                                   │
 │                                                                             │
 │  ☐ MONITORING                                                               │
-│    ├─ Export metrics to Prometheus/Grafana                                 │
-│    ├─ Alert on: High active count, queue depth, rejections                 │
-│    ├─ Log slow tasks and exceptions                                        │
-│    └─ Track task completion times                                          │
+│    ├─ Export metrics to Prometheus/Grafana                                  │
+│    ├─ Alert on: High active count, queue depth, rejections                  │
+│    ├─ Log slow tasks and exceptions                                         │
+│    └─ Track task completion times                                           │
 │                                                                             │
 │  ☐ TESTING                                                                  │
-│    ├─ Load test with 2-3x expected peak traffic                            │
-│    ├─ Test graceful shutdown behavior                                      │
-│    ├─ Test rejection policy behavior                                       │
-│    └─ Verify MDC/context propagation                                       │
+│    ├─ Load test with 2-3x expected peak traffic                             │
+│    ├─ Test graceful shutdown behavior                                       │
+│    ├─ Test rejection policy behavior                                        │
+│    └─ Verify MDC/context propagation                                        │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -3551,29 +3551,29 @@ public class ProductionTunedConfig {
 │                                                                             │
 │  CompletableFuture<T> = Future<T> + CompletionStage<T>                      │
 │                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         CompletableFuture                           │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                     │   │
-│  │  From Future:                    From CompletionStage:              │   │
-│  │  ────────────                    ─────────────────────              │   │
-│  │  • get() - blocking wait         • thenApply() - transform         │   │
-│  │  • isDone() - check completion   • thenCompose() - chain           │   │
-│  │  • cancel() - cancel task        • thenCombine() - merge           │   │
-│  │                                  • exceptionally() - handle errors │   │
-│  │                                  • thenAccept() - consume          │   │
-│  │                                  • allOf()/anyOf() - combine       │   │
-│  │                                                                     │   │
-│  │  Additional CompletableFuture methods:                              │   │
-│  │  ─────────────────────────────────────                              │   │
-│  │  • complete() - manually complete                                   │   │
-│  │  • completeExceptionally() - complete with error                    │   │
-│  │  • supplyAsync() - start async computation                          │   │
-│  │  • runAsync() - start async action                                  │   │
-│  │  • orTimeout() - timeout handling (Java 9+)                         │   │
-│  │  • completeOnTimeout() - default on timeout (Java 9+)               │   │
-│  │                                                                     │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                         CompletableFuture                           │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │                                                                     │    │
+│  │  From Future:                    From CompletionStage:              │    │
+│  │  ────────────                    ─────────────────────              │    │
+│  │  • get() - blocking wait         • thenApply() - transform          │    │
+│  │  • isDone() - check completion   • thenCompose() - chain            │    │
+│  │  • cancel() - cancel task        • thenCombine() - merge            │    │
+│  │                                  • exceptionally() - handle errors  │    │
+│  │                                  • thenAccept() - consume           │    │
+│  │                                  • allOf()/anyOf() - combine        │    │
+│  │                                                                     │    │
+│  │  Additional CompletableFuture methods:                              │    │
+│  │  ─────────────────────────────────────                              │    │
+│  │  • complete() - manually complete                                   │    │
+│  │  • completeExceptionally() - complete with error                    │    │
+│  │  • supplyAsync() - start async computation                          │    │
+│  │  • runAsync() - start async action                                  │    │
+│  │  • orTimeout() - timeout handling (Java 9+)                         │    │
+│  │  • completeOnTimeout() - default on timeout (Java 9+)               │    │
+│  │                                                                     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -3809,22 +3809,22 @@ public class OrderEnrichmentService {
 │                                                                             │
 │  Total: 100 + 150 + 200 + 100 = 550ms                                       │
 │                                                                             │
-│  ═══════════════════════════════════════════════════════════════════════   │
+│  ═══════════════════════════════════════════════════════════════════════    │
 │                                                                             │
 │  PARALLEL (Non-blocking):                                                   │
 │  ────────────────────────                                                   │
 │                                                                             │
-│  Time:  0ms                              200ms                              │
-│          │                                 │                                │
-│  T1:     [========User (100ms)========]   │                                │
-│  T2:     [==========Product (150ms)==========]                             │
-│  T3:     [============Shipping (200ms)============]                        │
-│  T4:     [========Discount (100ms)========]                                │
-│                                            │                                │
-│                                            ▼                                │
+│  Time:  0ms                                   200ms                         │
+│          │                                     │                            │
+│  T1:     [========User (100ms)========]        │                            │
+│  T2:     [==========Product (150ms)==========]                              │
+│  T3:     [============Shipping (200ms)============]                         │
+│  T4:     [========Discount (100ms)========]                                 │
+│                                                │                            │
+│                                                ▼                            │
 │                                     Aggregate Results                       │
 │                                                                             │
-│  Total: max(100, 150, 200, 100) = 200ms  (63% faster!)                     │
+│  Total: max(100, 150, 200, 100) = 200ms  (63% faster!)                      │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -4123,20 +4123,20 @@ public class ComposePatternService {
 │  ──────────────────────────────────────────────────────────────────────     │
 │                                                                             │
 │  SUCCESS PATH:                                                              │
-│  ┌───────┐       ┌───────┐       ┌───────┐       ┌───────┐                 │
-│  │ Fetch │──────►│ Parse │──────►│ Save  │──────►│ Done  │                 │
-│  └───────┘       └───────┘       └───────┘       └───────┘                 │
+│  ┌───────┐       ┌───────┐       ┌───────┐       ┌───────┐                  │
+│  │ Fetch │──────►│ Parse │──────►│ Save  │──────►│ Done  │                  │
+│  └───────┘       └───────┘       └───────┘       └───────┘                  │
 │                                                                             │
 │  EXCEPTION PATH (no handling):                                              │
-│  ┌───────┐       ┌───────┐       ┌───────┐       ┌───────┐                 │
-│  │ Fetch │───X──►│ Skip  │──────►│ Skip  │──────►│ Error │                 │
-│  └───────┘  ↓    └───────┘       └───────┘       └───────┘                 │
+│  ┌───────┐       ┌───────┐       ┌───────┐       ┌───────┐                  │
+│  │ Fetch │───X──►│ Skip  │──────►│ Skip  │──────►│ Error │                  │
+│  └───────┘  ↓    └───────┘       └───────┘       └───────┘                  │
 │         Exception propagates through all stages─────────────►               │
 │                                                                             │
 │  EXCEPTION PATH (with exceptionally):                                       │
-│  ┌───────┐       ┌────────────┐  ┌───────┐       ┌───────┐                 │
+│  ┌───────┐       ┌────────────┐  ┌───────┐       ┌───────┐                  │
 │  │ Fetch │───X──►│exceptionally│─►│ Save  │──────►│ Done  │                 │
-│  └───────┘  ↓    │(recover)   │  └───────┘       └───────┘                 │
+│  └───────┘  ↓    │(recover)   │  └───────┘       └───────┘                  │
 │         Exception │            │                                            │
 │         handled   └────────────┘                                            │
 │                                                                             │
@@ -4448,7 +4448,7 @@ public class PerformanceComparisonService {
 │        │     │     │        │        │      │      │                        │
 │        [Prod][Reviews][Recommendations][Inv][Price][Seller]                 │
 │                                                                             │
-│  ═══════════════════════════════════════════════════════════════════════   │
+│  ═══════════════════════════════════════════════════════════════════════    │
 │                                                                             │
 │  ASYNC (150ms total):                                                       │
 │  ────────────────────                                                       │
@@ -4463,7 +4463,7 @@ public class PerformanceComparisonService {
 │                                                      ▼                      │
 │                                               Aggregate                     │
 │                                                                             │
-│  Speedup: 450ms → 150ms = 3x faster (67% reduction)                        │
+│  Speedup: 450ms → 150ms = 3x faster (67% reduction)                         │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -4672,19 +4672,19 @@ public class Application {
 │  Runs every 5 seconds regardless of task duration                           │
 │  If task takes longer than interval, next execution starts immediately      │
 │                                                                             │
-│  ═══════════════════════════════════════════════════════════════════════   │
+│  ═══════════════════════════════════════════════════════════════════════    │
 │                                                                             │
 │  fixedDelay                                                                 │
 │  ──────────                                                                 │
-│  Time:     0s   3s        8s   11s       16s  19s                          │
-│            │    │         │    │         │    │                            │
+│  Time:     0s   3s        8s   11s       16s  19s                           │
+│            │    │         │    │         │    │                             │
 │            [Task]─5s─►    [Task]─5s─►    [Task]─5s─►                        │
 │            └───┘          └───┘          └───┘                              │
 │            3s task        3s task        3s task                            │
 │                                                                             │
 │  Waits 5 seconds AFTER task completes before starting next                  │
 │                                                                             │
-│  ═══════════════════════════════════════════════════════════════════════   │
+│  ═══════════════════════════════════════════════════════════════════════    │
 │                                                                             │
 │  cron                                                                       │
 │  ────                                                                       │
@@ -5347,26 +5347,26 @@ public class ScheduledTaskConfig {
 │    └─ Consider separate pools for long-running vs quick tasks               │
 │                                                                             │
 │  ☐ ERROR HANDLING                                                           │
-│    ├─ Wrap task body in try-catch                                          │
-│    ├─ Log exceptions with context                                          │
-│    ├─ Send alerts for critical task failures                               │
-│    └─ Consider retry logic for transient failures                          │
+│    ├─ Wrap task body in try-catch                                           │
+│    ├─ Log exceptions with context                                           │
+│    ├─ Send alerts for critical task failures                                │
+│    └─ Consider retry logic for transient failures                           │
 │                                                                             │
 │  ☐ DISTRIBUTED SYSTEMS                                                      │
-│    ├─ Use ShedLock or similar for cluster-safe scheduling                  │
-│    ├─ One instance should run the task, not all                            │
-│    └─ Consider using external scheduler (Quartz, Kubernetes CronJob)       │
+│    ├─ Use ShedLock or similar for cluster-safe scheduling                   │
+│    ├─ One instance should run the task, not all                             │
+│    └─ Consider using external scheduler (Quartz, Kubernetes CronJob)        │
 │                                                                             │
 │  ☐ MONITORING                                                               │
-│    ├─ Log task start/end with duration                                     │
-│    ├─ Record metrics for task execution                                    │
-│    ├─ Alert on tasks that don't run or take too long                       │
-│    └─ Health check endpoint for scheduler status                           │
+│    ├─ Log task start/end with duration                                      │
+│    ├─ Record metrics for task execution                                     │
+│    ├─ Alert on tasks that don't run or take too long                        │
+│    └─ Health check endpoint for scheduler status                            │
 │                                                                             │
 │  ☐ CONFIGURATION                                                            │
-│    ├─ Externalize cron expressions and intervals                           │
-│    ├─ Allow disabling via property                                         │
-│    └─ Different schedules for different environments                       │
+│    ├─ Externalize cron expressions and intervals                            │
+│    ├─ Allow disabling via property                                          │
+│    └─ Different schedules for different environments                        │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -5608,37 +5608,37 @@ Spring WebFlux is the reactive web framework introduced in Spring 5, offering a 
 │  SPRING MVC (Blocking / Thread-Per-Request)                                 │
 │  ──────────────────────────────────────────────                             │
 │                                                                             │
-│  ┌─────────────┐     ┌──────────────────────────────────────────────┐      │
-│  │  Requests   │     │           Tomcat Thread Pool (200)           │      │
-│  │             │     │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ │      │
-│  │  Req 1 ────────────►│Thread-1│ │Thread-2│ │Thread-3│ │  ...   │ │      │
-│  │  Req 2 ────────────►│ [Busy] │ │ [Busy] │ │ [Busy] │ │        │ │      │
-│  │  Req 3 ────────────►│        │ │        │ │        │ │        │ │      │
-│  │  Req 201 ──── X     │Waiting │ │Waiting │ │Waiting │ │        │ │      │
-│  │  (Blocked!)   │     │for I/O │ │for I/O │ │for I/O │ │        │ │      │
-│  └─────────────┘     │  └────────┘ └────────┘ └────────┘ └────────┘ │      │
-│                       └──────────────────────────────────────────────┘      │
+│  ┌─────────────┐     ┌──────────────────────────────────────────────┐       │
+│  │  Requests   │     │           Tomcat Thread Pool (200)           │       │
+│  │             │     │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ │       │
+│  │  Req 1 ────────────► │Thread-1│ │Thread-2│ │Thread-3│ │  ...   │ │       │
+│  │  Req 2 ────────────► │ [Busy] │ │ [Busy] │ │ [Busy] │ │        │ │       │
+│  │  Req 3 ────────────► │        │ │        │ │        │ │        │ │       │
+│  │  Req 201 ──── X      │Waiting │ │Waiting │ │Waiting │ │        │ │       │
+│  │  (Blocked!)   │      │for I/O │ │for I/O │ │for I/O │ │        │ │       │
+│  └─────────────┘     │  └────────┘ └────────┘ └────────┘ └────────┘ │       │
+│                       └─────────────────────────────────────────────┘       │
 │                                                                             │
 │  Each request = 1 dedicated thread (blocked during I/O)                     │
 │  Max concurrency = Thread pool size (typically 200)                         │
 │                                                                             │
-│  ═══════════════════════════════════════════════════════════════════════   │
+│  ═══════════════════════════════════════════════════════════════════════    │
 │                                                                             │
 │  SPRING WEBFLUX (Non-Blocking / Event Loop)                                 │
 │  ──────────────────────────────────────────────                             │
 │                                                                             │
-│  ┌─────────────┐     ┌──────────────────────────────────────────────┐      │
-│  │  Requests   │     │      Event Loop (Few threads = CPU cores)    │      │
-│  │             │     │  ┌────────────────────────────────────────┐  │      │
-│  │  Req 1 ────────────►│         Single Thread handles ALL       │  │      │
-│  │  Req 2 ────────────►│                                          │  │      │
-│  │  Req 3 ────────────►│   ┌─────┐   ┌─────┐   ┌─────┐          │  │      │
-│  │    ...      │     │   │Req 1│   │Req 2│   │Req 3│  ...      │  │      │
-│  │  Req 10000 ─────────►│   └──┬──┘   └──┬──┘   └──┬──┘          │  │      │
-│  │  (OK!)      │     │      │         │         │              │  │      │
-│  └─────────────┘     │      ▼         ▼         ▼              │  │      │
-│                       │   [Non-blocking I/O callbacks]          │  │      │
-│                       └──────────────────────────────────────────────┘      │
+│  ┌─────────────┐     ┌──────────────────────────────────────────────┐       │
+│  │  Requests   │     │      Event Loop (Few threads = CPU cores)    │       │
+│  │             │     │  ┌────────────────────────────────────────┐  │       │
+│  │  Req 1 ────────────► │         Single Thread handles ALL      │  │       │
+│  │  Req 2 ────────────► │                                        │  │       │
+│  │  Req 3 ────────────► │   ┌─────┐   ┌─────┐   ┌─────┐          │  │       │
+│  │    ...      │      │ │   │Req 1│   │Req 2│   │Req 3│  ...     │  │       │
+│  │  Req 10000 ─────────►│   └──┬──┘   └──┬──┘   └──┬──┘          │  │       │
+│  │  (OK!)      │      │         │         │         │            │  │       │
+│  └─────────────┘      │         ▼         ▼         ▼            │  │       │
+│                       │   [Non-blocking I/O callbacks]           │  │       │
+│                       └─────────────────────────────────────────────┘       │
 │                                                                             │
 │  Single thread handles many requests (never blocks)                         │
 │  Max concurrency = Limited only by memory                                   │
@@ -5680,7 +5680,7 @@ Spring WebFlux is the reactive web framework introduced in Spring 5, offering a 
 │  Time to complete 10,000 requests: ~10 seconds (batches of 200)             │
 │  Memory: 200+ threads × ~1MB = 200+ MB just for threads                     │
 │                                                                             │
-│  ═══════════════════════════════════════════════════════════════════════   │
+│  ═══════════════════════════════════════════════════════════════════════    │
 │                                                                             │
 │  SPRING WEBFLUX with same requests:                                         │
 │  ──────────────────────────────────                                         │
@@ -5690,7 +5690,7 @@ Spring WebFlux is the reactive web framework introduced in Spring 5, offering a 
 │  Thread-3: (available)                                                      │
 │  Thread-4: (available)                                                      │
 │                                                                             │
-│  All 10,000 initiated immediately → Complete as I/O finishes               │
+│  All 10,000 initiated immediately → Complete as I/O finishes                │
 │                                                                             │
 │  Time to complete 10,000 requests: ~200ms (I/O time only!)                  │
 │  Memory: 4 threads × ~1MB = ~4 MB for threads                               │
@@ -5721,32 +5721,32 @@ Spring WebFlux is the reactive web framework introduced in Spring 5, offering a 
 │                         └────────┬─────────┘                                │
 │                                  │                                          │
 │                                  ▼                                          │
-│  ┌───────────────────────────────────────────────────────────────────┐     │
-│  │                        EVENT LOOP                                  │     │
-│  │                     (Single Thread)                                │     │
-│  │                                                                    │     │
-│  │   while (true) {                                                   │     │
-│  │       Event event = queue.poll();     // Get next event           │     │
-│  │       if (event.isNewRequest()) {                                 │     │
-│  │           startProcessing(event);      // Non-blocking start      │     │
-│  │       } else if (event.isIOComplete()) {                          │     │
-│  │           continueProcessing(event);   // Resume with data        │     │
-│  │       }                                                            │     │
-│  │       // Never blocks - immediately processes next event          │     │
-│  │   }                                                                │     │
-│  │                                                                    │     │
-│  └───────────────────────────────────────────────────────────────────┘     │
+│  ┌───────────────────────────────────────────────────────────────────┐      │
+│  │                        EVENT LOOP                                 │      │
+│  │                     (Single Thread)                               │      │
+│  │                                                                   │      │
+│  │   while (true) {                                                  │      │
+│  │       Event event = queue.poll();     // Get next event           │      │
+│  │       if (event.isNewRequest()) {                                 │      │
+│  │           startProcessing(event);      // Non-blocking start      │      │
+│  │       } else if (event.isIOComplete()) {                          │      │
+│  │           continueProcessing(event);   // Resume with data        │      │
+│  │       }                                                           │      │
+│  │       // Never blocks - immediately processes next event          │      │
+│  │   }                                                               │      │
+│  │                                                                   │      │
+│  └───────────────────────────────────────────────────────────────────┘      │
 │                                  │                                          │
 │                                  ▼                                          │
-│              ┌───────────────────────────────────────┐                     │
-│              │         Non-Blocking I/O              │                     │
-│              │  ┌─────────┐  ┌─────────┐  ┌───────┐ │                     │
-│              │  │   DB    │  │  HTTP   │  │ File  │ │                     │
-│              │  │(R2DBC)  │  │(WebClient) │ (NIO) │ │                     │
-│              │  └─────────┘  └─────────┘  └───────┘ │                     │
-│              │                                       │                     │
-│              │  I/O completes → Event added to queue │                     │
-│              └───────────────────────────────────────┘                     │
+│              ┌───────────────────────────────────────┐                      │
+│              │         Non-Blocking I/O              │                      │
+│              │  ┌─────────┐  ┌─────────┐  ┌───────┐  │                      │
+│              │  │   DB    │  │  HTTP   │  │ File  │  │                      │
+│              │  │(R2DBC)  │  │(WebClient) │ (NIO) │  │                      │
+│              │  └─────────┘  └─────────┘  └───────┘  │                      │
+│              │                                       │                      │
+│              │  I/O completes → Event added to queue │                      │
+│              └───────────────────────────────────────┘                      │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -5854,32 +5854,32 @@ public class WebFluxController {
 │  ─────────────────────────────────                                          │
 │                                                                             │
 │  Thread-1:                                                                  │
-│  ┌──────┐ ┌────────────────────────────────────┐ ┌──────┐                  │
-│  │Start │ │   Thread BLOCKED waiting for I/O   │ │Resume│                  │
-│  │ I/O  │ │                                    │ │      │                  │
-│  └──────┘ └────────────────────────────────────┘ └──────┘                  │
+│  ┌──────┐ ┌────────────────────────────────────┐ ┌──────┐                   │
+│  │Start │ │   Thread BLOCKED waiting for I/O   │ │Resume│                   │
+│  │ I/O  │ │                                    │ │      │                   │
+│  └──────┘ └────────────────────────────────────┘ └──────┘                   │
 │      │                     ▲                          │                     │
 │      │    200ms waiting    │                          │                     │
 │      │    (doing nothing)  │                          │                     │
 │      └─────────────────────┘                          │                     │
 │                                                                             │
-│  Problem: Thread sits idle, consuming memory, can't serve other requests   │
+│  Problem: Thread sits idle, consuming memory, can't serve other requests    │
 │                                                                             │
-│  ═══════════════════════════════════════════════════════════════════════   │
+│  ═══════════════════════════════════════════════════════════════════════    │
 │                                                                             │
 │  NON-BLOCKING I/O (Spring WebFlux)                                          │
 │  ─────────────────────────────────                                          │
 │                                                                             │
 │  Thread-1:                                                                  │
-│  ┌──────┐                                        ┌──────┐                  │
-│  │Start │ → Register callback → FREE!            │Resume│                  │
-│  │ I/O  │                                        │(callback)               │
-│  └──────┘                                        └──────┘                  │
+│  ┌──────┐                                        ┌──────┐                   │
+│  │Start │ → Register callback → FREE!            │Resume│                   │
+│  │ I/O  │                                        │(callback)                │
+│  └──────┘                                        └──────┘                   │
 │      │                                                ▲                     │
 │      │                                                │                     │
-│      │    Thread handles other requests    ┌──────────┘                    │
-│      │    during this time!                │                               │
-│      │                                      │  I/O complete event          │
+│      │    Thread handles other requests    ┌──────────┘                     │
+│      │    during this time!                │                                │
+│      │                                      │  I/O complete event           │
 │      │                                      │                               │
 │      └──────────────────────────────────────┘                               │
 │                                                                             │
@@ -6348,18 +6348,18 @@ Database access in multithreaded applications requires careful handling of conne
 │  • No limit on connections → Can overwhelm database                         │
 │  • Can't reuse connections                                                  │
 │                                                                             │
-│  ═══════════════════════════════════════════════════════════════════════   │
+│  ═══════════════════════════════════════════════════════════════════════    │
 │                                                                             │
 │  WITH Pool (Pre-created, reusable connections):                             │
 │  ─────────────────────────────────────────────                              │
 │                                                                             │
-│  ┌────────────────────────────────────────────────────────────────────┐    │
-│  │                    HikariCP Connection Pool                         │    │
-│  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ │    │
-│  │  │Conn1│ │Conn2│ │Conn3│ │Conn4│ │Conn5│ │Conn6│ │ ... │ │ConnN│ │    │
-│  │  │[use]│ │[idle]│ │[use]│ │[idle]│ │[use]│ │[idle]│ │     │ │[idle]│ │    │
-│  │  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ │    │
-│  └────────────────────────────────────────────────────────────────────┘    │
+│  ┌────────────────────────────────────────────────────────────────────┐     │
+│  │                    HikariCP Connection Pool                        │     │
+│  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐   │     │
+│  │  │Conn1│ │Conn2│ │Conn3│ │Conn4│ │Conn5│ │Conn6│ │ ... │ │ConnN│   │     │
+│  │  │[use]│ │[idle]││[use]│ │[idle]││[use]│ │[idle]││     │ │[idle]│  │     │
+│  │  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘   │     │
+│  └────────────────────────────────────────────────────────────────────┘     │
 │                                                                             │
 │  Request → Borrow Connection (~0.1ms) → Query → Return → Response           │
 │                                                                             │
@@ -6462,7 +6462,7 @@ public class DataSourceConfig {
 │                                                                             │
 │  FORMULA: Pool Size = (core_count * 2) + effective_spindle_count            │
 │                                                                             │
-│  For SSD (spindle_count = 0): Pool Size ≈ CPU cores * 2 + 1                │
+│  For SSD (spindle_count = 0): Pool Size ≈ CPU cores * 2 + 1                 │
 │                                                                             │
 │  EXAMPLE: 8 core CPU with SSD                                               │
 │  Pool Size = (8 * 2) + 1 = 17 connections                                   │
@@ -6479,7 +6479,7 @@ public class DataSourceConfig {
 │  DB Pool Size ≥ (Tomcat max threads) × (% of requests hitting DB)           │
 │                                                                             │
 │  Example: 200 Tomcat threads, 50% requests use DB                           │
-│  → DB Pool Size ≥ 200 × 0.5 = 100 connections                              │
+│  → DB Pool Size ≥ 200 × 0.5 = 100 connections                               │
 │                                                                             │
 │  ─────────────────────────────────────────────────────────────────────────  │
 │                                                                             │
@@ -6768,37 +6768,37 @@ public class AsyncOrderService {
 │                                                                             │
 │  @Transactional Method Execution:                                           │
 │                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │ Method Call                                                          │   │
-│  │      │                                                               │   │
-│  │      ▼                                                               │   │
-│  │ ┌──────────────────────────────────┐                                │   │
-│  │ │ Spring AOP Proxy                  │                                │   │
-│  │ │ 1. Get DB connection from pool    │                                │   │
-│  │ │ 2. Begin transaction              │                                │   │
-│  │ │ 3. Bind connection to thread      │                                │   │
-│  │ └─────────────┬────────────────────┘                                │   │
-│  │               │                                                      │   │
-│  │               ▼                                                      │   │
-│  │ ┌──────────────────────────────────┐                                │   │
-│  │ │ Actual Method Execution           │ ◄── Same thread, same TX      │   │
-│  │ │ • All DB operations use same      │                                │   │
-│  │ │   connection                      │                                │   │
-│  │ │ • EntityManager bound to TX       │                                │   │
-│  │ └─────────────┬────────────────────┘                                │   │
-│  │               │                                                      │   │
-│  │      ┌────────┴────────┐                                            │   │
-│  │      │                 │                                            │   │
-│  │      ▼                 ▼                                            │   │
-│  │  [Success]         [Exception]                                      │   │
-│  │      │                 │                                            │   │
-│  │      ▼                 ▼                                            │   │
-│  │ ┌─────────┐      ┌───────────┐                                      │   │
-│  │ │ COMMIT  │      │ ROLLBACK  │                                      │   │
-│  │ └─────────┘      └───────────┘                                      │   │
-│  │                                                                      │   │
-│  │ Return connection to pool                                           │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Method Call                                                         │    │
+│  │      │                                                              │    │
+│  │      ▼                                                              │    │
+│  │ ┌──────────────────────────────────┐                                │    │
+│  │ │ Spring AOP Proxy                 │                                │    │
+│  │ │ 1. Get DB connection from pool   │                                │    │
+│  │ │ 2. Begin transaction             │                                │    │
+│  │ │ 3. Bind connection to thread     │                                │    │
+│  │ └─────────────┬────────────────────┘                                │    │
+│  │               │                                                     │    │
+│  │               ▼                                                     │    │
+│  │ ┌──────────────────────────────────┐                                │    │
+│  │ │ Actual Method Execution          │ ◄── Same thread, same TX       │    │
+│  │ │ • All DB operations use same     │                                │    │
+│  │ │   connection                     │                                │    │
+│  │ │ • EntityManager bound to TX      │                                │    │
+│  │ └─────────────┬────────────────────┘                                │    │
+│  │               │                                                     │    │
+│  │      ┌────────┴────────┐                                            │    │
+│  │      │                 │                                            │    │
+│  │      ▼                 ▼                                            │    │
+│  │  [Success]         [Exception]                                      │    │
+│  │      │                 │                                            │    │
+│  │      ▼                 ▼                                            │    │
+│  │ ┌─────────┐      ┌───────────┐                                      │    │
+│  │ │ COMMIT  │      │ ROLLBACK  │                                      │    │
+│  │ └─────────┘      └───────────┘                                      │    │
+│  │                                                                     │    │
+│  │ Return connection to pool                                           │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -7184,7 +7184,7 @@ public class AsyncTransactionSolution {
 │  MISTAKE                          │ SOLUTION                                │
 │  ─────────────────────────────────────────────────────────────────────────  │
 │                                                                             │
-│  Long transaction with HTTP calls │ Split: read TX → HTTP → update TX      │
+│  Long transaction with HTTP calls │ Split: read TX → HTTP → update TX       │
 │                                                                             │
 │  TX not propagating to @Async     │ Add @Transactional(REQUIRES_NEW)        │
 │                                                                             │
