@@ -16,6 +16,7 @@
 - Always talk in percentiles (p50, p95, p99) — never averages
 
 **Follow-up:** "How would you handle 10x traffic?"
+
 - Horizontal scaling + caching + async processing + rate limiting + graceful degradation
 
 ---
@@ -30,6 +31,7 @@
 - **PACELC** extends CAP: even without partition, there's a Latency vs Consistency trade-off
 
 **Follow-up:** "Shopping cart — CP or AP?"
+
 - AP — stale cart is better than no cart; merge conflicts on checkout
 
 ---
@@ -43,6 +45,7 @@
 - Horizontal requires: stateless services, load balancer, distributed state management
 
 **Follow-up:** "Prerequisites for horizontal scaling?"
+
 - Stateless design, externalized state (Redis/DB), health checks, graceful shutdown, fast startup
 
 ---
@@ -57,6 +60,7 @@
 - Stripe stores idempotency keys for 24 hours
 
 **Follow-up:** "What if server crashes between processing and storing the key?"
+
 - Use database transaction: process + store key atomically; on crash, neither is committed
 
 ---
@@ -94,6 +98,7 @@
 - gRPC limitation: no native browser support (needs grpc-web proxy)
 
 **Follow-up:** "What about GraphQL?"
+
 - Client specifies exactly what data it needs — solves over/under-fetching
 - Best for: complex frontend data needs, mobile apps (bandwidth savings)
 - Trade-off: harder to cache, complex query optimization, N+1 risk on server
@@ -129,6 +134,7 @@
 - Rate limit by user ID (not just IP) — prevents multi-account bypass
 
 **Follow-up:** "How to handle different API tiers (free vs premium)?"
+
 - Lookup tier from user context → apply different bucket configs per tier
 
 ---
@@ -168,6 +174,7 @@
 - **IP Hash:** crude session affinity (breaks with NAT)
 
 **Follow-up:** "LB is a single point of failure — how to handle?"
+
 - Active-passive pair (VRRP), active-active with DNS, managed cloud LBs (multi-AZ by default)
 
 ---
@@ -206,6 +213,7 @@
 - Every index slows down writes (INSERT/UPDATE/DELETE must update index too)
 
 **Follow-up:** "Query uses index but still slow?"
+
 - Leading wildcard, function on column, type mismatch, large OFFSET, stale statistics → use `EXPLAIN ANALYZE`
 
 ---
@@ -222,6 +230,7 @@
 - Shard as last resort — after: vertical scaling, read replicas, caching
 
 **Follow-up:** "How to reshard without downtime?"
+
 - Dual-write → background migration (chunks + CDC) → gradual read switchover (feature flags) → write switchover → cleanup
 
 ---
@@ -336,6 +345,7 @@
 - Default to leader-based; choose leaderless only when availability is paramount
 
 **Follow-up:** "What is split-brain?"
+
 - Network partition → two nodes think they're leader → divergent data
 - Prevention: quorum election (majority vote), fencing tokens, STONITH, consensus layer (etcd)
 
@@ -407,6 +417,7 @@
 - Anti-pattern: "distributed monolith" — services that must deploy together
 
 **Follow-up:** "How do you decide service boundaries?"
+
 - Each service: one team, one reason to change, owns its data, independently deployable
 - When in doubt, keep together — can always split later
 
@@ -422,6 +433,7 @@
 - Use outbox pattern for reliable event publishing
 
 **Follow-up:** "What if compensation fails?"
+
 - Retry with backoff, dead letter queue, alert for manual intervention; compensations must be idempotent
 
 ---
@@ -436,6 +448,7 @@
 - Use libraries (Resilience4j, Polly) — don't build from scratch
 
 **Follow-up:** "Circuit Breaker vs Retry?"
+
 - Retry = transient failures (try again). Circuit Breaker = sustained failures (stop trying)
 - Use both: retry inside circuit breaker — retries handle blips, circuit breaks on prolonged failure
 
@@ -568,43 +581,337 @@
 
 ### Q: Key latency numbers every engineer should know?
 
-| Operation | Latency |
-|-----------|---------|
-| L1 cache reference | 0.5 ns |
-| L2 cache reference | 7 ns |
-| Main memory reference | 100 ns |
-| SSD random read | 150 μs |
-| HDD seek | 10 ms |
-| Network round trip (same DC) | 0.5 ms |
-| Network round trip (cross-continent) | 150 ms |
-| Redis GET | 0.1-0.5 ms |
-| Simple DB query (indexed) | 1-5 ms |
-| Complex DB query | 10-100 ms |
+
+| Operation                            | Latency    |
+| ------------------------------------ | ---------- |
+| L1 cache reference                   | 0.5 ns     |
+| L2 cache reference                   | 7 ns       |
+| Main memory reference                | 100 ns     |
+| SSD random read                      | 150 μs     |
+| HDD seek                             | 10 ms      |
+| Network round trip (same DC)         | 0.5 ms     |
+| Network round trip (cross-continent) | 150 ms     |
+| Redis GET                            | 0.1-0.5 ms |
+| Simple DB query (indexed)            | 1-5 ms     |
+| Complex DB query                     | 10-100 ms  |
+
 
 ---
 
 ### Q: Common capacity estimates?
 
-| Metric | Approximate |
-|--------|-------------|
+
+| Metric                                 | Approximate            |
+| -------------------------------------- | ---------------------- |
 | Requests/day (100M users, 10 req/user) | 1B req/day ≈ 12K req/s |
-| Storage (1B records × 1KB each) | 1 TB |
-| Bandwidth (12K req/s × 10KB) | 120 MB/s |
-| Redis throughput | 100K+ ops/s per node |
-| Kafka throughput | 1M+ msg/s per cluster |
-| Single PostgreSQL | 10K-50K queries/s |
+| Storage (1B records × 1KB each)        | 1 TB                   |
+| Bandwidth (12K req/s × 10KB)           | 120 MB/s               |
+| Redis throughput                       | 100K+ ops/s per node   |
+| Kafka throughput                       | 1M+ msg/s per cluster  |
+| Single PostgreSQL                      | 10K-50K queries/s      |
+
 
 ---
 
 ### Q: Availability in 9s?
 
-| Availability | Downtime/year | Downtime/month |
-|-------------|---------------|----------------|
-| 99% (two 9s) | 3.65 days | 7.2 hours |
-| 99.9% (three 9s) | 8.76 hours | 43 minutes |
-| 99.99% (four 9s) | 52.6 minutes | 4.3 minutes |
-| 99.999% (five 9s) | 5.26 minutes | 26 seconds |
+
+| Availability      | Downtime/year | Downtime/month |
+| ----------------- | ------------- | -------------- |
+| 99% (two 9s)      | 3.65 days     | 7.2 hours      |
+| 99.9% (three 9s)  | 8.76 hours    | 43 minutes     |
+| 99.99% (four 9s)  | 52.6 minutes  | 4.3 minutes    |
+| 99.999% (five 9s) | 5.26 minutes  | 26 seconds     |
+
 
 ---
 
 > **Revision tip:** Read this file the morning of your interview. Focus on trade-offs and "it depends" answers — interviewers value reasoning over memorized facts.
+
+
+
+
+
+Got it — you want a **clean, structured segregation of System Design topics** (not just a list, but grouped like an architect thinks).
+
+Here is the **industry-grade categorization** 👇
+
+---
+
+# 🧠 1. FOUNDATION (Must Know Before Anything)
+
+These are **decision-driving concepts**.
+
+### Core Concepts
+
+- Functional vs Non-Functional Requirements
+- Latency vs Throughput
+- Availability vs Consistency
+- CAP Theorem
+- ACID vs BASE
+
+### Estimation
+
+- QPS (Queries per second)
+- Storage estimation
+- Bandwidth calculation
+
+---
+
+# 🏗️ 2. ARCHITECTURE LAYER
+
+### Architecture Patterns
+
+- Monolith
+- Microservices
+- Event-driven architecture
+- Serverless architecture
+
+### Communication Styles
+
+- Sync (REST, gRPC)
+- Async (Queues, Events)
+
+---
+
+# 🌐 3. API & INTERFACE DESIGN
+
+### API Design
+
+- REST principles
+- GraphQL basics
+- Idempotency
+- Pagination (cursor-based)
+
+### Gateway Layer
+
+- API Gateway
+- Rate limiting
+- Request validation
+
+---
+
+# ⚙️ 4. COMPUTE LAYER (Backend Processing)
+
+### Application Layer
+
+- Stateless services
+- Business logic separation
+
+### Concurrency
+
+- Multi-threading
+- Async programming
+- Non-blocking I/O
+- Virtual Threads (Java 21)
+
+---
+
+# 🗄️ 5. DATA LAYER
+
+### Database Types
+
+- SQL → MySQL, PostgreSQL
+- NoSQL → MongoDB, Cassandra, DynamoDB
+
+### Data Engineering Concepts
+
+- Indexing
+- Partitioning (Sharding)
+- Replication
+- Schema design
+
+---
+
+# ⚡ 6. PERFORMANCE LAYER
+
+### Caching
+
+- Redis, Memcached
+- Cache strategies:
+  - Cache Aside
+  - Write Through
+  - Write Back
+
+### CDN
+
+- Static content delivery
+- Geo-distribution
+
+---
+
+# 📩 7. ASYNCHRONOUS PROCESSING
+
+### Messaging Systems
+
+- Kafka
+- RabbitMQ
+- AWS SQS
+
+### Patterns
+
+- Pub/Sub
+- Event streaming
+- Event sourcing (advanced)
+
+---
+
+# 📂 8. STORAGE SYSTEMS
+
+### Types
+
+- Object storage (S3)
+- Blob storage
+- File systems
+
+### Use Cases
+
+- Media (images/videos)
+- Logs
+- Backups
+
+---
+
+# 🔍 9. SEARCH & INDEXING
+
+### Tools
+
+- Elasticsearch
+- Solr
+
+### Concepts
+
+- Inverted index
+- Ranking algorithms
+- Full-text search
+
+---
+
+# 📈 10. SCALABILITY & DISTRIBUTION
+
+### Scaling Types
+
+- Vertical scaling
+- Horizontal scaling
+
+### Techniques
+
+- Load balancing
+- Auto scaling
+- Data partitioning
+
+---
+
+# ⚖️ 11. CONSISTENCY & DISTRIBUTED SYSTEMS
+
+### Models
+
+- Strong consistency
+- Eventual consistency
+- Causal consistency
+
+### Distributed Concepts
+
+- Leader election
+- Consensus (Raft, Paxos)
+- Distributed locks
+
+---
+
+# 🔐 12. SECURITY LAYER
+
+### Authentication & Authorization
+
+- JWT
+- OAuth
+- RBAC
+
+### Protection
+
+- HTTPS/TLS
+- Rate limiting
+- DDoS protection
+
+---
+
+# 🔁 13. RELIABILITY & FAULT TOLERANCE
+
+### Patterns
+
+- Retry
+- Circuit Breaker
+- Bulkhead
+- Graceful degradation
+
+---
+
+# 📊 14. OBSERVABILITY
+
+### Monitoring
+
+- Metrics (Prometheus)
+
+### Logging
+
+- ELK Stack
+
+### Tracing
+
+- Jaeger, Zipkin
+
+---
+
+# 🚀 15. DEVOPS & DEPLOYMENT
+
+### Tools & Practices
+
+- CI/CD pipelines
+- Docker
+- Kubernetes
+
+### Deployment Strategies
+
+- Blue-Green
+- Canary releases
+
+---
+
+# 🧩 16. ADVANCED TOPICS (Senior+)
+
+- Event Sourcing
+- CQRS
+- Distributed Transactions (2PC, Saga)
+- Data Lake vs Data Warehouse
+- Stream Processing
+
+---
+
+# 🧠 How to Use This (Important)
+
+For interviews, think in **this exact order**:
+
+```
+1. Foundation (requirements + estimation)
+2. Architecture
+3. Data layer
+4. Scaling + caching
+5. Async systems
+6. Reliability
+7. Trade-offs
+
+```
+
+---
+
+# 🔥 If You Want Next Level
+
+Since you’re targeting **high-paying backend / global roles**, next logical step:
+
+👉 I can convert this into:
+
+- **30-day System Design roadmap (aligned to your Java + AWS stack)**
+- OR
+- **Hands-on designs (WhatsApp, YouTube, Uber)** with deep backend focus
+
+Just say:  
+👉 “Roadmap” or “Start design WhatsApp”
