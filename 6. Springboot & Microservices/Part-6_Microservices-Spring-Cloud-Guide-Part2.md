@@ -1,5 +1,7 @@
 # Microservices & Spring Cloud — Complete Guide (Part 2)
 
+**Navigation:** [← Microservices (Part 1)](Part-5_Microservices-Spring-Cloud-Guide-Part1.md) · [Next: JUnit & Mockito →](Part-7_JUnit-Mockito-Testing-Complete-Guide.md)
+
 > A comprehensive guide covering advanced Microservices patterns with Spring Boot and Spring Cloud.  
 > **Part 2 Scope:** Distributed Tracing, Security, Event-Driven Architecture, Saga Pattern, Docker/Kubernetes Deployment  
 > **Prerequisites:** Part 1 (Fundamentals, Communication, Discovery, Gateway, Config, Resilience)
@@ -2696,3 +2698,7 @@ COMPENSATING ← COMPENSATING ← COMPENSATING ← COMPENSATING → COMPENSATED
 *This completes the Microservices & Spring Cloud guide. Combined with Part 1, you have comprehensive coverage for senior-level interviews.*
 
 *Last Updated: February 2026*
+
+---
+
+**Navigation:** [← Microservices (Part 1)](Part-5_Microservices-Spring-Cloud-Guide-Part1.md) · [Next: JUnit & Mockito →](Part-7_JUnit-Mockito-Testing-Complete-Guide.md)

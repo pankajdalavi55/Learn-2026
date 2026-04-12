@@ -1,5 +1,7 @@
 # Spring Framework — Complete Learning Guide
 
+**Navigation:** [Next: Spring Boot →](Part-2_Spring-Boot-Complete-Guide.md)
+
 > A comprehensive, interview-ready reference covering the Spring Framework from fundamentals to production-grade patterns.  
 > **Scope:** Spring Core only (IoC, DI, AOP, MVC, Data Access, Security, Testing). Spring Boot and Microservices are covered in separate guides.
 
@@ -2865,3 +2867,7 @@ public class EverythingConfig {
 ---
 
 > **Next Steps:** See the companion guides (coming soon) for **Spring Boot** and **Microservices** patterns.
+
+---
+
+**Navigation:** [Next: Spring Boot →](Part-2_Spring-Boot-Complete-Guide.md)

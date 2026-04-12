@@ -1,5 +1,7 @@
 # JUnit 5 & Mockito — Complete Testing Guide
 
+**Navigation:** [← Microservices (Part 2)](Part-6_Microservices-Spring-Cloud-Guide-Part2.md) · [Next: Caching →](Part-8_Caching-Spring-Boot-Complete-Guide.md)
+
 > A comprehensive guide covering unit testing, integration testing, and mocking in Spring Boot applications.  
 > **Part 7 of the Spring Boot & Microservices Series**  
 > **Prerequisites:** Spring Boot basics, Java fundamentals
@@ -5885,3 +5887,6 @@ atLeastOnce()   // At least once
 
 *Last Updated: February 2026*
 
+---
+
+**Navigation:** [← Microservices (Part 2)](Part-6_Microservices-Spring-Cloud-Guide-Part2.md) · [Next: Caching →](Part-8_Caching-Spring-Boot-Complete-Guide.md)

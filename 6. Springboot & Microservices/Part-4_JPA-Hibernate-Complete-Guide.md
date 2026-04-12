@@ -1,5 +1,7 @@
 # JPA and Hibernate Complete Guide
 
+**Navigation:** [← Spring Security](Part-3_Spring-Security-Complete-Guide.md) · [Next: Microservices (Part 1) →](Part-5_Microservices-Spring-Cloud-Guide-Part1.md)
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [ORM Fundamentals](#orm-fundamentals)
@@ -3381,3 +3383,7 @@ spring.jpa.properties.hibernate.generate_statistics=true
 ---
 
 *Last Updated: February 2026*
+
+---
+
+**Navigation:** [← Spring Security](Part-3_Spring-Security-Complete-Guide.md) · [Next: Microservices (Part 1) →](Part-5_Microservices-Spring-Cloud-Guide-Part1.md)

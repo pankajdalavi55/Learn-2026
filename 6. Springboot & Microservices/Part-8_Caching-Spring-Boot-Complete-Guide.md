@@ -1,5 +1,7 @@
 # Caching in Spring Boot — Complete Guide
 
+**Navigation:** [← JUnit & Mockito](Part-7_JUnit-Mockito-Testing-Complete-Guide.md)
+
 > A comprehensive guide covering caching fundamentals, Spring Boot cache abstraction, providers, and production best practices.  
 > **Part 8 of the Spring Boot & Microservices Series**  
 > **Prerequisites:** Spring Boot basics, Java fundamentals
@@ -7864,3 +7866,7 @@ management:
 
 *Document Version: 1.0*
 *Last Updated: 2024*
+
+---
+
+**Navigation:** [← JUnit & Mockito](Part-7_JUnit-Mockito-Testing-Complete-Guide.md)

@@ -1,5 +1,7 @@
 # Spring Boot — Complete Learning Guide
 
+**Navigation:** [← Spring Framework](Part-1_Spring-Framework-Complete-Guide.md) · [Next: Spring Security →](Part-3_Spring-Security-Complete-Guide.md)
+
 > A comprehensive, interview-ready reference covering Spring Boot from fundamentals to production deployment.  
 > **Scope:** Spring Boot core features, auto-configuration, starters, Actuator, testing, and production readiness.  
 > **Prerequisites:** Familiarity with Spring Framework fundamentals (see companion Spring Framework guide).
@@ -4039,3 +4041,6 @@ spring.flyway.locations=classpath:db/migration
 > - [Spring Framework Complete Guide](./Spring-Framework-Complete-Guide.md)  
 > - Microservices with Spring Cloud (coming soon)
 
+---
+
+**Navigation:** [← Spring Framework](Part-1_Spring-Framework-Complete-Guide.md) · [Next: Spring Security →](Part-3_Spring-Security-Complete-Guide.md)

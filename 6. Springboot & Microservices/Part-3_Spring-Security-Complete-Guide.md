@@ -1,5 +1,7 @@
 # Spring Security — Complete Learning Guide
 
+**Navigation:** [← Spring Boot](Part-2_Spring-Boot-Complete-Guide.md) · [Next: JPA & Hibernate →](Part-4_JPA-Hibernate-Complete-Guide.md)
+
 > A comprehensive, interview-ready reference covering Spring Security from fundamentals to advanced enterprise patterns.  
 > **Scope:** Authentication, Authorization, OAuth2, JWT, CSRF/CORS, Method Security, and production hardening.  
 > **Prerequisites:** Familiarity with Spring Boot fundamentals (see companion guides).
@@ -3553,3 +3555,7 @@ http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
 > **Related Guides:**  
 > - [Spring Framework Complete Guide](./Spring-Framework-Complete-Guide.md)  
 > - [Spring Boot Complete Guide](./Spring-Boot-Complete-Guide.md)
+
+---
+
+**Navigation:** [← Spring Boot](Part-2_Spring-Boot-Complete-Guide.md) · [Next: JPA & Hibernate →](Part-4_JPA-Hibernate-Complete-Guide.md)

@@ -1,5 +1,7 @@
 # Microservices & Spring Cloud — Complete Guide (Part 1)
 
+**Navigation:** [← JPA & Hibernate](Part-4_JPA-Hibernate-Complete-Guide.md) · [Next: Microservices (Part 2) →](Part-6_Microservices-Spring-Cloud-Guide-Part2.md)
+
 > A comprehensive guide covering Microservices architecture with Spring Boot and Spring Cloud.  
 > **Part 1 Scope:** Fundamentals, Communication, Service Discovery, API Gateway, Config Management, Resilience Patterns  
 > **Part 2 Scope:** Distributed Tracing, Security, Event-Driven Architecture, Saga Patterns, Kubernetes Deployment
@@ -2596,3 +2598,7 @@ resilience4j:
 *Part 2 covers: Distributed Tracing, Security, Event-Driven Architecture, Saga Pattern, Docker/Kubernetes Deployment*
 
 *Last Updated: February 2026*
+
+---
+
+**Navigation:** [← JPA & Hibernate](Part-4_JPA-Hibernate-Complete-Guide.md) · [Next: Microservices (Part 2) →](Part-6_Microservices-Spring-Cloud-Guide-Part2.md)
