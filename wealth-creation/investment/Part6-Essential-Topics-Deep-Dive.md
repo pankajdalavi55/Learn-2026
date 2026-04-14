@@ -1599,3 +1599,13 @@ Additional Priorities:
 *This completes the 6-part Investment Mastery Series. You now have comprehensive knowledge across all essential investment topics.*
 
 *Next Suggested Reading: Case Study - ₹500 Crore Dream Strategy*
+
+
+## 5 Questions to ask before investing?
+
+1. Can this compound?
+2. who has control?
+3. what happens if it fails?
+4. Is the upside meaningful?
+5. Do you understand the risk?
+

@@ -1646,9 +1646,13 @@ Consumer.java → @KafkaListener
 
 ---
 
-> **Next Steps After This Guide:**
-> - Learn Kafka Streams for stream processing
-> - Explore Kafka Connect for data integration (JDBC, Elasticsearch, S3)
-> - Study Schema Registry (Avro/Protobuf) for schema evolution
-> - Practice with multi-broker clusters and failure scenarios
-> - Explore monitoring with Kafka UI, Confluent Control Center, or Grafana + JMX
+> **Continue to [Part 2 (Advanced)](./Apache-Kafka-Complete-Learning-Guide-Part2.md):**
+> - Kafka Streams for stream processing
+> - Kafka Connect for data integration (JDBC, Elasticsearch, S3, Debezium CDC)
+> - Schema Registry (Avro/Protobuf) for schema evolution
+> - Log Compaction, Multi-broker clusters, and failure scenarios
+> - Monitoring with Kafka UI, Prometheus, and Grafana
+> - Security (SSL/TLS, SASL, ACLs)
+> - Performance tuning and production best practices
+> - Design patterns: Event Sourcing, CQRS, Saga, Transactional Outbox
+> - Advanced Spring Boot Kafka patterns
