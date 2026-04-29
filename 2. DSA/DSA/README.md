@@ -14,115 +14,119 @@ Welcome to your comprehensive guide for LeetCode and HackerRank preparation! Thi
 - [Input/Output Handling](./02-Java-Basics/IO-Handling.md)
 - [Collections Framework](./02-Java-Basics/Collections-Framework.md)
 - [Comparators & Comparable](./02-Java-Basics/Comparators.md)
+- [Java 8 to 17 Features](./02-Java-Basics/Java8-to-17-Features.md)
 
 ### 3. Arrays
-- [Array Basics](./03-Arrays/01-Array-Basics.md)
-- [Two Pointer Technique](./03-Arrays/02-Two-Pointer.md)
-- [Sliding Window](./03-Arrays/03-Sliding-Window.md)
-- [Prefix Sum & Difference Array](./03-Arrays/04-Prefix-Sum.md)
-- [Kadane's Algorithm](./03-Arrays/05-Kadanes-Algorithm.md)
-- [Array Rotation & Reversal](./03-Arrays/06-Rotation-Reversal.md)
-- [Matrix Operations](./03-Arrays/07-Matrix.md)
-- [Practice Problems](./03-Arrays/Practice-Problems.md)
+- [Array Reference Sheet](./array.md)
+- [Array Basics](./03-Arrays/3.1-Array-Basics.md)
+- [Two Pointer Technique](./03-Arrays/3.2-Two-Pointer-Technique.md)
+- [Sliding Window](./03-Arrays/3.3-Sliding-Window.md)
+- [Prefix Sum & Difference Array](./03-Arrays/3.4-Prefix-Sum.md)
+- [Kadane's Algorithm](./03-Arrays/3.5-Kadanes-Algorithm.md)
+- [Array Rotation & Reversal](./03-Arrays/3.6-Array-Rotation.md)
+- [Matrix Operations](./03-Arrays/3.7-Matrix-Operations.md)
+- [Practice Problems](./03-Arrays/3.8-Practice-Problems.md)
 
 ### 4. Strings
-- [String Basics](./04-Strings/01-String-Basics.md)
-- [String Manipulation](./04-Strings/02-String-Manipulation.md)
-- [Pattern Matching](./04-Strings/03-Pattern-Matching.md)
-- [String Hashing](./04-Strings/04-String-Hashing.md)
-- [KMP Algorithm](./04-Strings/05-KMP-Algorithm.md)
-- [Rabin-Karp Algorithm](./04-Strings/06-Rabin-Karp.md)
-- [Anagrams & Palindromes](./04-Strings/07-Anagrams-Palindromes.md)
-- [Practice Problems](./04-Strings/Practice-Problems.md)
+- [Strings Summary](./04-Strings/4.0-Strings-Summary.md)
+- [String Basics](./04-Strings/4.1-String-Basics.md)
+- [String Manipulation](./04-Strings/4.2-String-Manipulation.md)
+- [Pattern Matching](./04-Strings/4.3-Pattern-Matching.md)
+- [String Hashing](./04-Strings/4.4-String-Hashing.md)
+- [KMP Algorithm](./04-Strings/4.5-KMP-Algorithm.md)
+- [Rabin-Karp Algorithm Part 1](./04-Strings/4.6-Rabin-Karp-Algorithm-Part1.md)
+- [Rabin-Karp Algorithm Part 2](./04-Strings/4.7-Rabin-Karp-Algorithm-Part2.md)
+- [Rabin-Karp Algorithm Part 3](./04-Strings/4.8-Rabin-Karp-Algorithm-Part3.md)
+- [Anagrams & Palindromes](./04-Strings/4.9-Anagrams-and-Palindromes.md)
+- [Practice Problems](./04-Strings/4.10-Practice-Problems.md)
 
 ### 5. Searching Algorithms
-- [Linear Search](./05-Searching/01-Linear-Search.md)
-- [Binary Search](./05-Searching/02-Binary-Search.md)
-- [Binary Search Variations](./05-Searching/03-Binary-Search-Variations.md)
-- [Ternary Search](./05-Searching/04-Ternary-Search.md)
-- [Practice Problems](./05-Searching/Practice-Problems.md)
+- [Linear Search](./05-Searching-Algorithms/5.1-Linear-Search.md)
+- [Binary Search](./05-Searching-Algorithms/5.2-Binary-Search.md)
+- [Binary Search Variations](./05-Searching-Algorithms/5.3-Binary-Search-Variations.md)
+- [Ternary Search](./05-Searching-Algorithms/5.4-Ternary-Search.md)
+- [Practice Problems](./05-Searching-Algorithms/5.5-Practice-Problems.md)
 
 ### 6. Sorting Algorithms
-- [Bubble Sort](./06-Sorting/01-Bubble-Sort.md)
-- [Selection Sort](./06-Sorting/02-Selection-Sort.md)
-- [Insertion Sort](./06-Sorting/03-Insertion-Sort.md)
-- [Merge Sort](./06-Sorting/04-Merge-Sort.md)
-- [Quick Sort](./06-Sorting/05-Quick-Sort.md)
-- [Heap Sort](./06-Sorting/06-Heap-Sort.md)
-- [Counting Sort](./06-Sorting/07-Counting-Sort.md)
-- [Radix Sort](./06-Sorting/08-Radix-Sort.md)
-- [Practice Problems](./06-Sorting/Practice-Problems.md)
+- [Sorting Algorithms Cheat Sheet](./06-Sorting-Algorithms/6.0-Sorting-Algorithms-Cheat-Sheet.md)
+- [Bubble Sort](./06-Sorting-Algorithms/6.1-Bubble-Sort.md)
+- [Selection Sort](./06-Sorting-Algorithms/6.2-Selection-Sort.md)
+- [Insertion Sort](./06-Sorting-Algorithms/6.3-Insertion-Sort.md)
+- [Merge Sort](./06-Sorting-Algorithms/6.4-Merge-Sort.md)
+- [Quick Sort](./06-Sorting-Algorithms/6.5-Quick-Sort.md)
+- [Heap Sort](./06-Sorting-Algorithms/6.6-Heap-Sort.md)
+- [Counting Sort](./06-Sorting-Algorithms/6.7-Counting-Sort.md)
+- [Radix Sort](./06-Sorting-Algorithms/6.8-Radix-Sort.md)
 
 ### 7. Linked Lists
-- [Singly Linked List](./07-Linked-Lists/01-Singly-Linked-List.md)
-- [Doubly Linked List](./07-Linked-Lists/02-Doubly-Linked-List.md)
-- [Circular Linked List](./07-Linked-Lists/03-Circular-Linked-List.md)
-- [Fast & Slow Pointer](./07-Linked-Lists/04-Fast-Slow-Pointer.md)
-- [Reversal Techniques](./07-Linked-Lists/05-Reversal.md)
-- [Practice Problems](./07-Linked-Lists/Practice-Problems.md)
+- [Singly Linked List](./07-Linked-Lists/7.1-Singly-Linked-List.md)
+- [Doubly Linked List](./07-Linked-Lists/7.2-Doubly-Linked-List.md)
+- [Circular Linked List](./07-Linked-Lists/7.3-Circular-Linked-List.md)
+- [Fast & Slow Pointer](./07-Linked-Lists/7.4-Fast-Slow-Pointer.md)
+- [Reversal Techniques](./07-Linked-Lists/7.5-Reversal-Techniques.md)
+- [Practice Problems](./07-Linked-Lists/7.6-Practice-Problems.md)
 
 ### 8. Stacks
-- [Stack Basics](./08-Stacks/01-Stack-Basics.md)
-- [Stack using Array](./08-Stacks/02-Stack-Array.md)
-- [Stack using LinkedList](./08-Stacks/03-Stack-LinkedList.md)
-- [Monotonic Stack](./08-Stacks/04-Monotonic-Stack.md)
-- [Expression Evaluation](./08-Stacks/05-Expression-Evaluation.md)
-- [Practice Problems](./08-Stacks/Practice-Problems.md)
+- [Stack Basics](./08-Stacks/8.1-Stack-Basics.md)
+- [Stack using Array](./08-Stacks/8.2-Stack-Using-Array.md)
+- [Stack using LinkedList](./08-Stacks/8.3-Stack-Using-Linked-List.md)
+- [Monotonic Stack](./08-Stacks/8.4-Monotonic-Stack.md)
+- [Expression Evaluation](./08-Stacks/8.5-Expression-Evaluation.md)
+- [Practice Problems](./08-Stacks/8.6-Stack-Practice-Problems.md)
 
 ### 9. Queues
-- [Queue Basics](./09-Queues/01-Queue-Basics.md)
-- [Circular Queue](./09-Queues/02-Circular-Queue.md)
-- [Deque](./09-Queues/03-Deque.md)
-- [Priority Queue](./09-Queues/04-Priority-Queue.md)
-- [Monotonic Queue](./09-Queues/05-Monotonic-Queue.md)
+- [Queue Basics](./09-Queues/9.1-Queue-Basics.md)
+- [Circular Queue](./09-Queues/9.2-Circular-Queue.md)
+- [Deque](./09-Queues/9.3-Deque.md)
+- [Priority Queue](./09-Queues/9.4-Priority-Queue.md)
 - [Practice Problems](./09-Queues/Practice-Problems.md)
 
 ### 10. Hashing
-- [HashMap Basics](./10-Hashing/01-HashMap-Basics.md)
-- [HashSet Operations](./10-Hashing/02-HashSet.md)
-- [Collision Handling](./10-Hashing/03-Collision-Handling.md)
-- [Hashing Techniques](./10-Hashing/04-Hashing-Techniques.md)
-- [Practice Problems](./10-Hashing/Practice-Problems.md)
+- [HashMap Basics](./10-Hashing/10.1-HashMap-Basics.md)
+- [HashSet Operations](./10-Hashing/10.2-HashSet.md)
+- [Collision Handling](./10-Hashing/10.3-Collision-Handling.md)
+- [Hashing Techniques](./10-Hashing/10.4-Hashing-Techniques.md)
+- [Practice Problems](./10-Hashing/10.5-Practice-Problems.md)
 
 ### 11. Trees
-- [Binary Tree Basics](./11-Trees/01-Binary-Tree-Basics.md)
-- [Tree Traversals](./11-Trees/02-Tree-Traversals.md)
-- [Binary Search Tree](./11-Trees/03-BST.md)
-- [AVL Tree](./11-Trees/04-AVL-Tree.md)
-- [Segment Tree](./11-Trees/05-Segment-Tree.md)
-- [Fenwick Tree (BIT)](./11-Trees/06-Fenwick-Tree.md)
-- [Trie](./11-Trees/07-Trie.md)
-- [Practice Problems](./11-Trees/Practice-Problems.md)
+- [Binary Tree Basics](./11-Trees/11.1-Binary-Tree-Basics.md)
+- [Tree Traversals](./11-Trees/11.2-Tree-Traversals.md)
+- [Binary Search Tree](./11-Trees/11.3-BST.md)
+- [AVL Tree](./11-Trees/11.4-AVL-Tree.md)
+- [Segment Tree](./11-Trees/11.5-Segment-Tree.md)
+- [Fenwick Tree (BIT)](./11-Trees/11.6-Fenwick-Tree.md)
+- [Trie](./11-Trees/11.7-Trie.md)
+- [Practice Problems](./11-Trees/11.8-Practice-Problems.md)
 
 ### 12. Heaps
-- [Heap Basics](./12-Heaps/01-Heap-Basics.md)
-- [Min Heap & Max Heap](./12-Heaps/02-Min-Max-Heap.md)
-- [Heap Operations](./12-Heaps/03-Heap-Operations.md)
-- [Top K Problems](./12-Heaps/04-Top-K-Problems.md)
-- [Practice Problems](./12-Heaps/Practice-Problems.md)
+- Heap Basics *(Coming Soon)*
+- Min Heap & Max Heap *(Coming Soon)*
+- Heap Operations *(Coming Soon)*
+- Top K Problems *(Coming Soon)*
+- Practice Problems *(Coming Soon)*
 
 ### 13. Graphs
-- [Graph Representation](./13-Graphs/01-Graph-Representation.md)
-- [BFS (Breadth-First Search)](./13-Graphs/02-BFS.md)
-- [DFS (Depth-First Search)](./13-Graphs/03-DFS.md)
-- [Topological Sort](./13-Graphs/04-Topological-Sort.md)
-- [Shortest Path Algorithms](./13-Graphs/05-Shortest-Path.md)
+- Graph Representation *(Coming Soon)*
+- BFS (Breadth-First Search) *(Coming Soon)*
+- DFS (Depth-First Search) *(Coming Soon)*
+- Topological Sort *(Coming Soon)*
+- Shortest Path Algorithms *(Coming Soon)*
   - Dijkstra's Algorithm
   - Bellman-Ford Algorithm
   - Floyd-Warshall Algorithm
-- [Minimum Spanning Tree](./13-Graphs/06-MST.md)
+- Minimum Spanning Tree *(Coming Soon)*
   - Kruskal's Algorithm
   - Prim's Algorithm
-- [Union-Find (Disjoint Set)](./13-Graphs/07-Union-Find.md)
-- [Cycle Detection](./13-Graphs/08-Cycle-Detection.md)
-- [Practice Problems](./13-Graphs/Practice-Problems.md)
+- Union-Find (Disjoint Set) *(Coming Soon)*
+- Cycle Detection *(Coming Soon)*
+- Practice Problems *(Coming Soon)*
 
 ### 14. Dynamic Programming
-- [DP Introduction](./14-Dynamic-Programming/01-DP-Introduction.md)
-- [Memoization vs Tabulation](./14-Dynamic-Programming/02-Memoization-Tabulation.md)
-- [1D DP Problems](./14-Dynamic-Programming/03-1D-DP.md)
-- [2D DP Problems](./14-Dynamic-Programming/04-2D-DP.md)
-- [Classic DP Problems](./14-Dynamic-Programming/05-Classic-Problems.md)
+- DP Introduction *(Coming Soon)*
+- Memoization vs Tabulation *(Coming Soon)*
+- 1D DP Problems *(Coming Soon)*
+- 2D DP Problems *(Coming Soon)*
+- Classic DP Problems *(Coming Soon)*
   - Fibonacci Series
   - Climbing Stairs
   - Coin Change
@@ -131,52 +135,52 @@ Welcome to your comprehensive guide for LeetCode and HackerRank preparation! Thi
   - Knapsack Problem
   - Edit Distance
   - Matrix Chain Multiplication
-- [DP on Trees](./14-Dynamic-Programming/06-DP-on-Trees.md)
-- [DP on Graphs](./14-Dynamic-Programming/07-DP-on-Graphs.md)
-- [Practice Problems](./14-Dynamic-Programming/Practice-Problems.md)
+- DP on Trees *(Coming Soon)*
+- DP on Graphs *(Coming Soon)*
+- Practice Problems *(Coming Soon)*
 
 ### 15. Greedy Algorithms
-- [Greedy Approach](./15-Greedy/01-Greedy-Approach.md)
-- [Activity Selection](./15-Greedy/02-Activity-Selection.md)
-- [Huffman Coding](./15-Greedy/03-Huffman-Coding.md)
-- [Interval Problems](./15-Greedy/04-Interval-Problems.md)
-- [Practice Problems](./15-Greedy/Practice-Problems.md)
+- Greedy Approach *(Coming Soon)*
+- Activity Selection *(Coming Soon)*
+- Huffman Coding *(Coming Soon)*
+- Interval Problems *(Coming Soon)*
+- Practice Problems *(Coming Soon)*
 
 ### 16. Backtracking
-- [Backtracking Basics](./16-Backtracking/01-Backtracking-Basics.md)
-- [N-Queens Problem](./16-Backtracking/02-N-Queens.md)
-- [Sudoku Solver](./16-Backtracking/03-Sudoku-Solver.md)
-- [Permutations & Combinations](./16-Backtracking/04-Permutations-Combinations.md)
-- [Subset Sum](./16-Backtracking/05-Subset-Sum.md)
-- [Practice Problems](./16-Backtracking/Practice-Problems.md)
+- Backtracking Basics *(Coming Soon)*
+- N-Queens Problem *(Coming Soon)*
+- Sudoku Solver *(Coming Soon)*
+- Permutations & Combinations *(Coming Soon)*
+- Subset Sum *(Coming Soon)*
+- Practice Problems *(Coming Soon)*
 
 ### 17. Bit Manipulation
-- [Bitwise Operators](./17-Bit-Manipulation/01-Bitwise-Operators.md)
-- [Common Bit Tricks](./17-Bit-Manipulation/02-Bit-Tricks.md)
-- [Bit Masking](./17-Bit-Manipulation/03-Bit-Masking.md)
-- [Practice Problems](./17-Bit-Manipulation/Practice-Problems.md)
+- Bitwise Operators *(Coming Soon)*
+- Common Bit Tricks *(Coming Soon)*
+- Bit Masking *(Coming Soon)*
+- Practice Problems *(Coming Soon)*
 
 ### 18. Mathematical Algorithms
-- [Number Theory Basics](./18-Mathematical/01-Number-Theory.md)
-- [Prime Numbers](./18-Mathematical/02-Prime-Numbers.md)
-- [GCD & LCM](./18-Mathematical/03-GCD-LCM.md)
-- [Modular Arithmetic](./18-Mathematical/04-Modular-Arithmetic.md)
-- [Combinatorics](./18-Mathematical/05-Combinatorics.md)
-- [Practice Problems](./18-Mathematical/Practice-Problems.md)
+- Number Theory Basics *(Coming Soon)*
+- Prime Numbers *(Coming Soon)*
+- GCD & LCM *(Coming Soon)*
+- Modular Arithmetic *(Coming Soon)*
+- Combinatorics *(Coming Soon)*
+- Practice Problems *(Coming Soon)*
 
 ### 19. Advanced Topics
-- [Segment Tree Advanced](./19-Advanced/01-Segment-Tree-Advanced.md)
-- [Square Root Decomposition](./19-Advanced/02-Square-Root-Decomposition.md)
-- [Mo's Algorithm](./19-Advanced/03-Mos-Algorithm.md)
-- [Heavy-Light Decomposition](./19-Advanced/04-Heavy-Light-Decomposition.md)
-- [Suffix Array & LCP](./19-Advanced/05-Suffix-Array.md)
+- Segment Tree Advanced *(Coming Soon)*
+- Square Root Decomposition *(Coming Soon)*
+- Mo's Algorithm *(Coming Soon)*
+- Heavy-Light Decomposition *(Coming Soon)*
+- Suffix Array & LCP *(Coming Soon)*
 
 ### 20. Problem-Solving Strategies
-- [Pattern Recognition](./20-Strategies/01-Pattern-Recognition.md)
-- [Time Optimization Techniques](./20-Strategies/02-Time-Optimization.md)
-- [Space Optimization Techniques](./20-Strategies/03-Space-Optimization.md)
-- [Edge Cases & Corner Cases](./20-Strategies/04-Edge-Cases.md)
-- [Debugging Strategies](./20-Strategies/05-Debugging.md)
+- Pattern Recognition *(Coming Soon)*
+- Time Optimization Techniques *(Coming Soon)*
+- Space Optimization Techniques *(Coming Soon)*
+- Edge Cases & Corner Cases *(Coming Soon)*
+- Debugging Strategies *(Coming Soon)*
 
 ---
 
