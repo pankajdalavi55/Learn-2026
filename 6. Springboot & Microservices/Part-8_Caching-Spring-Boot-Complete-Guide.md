@@ -26,6 +26,11 @@
 
 **Caching** is a technique for storing frequently accessed data in a high-speed storage layer (cache) to reduce the time and resources needed to fetch that data from its original source (database, API, file system).
 
+Temporary storage of frequently accessed data to reduce:
+- DB calls
+- network latency
+- CPU work
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                         CACHING CONCEPT                                          │
