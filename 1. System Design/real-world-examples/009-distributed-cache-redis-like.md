@@ -1,5 +1,7 @@
 # Complete System Design: Distributed Cache System (Redis-like)
 
+> **Related:** [Redis Complete Learning Guide — Part 1](../Redis/01-Redis-Complete-Learning-Guide.md) (using Redis) | [Part 2](../Redis/02-Redis-Complete-Learning-Guide-Part2.md) (cluster, production) | [Caching — Complete Guide](../Caching-Complete-Guide.md) (cache patterns)
+
 > **Complexity Level:** Advanced  
 > **Estimated Time:** 60-90 minutes in interview  
 > **Real-World Examples:** Redis, Memcached, Amazon ElastiCache, Hazelcast, Apache Ignite

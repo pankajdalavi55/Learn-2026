@@ -1,5 +1,7 @@
 # Complete System Design: URL Shortener (Production-Ready)
 
+> **Related:** [Redis Guide Part 2 §12.8 — URL Shortener Hot Path](../Redis/02-Redis-Complete-Learning-Guide-Part2.md#128-url-shortener-hot-path)
+
 > **Complexity Level:** Beginner to Intermediate  
 > **Estimated Time:** 45-60 minutes in interview  
 > **Real-World Examples:** bit.ly, TinyURL, goo.gl (deprecated)

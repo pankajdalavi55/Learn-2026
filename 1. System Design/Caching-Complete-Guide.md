@@ -1254,6 +1254,8 @@ redis-cli --bigkeys
 
 ## 10. Tech-Specific: Redis, Memcached, Spring Boot
 
+> **See also:** For a full Redis deep dive (data structures, cluster, Spring Boot, real-world examples), see [Redis Complete Learning Guide — Part 1](./Redis/01-Redis-Complete-Learning-Guide.md) and [Part 2 (Advanced)](./Redis/02-Redis-Complete-Learning-Guide-Part2.md). This section summarizes Redis in the caching context.
+
 ### 10.1 How Redis Works Internally
 
 **Single-threaded event loop:**

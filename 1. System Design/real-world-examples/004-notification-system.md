@@ -1,5 +1,7 @@
 # Complete System Design: Notification System (Production-Ready)
 
+> **Related:** [Redis Guide Part 2 §12.7 — Notification Fan-Out](../Redis/02-Redis-Complete-Learning-Guide-Part2.md#127-notification-fan-out)
+
 > **Complexity Level:** Intermediate to Advanced  
 > **Estimated Time:** 45-60 minutes in interview  
 > **Real-World Examples:** Firebase Cloud Messaging (FCM), AWS SNS, Twilio, SendGrid, Apple APNs

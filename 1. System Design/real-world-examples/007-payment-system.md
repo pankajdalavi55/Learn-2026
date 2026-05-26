@@ -1,5 +1,7 @@
 # Complete System Design: Payment Processing System (Production-Ready)
 
+> **Related:** [Redis Guide Part 2 §12.6 — Idempotent Payment API](../Redis/02-Redis-Complete-Learning-Guide-Part2.md#126-idempotent-payment-api)
+
 > **Complexity Level:** Advanced  
 > **Estimated Time:** 60-75 minutes in interview  
 > **Real-World Examples:** Stripe, PayPal, Square, Razorpay, Adyen

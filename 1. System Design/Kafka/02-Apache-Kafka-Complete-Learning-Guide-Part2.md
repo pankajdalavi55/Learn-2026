@@ -2,7 +2,7 @@
 
 > A structured intermediate-to-advanced guide continuing from Part 1.  
 > **Focus:** Kafka Streams, Kafka Connect, Schema Registry, Security, Performance Tuning, Design Patterns, and Production Readiness.  
-> **Prerequisite:** Complete understanding of [Part 1](./Apache-Kafka-Complete-Learning-Guide.md) (Core concepts, architecture, Spring Boot basics).
+> **Prerequisite:** Complete understanding of [Part 1](./01-Apache-Kafka-Complete-Learning-Guide.md) (Core concepts, architecture, Spring Boot basics).
 
 ---
 

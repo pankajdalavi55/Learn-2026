@@ -37,7 +37,14 @@ The essential components you'll use in every system design. Master these before 
 - **Networking & API Design:** REST vs gRPC, versioning, pagination, rate limiting, auth
 - **Load Balancing:** L4 vs L7, algorithms, sticky sessions
 - **Databases:** SQL (indexing, transactions, sharding), NoSQL (types, partitioning)
-- **Caching:** Strategies, eviction policies, cache patterns
+- **Caching:** Strategies, eviction policies, cache patterns — see also [Caching — Complete FAANG Interview Guide](./Caching-Complete-Guide.md)
+
+### Technology Deep Dives (Optional, High Value)
+
+Focused guides for backend interviews with Spring Boot integration:
+
+- [Apache Kafka — Part 1](./Kafka/01-Apache-Kafka-Complete-Learning-Guide.md) | [Part 2 (Advanced)](./Kafka/02-Apache-Kafka-Complete-Learning-Guide-Part2.md)
+- [Redis — Part 1](./Redis/01-Redis-Complete-Learning-Guide.md) | [Part 2 (Advanced)](./Redis/02-Redis-Complete-Learning-Guide-Part2.md)
 
 ### [Phase 2: Distributed Systems Core](./02-distributed-systems.md)
 The concepts that separate senior engineers from mid-level. These are where most candidates struggle.

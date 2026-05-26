@@ -1646,7 +1646,7 @@ Consumer.java → @KafkaListener
 
 ---
 
-> **Continue to [Part 2 (Advanced)](./Apache-Kafka-Complete-Learning-Guide-Part2.md):**
+> **Continue to [Part 2 (Advanced)](./02-Apache-Kafka-Complete-Learning-Guide-Part2.md):**
 > - Kafka Streams for stream processing
 > - Kafka Connect for data integration (JDBC, Elasticsearch, S3, Debezium CDC)
 > - Schema Registry (Avro/Protobuf) for schema evolution

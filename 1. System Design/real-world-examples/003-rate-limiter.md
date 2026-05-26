@@ -1,5 +1,7 @@
 # Complete System Design: Distributed Rate Limiter (Production-Ready)
 
+> **Related:** [Redis Guide Part 2 §12.1 — Sliding Window Rate Limiter](../Redis/02-Redis-Complete-Learning-Guide-Part2.md#121-api-rate-limiter-sliding-window)
+
 > **Complexity Level:** Intermediate to Advanced  
 > **Estimated Time:** 45-60 minutes in interview  
 > **Real-World Examples:** Cloudflare Rate Limiting, AWS API Gateway, Stripe API, GitHub API
