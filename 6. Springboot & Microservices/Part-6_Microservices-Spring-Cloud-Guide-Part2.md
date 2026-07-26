@@ -851,6 +851,8 @@ spring:
 
 ## 3. Event-Driven Architecture
 
+> **Deep dive:** See [Part 9: Event-Driven Architecture — Complete Guide](Part-9_Event-Driven-Architecture-Complete-Guide.md) for comprehensive coverage including Kafka/RabbitMQ implementations, Outbox pattern, Saga patterns, Event Sourcing, CQRS, and production best practices.
+
 ### 3.1 Event-Driven Patterns
 
 ```

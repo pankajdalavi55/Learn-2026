@@ -1,6 +1,6 @@
 # Caching in Spring Boot — Complete Guide
 
-**Navigation:** [← JUnit & Mockito](Part-7_JUnit-Mockito-Testing-Complete-Guide.md)
+**Navigation:** [← JUnit & Mockito](Part-7_JUnit-Mockito-Testing-Complete-Guide.md) · [Next: Event-Driven Architecture →](Part-9_Event-Driven-Architecture-Complete-Guide.md)
 
 > A comprehensive guide covering caching fundamentals, Spring Boot cache abstraction, providers, and production best practices.  
 > **Part 8 of the Spring Boot & Microservices Series**  
@@ -7865,6 +7865,8 @@ management:
 - Part-5: Microservices Architecture Part 1
 - Part-6: Microservices Architecture Part 2
 - Part-7: JUnit & Mockito Testing Guide
+- Part-8: Caching in Spring Boot
+- Part-9: Event-Driven Architecture
 - Architect Decision Guide: SpringBoot Microservices
 
 ---
@@ -7874,4 +7876,4 @@ management:
 
 ---
 
-**Navigation:** [← JUnit & Mockito](Part-7_JUnit-Mockito-Testing-Complete-Guide.md)
+**Navigation:** [← JUnit & Mockito](Part-7_JUnit-Mockito-Testing-Complete-Guide.md) · [Next: Event-Driven Architecture →](Part-9_Event-Driven-Architecture-Complete-Guide.md)
